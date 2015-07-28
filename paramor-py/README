@@ -1,0 +1,8 @@
+usage:
+
+	./paramor.py train.gz test.gz sig.gz out.gz
+
+		- train.gz ... training data
+		- test.gz  ... text to be analyzed
+		- sig.gz   ... signatures output file
+		- out.gz   ... output of analysis of test.gz
