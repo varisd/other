@@ -1,0 +1,11 @@
+- generalize scenarios (language selection)
+- improve NodeInfoGetter - use Alignment to determine parent/child relationships
+- make statistics about old_node* -> new_node* category changes
+	-> choose which categories we want to predict/change by classification
+
+experimenting:
+- multiple ScikitLearn models? (each predicting different subset of Iset classes)
+
+two methods of evaluation:
+- predicted categories - classification (model developement)
+- BLEU

@@ -1,0 +1,10 @@
+#!/bin/bash
+renice 10 $$
+
+dir=`mktemp -d --tmpdir=/a/LRC_TMP/varis/mlfix/jobs`
+
+T="treex -p --survive --jobs=100 --mem=15G --workdir=$dir --name=collect_edits"
+#T="treex -e DEBUG"
+
+$T MLFix::CollectEdits print_columns=1 language=cs selector=  to=. config_file=~/mlfix/config/all_fields_noparse.yaml \
+-- collect_autodesk_processed/translation*.treex.gz

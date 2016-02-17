@@ -1,0 +1,19 @@
+#!/bin/bash
+# generate list of all "possibly extractable" features
+
+#prefixes="old new src parentsrc parentold"
+prefixes="src parentsrc"
+nodes="node parent grandparent precchild follchild precsibling follsibling"
+attributes="form lemma tag afun edgedirection childno lchildno rchildno pos nountype nametype adjtype prontype numtype numform numvalue verbtype advtype adpostype conjtype parttype punctype puncside synpos morphpos poss reflex foreign abbr hyph typo echo negativeness definiteness gender animateness number case prepcase degree person politeness possgender possperson possnumber possednumber absperson ergperson datperson absnumber ergnumber datnumber abspoliteness ergpoliteness datpoliteness erggender datgender position subcat verbform mood tense voice aspect variant style tagset other"
+for prefix in $prefixes; do
+	for node in $nodes; do
+		if [[ $prefix == "old" || $prefix == "new" || $prefix == "parentold" ]]; then
+			if [[ $node != "node" ]]; then
+				continue
+			fi
+		fi
+		for attr in $attributes; do
+			echo "${prefix}_${node}_${attr}";
+		done
+	done
+done

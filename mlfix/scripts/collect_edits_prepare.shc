@@ -1,0 +1,23 @@
+#!/bin/bash
+# prepare the training data for feature extraction
+# run "make init totreex" prior to this script
+renice 10 $$
+
+INPUT_DIR="2016-02-01_19-02-59_0215422586_collect_autodesk"
+OUTPUT_DIR="collect_autodesk_processed"
+
+dir=`mktemp -d --tmpdir=/a/LRC_TMP/varis/mlfix/jobs`
+
+T="treex -p --survive --jobs=100 --mem=15G --workdir=$dir --name=collect_edits"
+#T="treex -p --survive --jobs=1 --mem=15G --workdir=$dir --name=collect_edits"
+
+# TODO: parse reference -> align -> get mt dependency tree
+#scenarios/cs_ref_analysis_2.scen
+$T scenarios/cs_analysis_1_morphodita.scen \
+scenarios/cs_ref_analysis_1_morphodita.scen \
+scenarios/align_ref.scen \
+scenarios/en_analysis_1_morphodita.scen \
+scenarios/en_analysis_2.scen \
+scenarios/run_mgiza.scen \
+Write::Treex substitute={$INPUT_DIR}{$OUTPUT_DIR} \
+-- $INPUT_DIR/translation*.treex.gz
