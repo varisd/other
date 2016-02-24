@@ -1,1 +1,1 @@
-Align::A::AlignMGiza dir_or_sym=intersection selector= from_language=en to_language=cs model_from_share=en-cs tmp_dir=/tmp cpu_cores=1
+Align::A::AlignMGiza dir_or_sym=intersection selector= from_language=cs to_language=en model_from_share=cs-en tmp_dir=/tmp cpu_cores=1

@@ -61,8 +61,8 @@ test:
 		DATA_EN=data/en.txt DATA_CS=data/csw.txt REFERENCE_CS=data/cs.txt
 
 # default without init
-# TODO: redo default example
-default_ni:   totreex tag run_giza ner_en parse fix deepfix write_sentences eval
+#default_ni:   totreex tag run_giza ner_en parse fix deepfix write_sentences eval
+default_ni: totreex tag run_giza ner_en parse fix write_sentences eval
 
 # default behaviour: try to interpret the target as scenario file name
 # e.g. if you type "make fix_new" and there is a scenarios/fix_new.scen file,
@@ -163,93 +163,27 @@ parse_backup:
 # back up parsed files without fixes
 	cp $(DIRNAME)/translation*.treex.gz $(DIRNAME)/parsed
 
+# TODO: add scenario to create mt dep. tree through the alignment
 parse_src:
 	$E SRC_ANALYSIS_2_SCEN=$(SRC_ANALYSIS_2_SCEN)
 	$(TREEXP) -s \
 	scenarios/$(SRC_ANALYSIS_2_SCEN) \
 	-- $(DIRNAME)/translation*.treex.gz
 
-#TGT_PARSING_MODEL=
-#parse_tgt_with_model:
-#	$E  TGT_PARSING_MODEL=$(TGT_PARSING_MODEL)
-#	$(TREEXP) -s \
-#	W2A::CS::ParseMSTperl language=cs model_from_share=0 model_dir=/ha/work/people/rosa/models/  model_name=$(CS_PARSING_MODEL) use_aligned_tree=1 alignment_language=en alignment_type=intersection alignment_is_backwards=1 \
-#	W2A::CS::LabelMIRA language=cs model_name=pcedt_wors_para use_aligned_tree=1 alignment_language=en alignment_type=intersection alignment_is_backwards=1 \
-#	A2A::GuessIsMember language=cs \
-#	-- $(DIRNAME)/translation*.treex.gz
-#	@-mkdir $(DIRNAME)/parsed
-# back up parsed files without fixes
-#	cp $(DIRNAME)/translation*.treex.gz $(DIRNAME)/parsed
-
-#MLFIX_MAGIC=
-#MLFIX_PARAMS=dont_try_switch_number=0 form_recombination=0 magic=$(MLFIX_MAGIC)
-#MODEL_TYPE=odt
-#MLFIX_YAML_gen=mlfix_v2_gen_dt_crucial.yaml
-#MLFIX_YAML_num=mlfix_v2_num_dt_crucial.yaml
-#MLFIX_YAML_cas=mlfix_v2_cas_dt_crucial.yaml
-#MLFIX_MODEL_gen=dt_v2_gen_2M_crucial.model
-#MLFIX_MODEL_num=dt_v2_num_2M_crucial.model
-#MLFIX_MODEL_cas=dt_v2_cas_2M_crucial.model
-#MLFIX_cas_params=c_cas_config_file=mlf/config/$(MLFIX_YAML_cas) c_cas_model_file=mlf/model/$(MLFIX_MODEL_cas)
-#MLFIX_gen_params=c_gen_config_file=mlf/config/$(MLFIX_YAML_gen) c_gen_model_file=mlf/model/$(MLFIX_MODEL_gen)
-#MLFIX_num_params=c_num_config_file=mlf/config/$(MLFIX_YAML_num) c_num_model_file=mlf/model/$(MLFIX_MODEL_num)
-
 # TODO: revision, change, fix...
-mlfix: fix_prepare_new mlfix_run
+MLFIX_SCEN=mlfix.scen
+mlfix: fix_prepare mlfix_run
 mlfix_run:
 	$E
-	$(TREEXP) -s Depfix::EN2CS::MLFix language=cs selector=T source_language=en log_to_console=1 \
-		$(MLFIX_PARAMS) model_type=$(MODEL_TYPE) $(MLFIX_cas_params) $(MLFIX_gen_params) $(MLFIX_num_params)  \
+	$(TREEXP) -s \
+	scenarios/$(MLFIX_SCEN) \
 	-- $(DIRNAME)/translation*.treex.gz
 	$(TREEX) \
-	Util::SetGlobal language=cs selector=T source_language=en \
-	scenarios/write_sentences.scen \
+	Util::SetGlobal language=cs selector=T source_language=$(LANG_SRC) \
+	scenarios/write_sentences.scen
 	-- $(DIRNAME)/translation*.treex.gz \
 	> $(DIRNAME)/mlfix_output.txt
 
-mlfix_nc: fix_prepare_new mlfix_nc_run
-mlfix_nc_run:
-	$E
-	$(TREEXP) -s Depfix::EN2CS::MLFix_nc language=cs selector=T source_language=en log_to_console=1 \
-		$(MLFIX_PARAMS) model_type=$(MODEL_TYPE) $(MLFIX_cas_params) $(MLFIX_num_params)  \
-	-- $(DIRNAME)/translation*.treex.gz
-	$(TREEX) \
-	Util::SetGlobal language=cs selector=T source_language=en \
-	scenarios/write_sentences.scen \
-	-- $(DIRNAME)/translation*.treex.gz \
-	> $(DIRNAME)/mlfix_output.txt
-
-mlfix_cas: fix_prepare_new mlfix_cas_run
-mlfix_cas_run:
-	$E
-	$(TREEXP) -s Depfix::EN2CS::MLFix_cas language=cs selector=T source_language=en log_to_console=1 \
-		$(MLFIX_PARAMS) model_type=$(MODEL_TYPE)  $(MLFIX_cas_params)   \
-	-- $(DIRNAME)/translation*.treex.gz
-	$(TREEX) \
-	Util::SetGlobal language=cs selector=T source_language=en \
-	scenarios/write_sentences.scen \
-	-- $(DIRNAME)/translation*.treex.gz \
-	> $(DIRNAME)/mlfix_output.txt
-
-# MLFix gnc
-# mlfix: fix_prepare_new
-# 	$E
-# 	$(TREEXP) -s Depfix::EN2CS::MLFix_gnc language=cs selector=T source_language=en log_to_console=1 $(MLFIX_PARAMS) \
-# 		config_file=mlf/config/$(MLFIX_YAML) model_file=mlf/model/$(MLFIX_MODEL) model_type=$(MODEL_TYPE) \
-# 	-- $(DIRNAME)/translation*.treex.gz
-# 	$(TREEX) \
-# 	Util::SetGlobal language=cs selector=T source_language=en \
-# 	scenarios/write_sentences.scen \
-# 	-- $(DIRNAME)/translation*.treex.gz \
-# 	> $(DIRNAME)/mlfix_output.txt
-
-# MLFIX_cas
-#	$(TREEXP) -s Depfix::EN2CS::MLFix_cas language=cs selector=T source_language=en log_to_console=1 dont_try_switch_number=1 \
-#		c_cas_config_file=mlf/config/$(MLFIX_YAML) c_cas_model_file=mlf/model/$(MLFIX_MODEL) model_type=$(MODEL_TYPE) \
-
-
-# prepare for fixing and run the actual Depfix fix rules
-fix: restore_parsed fix_prepare ner_cs fix_run
 
 # restore parsed files without fixes
 restore_parsed:
@@ -257,128 +191,17 @@ restore_parsed:
 	cp $(DIRNAME)/parsed/translation*.treex.gz $(DIRNAME)
 
 # prepare for fixing but do not fix
-FIX_PREPARE_SCEN=fix_prepare.scen
-fix_prepare:
+NER_TGT_SCEN=ner_cs.scen
+FIX_PREPARE_SCEN=fix_prepare_new.scen
+fix_prepare: restore_parsed
 	$E
 	$(TREEXP) -s \
 	scenarios/$(FIX_PREPARE_SCEN) \
-	-- $(DIRNAME)/translation*.treex.gz
-
-NER_CS_SCEN=ner_cs.scen
-ner_cs:
-	$E
-	$(TREEXP) -s \
-	scenarios/$(NER_CS_SCEN) \
-	-- $(DIRNAME)/translation*.treex.gz
-
-# prepare for fixing but do not fix
-FIX_PREPARE_NEW_SCEN=fix_prepare_new.scen
-fix_prepare_new: restore_parsed
-	$E
-	$(TREEXP) -s \
-	scenarios/$(FIX_PREPARE_NEW_SCEN) \
-	scenarios/ner_cs.scen \
-	-- $(DIRNAME)/translation*.treex.gz
-
-# prepare for fixing but do not fix
-fix_prepare_norest:
-	$E
-	$(TREEXP) -s \
-	scenarios/fix_prepare.scen \
-	scenarios/ner_cs.scen \
-	-- $(DIRNAME)/translation*.treex.gz
-
-# run the actual Depfix fix rules
-BEFORE_FIX=
-FIX_SCEN=fix.scen
-fix_run:
-	$E BEFORE_FIX=$(BEFORE_FIX) FIX_SCEN=$(FIX_SCEN)
-	$(TREEXP) -s \
-	Util::SetGlobal language=cs selector=T source_language=en \
-	$(BEFORE_FIX) \
-	scenarios/$(FIX_SCEN) \
-	-- $(DIRNAME)/translation*.treex.gz
-	$(TREEX) \
-	Util::SetGlobal language=cs selector=T source_language=en \
-	scenarios/write_sentences.scen \
-	-- $(DIRNAME)/translation*.treex.gz \
-	> $(DIRNAME)/depfix_output.txt
-
-
-# DEEPFIX, i.e. fixing errors on t-layer
-# fix must be called again to ensure
-# e.g. agreement of adjectives belonging to changed nodes etc.
-# deepfix: a2t tfix_prepare tfix t2a project_deep refix_after_tfix
-deepfix: a2t tfix_prepare tfix refix_after_tfix
-
-A2T_CS_SCEN=a2t_cs.scen
-A2T_EN_SCEN=a2t_en.scen
-a2t:
-	$E A2T_CS_SCEN=$(A2T_CS_SCEN) A2T_EN_SCEN=$(A2T_EN_SCEN)
-	$(TREEXP) -s \
-	scenarios/$(A2T_CS_SCEN) \
-	scenarios/$(A2T_EN_SCEN) \
-	-- $(DIRNAME)/translation*.treex.gz
-
-A2T_CS_NOT_SCEN=a2t_cs_not.scen
-a2t_not:
-	$E A2T_CS_SCEN=$(A2T_CS_NOT_SCEN) A2T_EN_SCEN=$(A2T_EN_SCEN)
-	$(TREEXP) -s \
-	scenarios/$(A2T_CS_NOT_SCEN) \
-	scenarios/$(A2T_EN_SCEN) \
-	-- $(DIRNAME)/translation*.treex.gz
-
-TFIX_PREPARE_SCEN=tfix_prepare.scen
-tfix_prepare:
-	$E TFIX_PREPARE_SCEN=$(TFIX_PREPARE_SCEN)
-	$(TREEXP) -s \
-	scenarios/$(TFIX_PREPARE_SCEN) \
-	-- $(DIRNAME)/translation*.treex.gz
-
-# statistical Deepfix model needs 15 GB RAM:
-# TFIX_SCEN=tfix_cut_ChgCase2.scen
-# therefore, only rule-based fixes by default:
-TFIX_SCEN=tfix_rules.scen
-tfix:
-	$E TFIX_SCEN=$(TFIX_SCEN)
-	$(TREEXP) -s \
-	scenarios/$(TFIX_SCEN) \
-	-- $(DIRNAME)/translation*.treex.gz
-
-tfix_nosave:
-	$E TFIX_SCEN=$(TFIX_SCEN)
-	$(TREEX) \
-	scenarios/$(TFIX_SCEN) \
-	scenarios/$(WRITE_SENTENCES_SCEN) \
-	-- $(DIRNAME)/translation*.treex.gz \
-	> $(DIRNAME)/$(OUTPUT_TXT)
-
-T2A_SCEN=t2a.scen
-t2a:
-	$E T2A_SCEN=$(T2A_SCEN)
-	$(TREEX) -s \
-	scenarios/$(T2A_SCEN) \
-	-- $(DIRNAME)/translation*.treex.gz \
-	> $(DIRNAME)/t2a_output.txt
-
-PROJECT_DEEP_SCEN=project_deep.scen
-project_deep:
-	$E PROJECT_DEEP_SCEN=$(PROJECT_DEEP_SCEN)
-	$(TREEXP) -s \
-	scenarios/$(PROJECT_DEEP_SCEN) \
-	-- $(DIRNAME)/translation*.treex.gz
-
-# TODO: maybe a different set of fixing rules to be used now
-REFIX_SCEN=$(FIX_SCEN)
-refix_after_tfix:
-	$E REFIX_SCEN=$(REFIX_SCEN)
-	$(TREEXP) -s \
-	Util::SetGlobal language=cs selector=T source_language=en \
-	scenarios/$(REFIX_SCEN) \
+	scenarios/$(NER_TGT_SCEN) \
 	-- $(DIRNAME)/translation*.treex.gz
 
 
-# Results of depfix - written by write_sentences,
+# Results of mlfix - written by write_sentences,
 # to be used in evaluation (both auto and manual) and comparison
 OUTPUT_TXT=output.txt
 # print out the fixed sentences
@@ -401,7 +224,9 @@ write_fixlog:
 # and show it as tab separated values
 # Evaluates original source and $(OUTPUT_TXT).
 AUTOEVAL_OUT=autoeval.out
-REF_CS_TXT=ref_cs.txt
+SRC_TXT=data_en.txt
+MT_TXT=data_cs.txt
+REF_TXT=ref_cs.txt
 eval: eval_dirname eval_lines eval_bleu eval_ter eval_show
 
 # store the working directory name
@@ -410,16 +235,16 @@ eval_dirname:
 
 # count number of lines changed by Depfix
 eval_lines:
-	@scripts/chgd.pl $(DIRNAME)/data_cs.txt $(DIRNAME)/$(OUTPUT_TXT) >> $(DIRNAME)/$(AUTOEVAL_OUT)
+	@scripts/chgd.pl $(DIRNAME)/$(MT_TXT) $(DIRNAME)/$(OUTPUT_TXT) >> $(DIRNAME)/$(AUTOEVAL_OUT)
 
 # compute BLEU and NIST
 eval_bleu:
-	@scripts/wrapmteval.pl $(DIRNAME)/data_en.txt $(DIRNAME)/$(REF_CS_TXT) $(DIRNAME)/data_cs.txt 2> /dev/null | grep "^NIST"   >> $(DIRNAME)/$(AUTOEVAL_OUT)
-	@scripts/wrapmteval.pl $(DIRNAME)/data_en.txt $(DIRNAME)/$(REF_CS_TXT) $(DIRNAME)/$(OUTPUT_TXT)  2> /dev/null | grep "^NIST"   >> $(DIRNAME)/$(AUTOEVAL_OUT)
+	@scripts/wrapmteval.pl $(DIRNAME)/$(SRC_TXT) $(DIRNAME)/$(REF_TXT) $(DIRNAME)/$(MT_TXT) 2> /dev/null | grep "^NIST"   >> $(DIRNAME)/$(AUTOEVAL_OUT)
+	@scripts/wrapmteval.pl $(DIRNAME)/$(SRC_TXT) $(DIRNAME)/$(REF_TXT) $(DIRNAME)/$(OUTPUT_TXT)  2> /dev/null | grep "^NIST"   >> $(DIRNAME)/$(AUTOEVAL_OUT)
 
 # compute PER and TER
 eval_ter:
-	@$(MTRICS) --per --ter -c $(DIRNAME)/data_cs.txt $(DIRNAME)/$(OUTPUT_TXT) -r $(DIRNAME)/$(REF_CS_TXT)   | grep "[PT]ER:" >> $(DIRNAME)/$(AUTOEVAL_OUT)
+	@$(MTRICS) --per --ter -c $(DIRNAME)/$(MT_TXT) $(DIRNAME)/$(OUTPUT_TXT) -r $(DIRNAME)/$(REF_TXT)   | grep "[PT]ER:" >> $(DIRNAME)/$(AUTOEVAL_OUT)
 
 # show results of automatic evaluation
 eval_show:
@@ -428,44 +253,44 @@ eval_show:
 
 
 eval_cased:
-	@$(MTRICS) --case-sensitive --bleu --nist --per --ter -c $(DIRNAME)/data_cs.txt $(DIRNAME)/$(OUTPUT_TXT) -r $(DIRNAME)/$(REF_CS_TXT)
+	@$(MTRICS) --case-sensitive --bleu --nist --per --ter -c $(DIRNAME)/$(MT_TXT) $(DIRNAME)/$(OUTPUT_TXT) -r $(DIRNAME)/$(REF_CS_TXT)
 
 
 view:
 	less $(DIRNAME)/$(OUTPUT_TXT)
 
 
-# textual comparison of depfix inputs (ORI) and outputs (NEW),
-# also showing reference (REF) and translation source (EN)
-ORI=data_cs.txt
+# textual comparison of mlfix inputs (ORI) and outputs (NEW),
+# also showing reference (REF) and translation source (SRC)
+ORI=$(MT_TXT)
 NEW=$(OUTPUT_TXT)
 REF=$(REF_CS_TXT)
-EN=data_en.txt
+SRC=$(SRC_TXT)
 
 # compare ORI and NEW
 compare:
-	scripts/compare4.pl $(DIRNAME)/$(ORI) $(DIRNAME)/$(NEW) $(DIRNAME)/$(REF) $(DIRNAME)/$(EN) | less -p'\*[^\*]*\*'
+	scripts/compare4.pl $(DIRNAME)/$(ORI) $(DIRNAME)/$(NEW) $(DIRNAME)/$(REF) $(DIRNAME)/$(SRC) | less -p'\*[^\*]*\*'
 # case-insensitive
 compare_ci:
-	scripts/compare4_ci.pl $(DIRNAME)/$(ORI) $(DIRNAME)/$(NEW) $(DIRNAME)/$(REF) $(DIRNAME)/$(EN) | less -p'\*[^\*]*\*'
+	scripts/compare4_ci.pl $(DIRNAME)/$(ORI) $(DIRNAME)/$(NEW) $(DIRNAME)/$(REF) $(DIRNAME)/$(SRC) | less -p'\*[^\*]*\*'
 # also showing fixlog
 compare_log:
-	scripts/compare4_log.pl $(DIRNAME)/$(ORI) $(DIRNAME)/$(NEW) $(DIRNAME)/$(REF) $(DIRNAME)/$(EN) $(DIRNAME)/fixlog.txt | less -p'\*[^\*]*\*'
+	scripts/compare4_log.pl $(DIRNAME)/$(ORI) $(DIRNAME)/$(NEW) $(DIRNAME)/$(REF) $(DIRNAME)/$(SRC) $(DIRNAME)/fixlog.txt | less -p'\*[^\*]*\*'
 # also showing fixlog, case-insensitive
 compare_log_ci:
-	scripts/compare4_log_ci.pl $(DIRNAME)/$(ORI) $(DIRNAME)/$(NEW) $(DIRNAME)/$(REF) $(DIRNAME)/$(EN) $(DIRNAME)/fixlog.txt | less -p'\*[^\*]*\*'
+	scripts/compare4_log_ci.pl $(DIRNAME)/$(ORI) $(DIRNAME)/$(NEW) $(DIRNAME)/$(REF) $(DIRNAME)/$(SRC) $(DIRNAME)/fixlog.txt | less -p'\*[^\*]*\*'
 # outputs HTML
 comparehtml:
-	@scripts/comparehtml.pl $(DIRNAME)/$(NEW) $(DIRNAME)/$(ORI) $(DIRNAME)/$(REF) $(DIRNAME)/$(EN)
+	@scripts/comparehtml.pl $(DIRNAME)/$(NEW) $(DIRNAME)/$(ORI) $(DIRNAME)/$(REF) $(DIRNAME)/$(SRC)
 # outputs Latex
 compare5:
-	scripts/compare5.pl $(DIRNAME)/$(ORI) $(DIRNAME)/$(NEW) $(DIRNAME)/$(REF) $(DIRNAME)/$(EN) | less
+	scripts/compare5.pl $(DIRNAME)/$(ORI) $(DIRNAME)/$(NEW) $(DIRNAME)/$(REF) $(DIRNAME)/$(SRC) | less
 
 # compare NEW in DIRNAME and DIRNAME2
 compare2:
-	scripts/compare2.pl $(DIRNAME)/$(NEW) $(DIRNAME2)/$(NEW) $(DIRNAME)/$(ORI) $(DIRNAME)/$(REF) $(DIRNAME)/$(EN) | less -p'\*[^\*]*\*'
+	scripts/compare2.pl $(DIRNAME)/$(NEW) $(DIRNAME2)/$(NEW) $(DIRNAME)/$(ORI) $(DIRNAME)/$(REF) $(DIRNAME)/$(SRC) | less -p'\*[^\*]*\*'
 compare2html:
-	@scripts/compare2html.pl $(DIRNAME)/$(NEW) $(DIRNAME2)/$(NEW) $(DIRNAME)/$(ORI) $(DIRNAME)/$(REF) $(DIRNAME)/$(EN)
+	@scripts/compare2html.pl $(DIRNAME)/$(NEW) $(DIRNAME2)/$(NEW) $(DIRNAME)/$(ORI) $(DIRNAME)/$(REF) $(DIRNAME)/$(SRC)
 
 
 fixReportOnTrees:
@@ -486,6 +311,7 @@ clone:
 SAMPLES=1000
 ALPHA=0.05
 
+#TODO: check this out
 bootstrap_eval:
 #ngrams:
 	$(BOOTSTRAP)/get_ngrams.pl $(DIRNAME)/$(REF_CS_TXT) $(DIRNAME)/data_cs.txt $(DIRNAME)/$(OUTPUT_TXT) > $(DIRNAME)/ngrams

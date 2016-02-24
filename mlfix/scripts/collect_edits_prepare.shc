@@ -3,10 +3,13 @@
 # run "make init totreex" prior to this script
 renice 10 $$
 
-INPUT_DIR="2016-02-01_19-02-59_0215422586_collect_autodesk"
-OUTPUT_DIR="collect_autodesk_processed"
+INPUT_DIR=$1
+OUTPUT_DIR=$2
 
-dir=`mktemp -d --tmpdir=/a/LRC_TMP/varis/mlfix/jobs`
+[[ -d "/a/LRC_TMP/varis/mlfix/collect_edits/jobs" ]] || mkdir -p /a/LRC_TMP/varis/mlfix/collect_edits/jobs
+[[ -d $OUTPUT_DIR ]] || mkdir -p $OUTPUT_DIR
+
+dir=`mktemp -d --tmpdir=/a/LRC_TMP/varis/mlfix/collect_edits/jobs`
 
 T="treex -p --survive --jobs=100 --mem=15G --workdir=$dir --name=collect_edits"
 #T="treex -p --survive --jobs=1 --mem=15G --workdir=$dir --name=collect_edits"
