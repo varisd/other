@@ -62,7 +62,8 @@ test:
 
 # default without init
 #default_ni:   totreex tag run_giza ner_en parse fix deepfix write_sentences eval
-default_ni: totreex tag run_giza ner_en parse fix write_sentences eval
+#default_ni: totreex tag run_giza ner_en parse fix write_sentences eval
+default_ni: totreex tag run_giza ner_en parse mlfix write_sentences eval
 
 # default behaviour: try to interpret the target as scenario file name
 # e.g. if you type "make fix_new" and there is a scenarios/fix_new.scen file,
@@ -156,7 +157,8 @@ SRC_ANALYSIS_2_SCEN=en_analysis_2.scen
 #TGT_ANALYSIS_2_SCEN=cs_analysis_2_boost_model_025.scen
 # therefore, the default is the basic parser:
 #TGT_ANALYSIS_2_SCEN=cs_analysis_2_msta.scen
-parse: parse_src parse_backup
+TGT_ANALYSIS_2_SCEN=cs_analysis_2.scen
+parse: parse_src parse_backup parse_tgt
 
 parse_backup:
 	@-mkdir $(DIRNAME)/parsed
@@ -168,6 +170,12 @@ parse_src:
 	$E SRC_ANALYSIS_2_SCEN=$(SRC_ANALYSIS_2_SCEN)
 	$(TREEXP) -s \
 	scenarios/$(SRC_ANALYSIS_2_SCEN) \
+	-- $(DIRNAME)/translation*.treex.gz
+
+parse_tgt:
+	$E TGT_ANALYSIS_2_SCEN=$(TGT_ANALYSIS_2_SCEN)
+	$(TREEXP) -s \
+	scenarios/$(TGT_ANALYSIS_2_SCEN) \
 	-- $(DIRNAME)/translation*.treex.gz
 
 # TODO: revision, change, fix...
@@ -562,13 +570,26 @@ parse_parallel:
 
 # after init totreex
 collect_postedits_prepare:
-	$(TREEXP) -s scenarios/collect_postedits_prepare.scen \
-	-- $(DIRNAME)/translation*.treex.gz
+	scripts/collect_edits_prepare.shc $(DIRNAME) $(DIRNAME)
+#   $(TREEXP) -s scenarios/collect_postedits_prepare.scen \
+#   -- $(DIRNAME)/translation*.treex.gz
 
+# after collect_postedits_prepare
 collect_postedits:
-	$(TREEXP) scenarios/collect_edits.scen \
-	-- $(DIRNAME)/translation*.treex.gz
+	scripts/collect_edits.shc $(DIRNAME)
+#   $(TREEXP) scenarios/collect_edits.scen \
+#   -- $(DIRNAME)/translation*.treex.gz
 
+# after collect_postedits
+collect_postedits_filter:
+	zcat $(DIRNAME)/translation001_edits.tsv.gz | head -1 > $(DIRNAME)/features_header
+	cat $(DIRNAME)/features_header | gzip -c > $(DIRNAME)/all_edits.tsv.gz
+	for f in `ls $(DIRNAME)/translation*_edits.tsv.gz`; do \
+		zcat $$f | tail -n +2 | gzip -c >> $(DIRNAME)/all_edits.tsv.gz; \
+	done
+	scripts/filter_edits.R $(DIRNAME)/all_edits.tsv.gz $(DIRNAME)/all_edits_filtered.tmp
+	cat $(DIRNAME)/all_edits_filtered.tmp | gzip -c > $(DIRNAME)/all_edits_filtered.tsv.gz && \
+	rm $(DIRNAME)/all_edits_filtered.tmp
 
 # new depfix -- without saving the treex files, thus saving about half of
 # runtime (work in progress; there are still problems with mgiza and problems

@@ -11,17 +11,11 @@ OUTPUT_DIR=$2
 
 dir=`mktemp -d --tmpdir=/a/LRC_TMP/varis/mlfix/collect_edits/jobs`
 
-T="treex -p --survive --jobs=100 --mem=15G --workdir=$dir --name=collect_edits"
-#T="treex -p --survive --jobs=1 --mem=15G --workdir=$dir --name=collect_edits"
+#T="treex -p --survive --jobs=100 --mem=15G --workdir=$dir --name=collect_edits"
+T="treex"
 
 # TODO: parse reference -> align -> get mt dependency tree
 #scenarios/cs_ref_analysis_2.scen
-$T scenarios/cs_analysis_1_morphodita.scen \
-scenarios/cs_ref_analysis_1_morphodita.scen \
-scenarios/align_ref.scen \
-scenarios/en_analysis_1_morphodita.scen \
-scenarios/en_analysis_2.scen \
-scenarios/run_mgiza.scen \
-scenarios/cs_analysis_2.scen \
+$T A2A::ProjectTreeThroughAlignment language=en to_language=cs to_selector= \
 Write::Treex substitute={$INPUT_DIR}{$OUTPUT_DIR} \
--- $INPUT_DIR/translation*.treex.gz
+-- $INPUT_DIR/translation001.treex.gz

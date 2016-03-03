@@ -30,8 +30,8 @@ TFIX_SCEN=tfix_cut_ChgCase2.scen
 #TREEXP=treex
 # However, if you have an SGE cluster, you can uncomment the following
 # settings (and adjust them to your needs) to run Treex parallelly:
- JOBS=10
- MEM=30G
- WORKDIR=$$(mktemp -d --tmpdir=$(DIRNAME))
- TREEXP=treex -p --survive --jobs=$(JOBS) --mem=$(MEM) --workdir=$(WORKDIR)
+# JOBS=10
+# MEM=30G
+# WORKDIR=$$(mktemp -d --tmpdir=$(DIRNAME))
+# TREEXP=treex -p --survive --jobs=$(JOBS) --mem=$(MEM) --workdir=$(WORKDIR)
 #

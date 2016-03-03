@@ -62,7 +62,7 @@ class Model:
 
     def predict(self, x):
         x = self.feat_vectorizer.transform(x)
-        return self.label_encoder.inverse_transform(self.model.predict(x)).tolist()
+        return self.label_encoder.inverse_transform(self.model.predict(x))
     
     def predict_proba(self, x):
         x = self.feat_vectorizer.transform(x)

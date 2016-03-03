@@ -46,7 +46,12 @@ m.load(args.model_file, True)
 # predict classes and compare results
 correct = 0
 for i in range(len(test_Y)):
-	predicted = m.predict_proba(test_X[i])
+	predicted = m.predict_proba(test_X)
+	res = [sorted(zip(m.get_classes(), s), key=(lambda x: x[1]), reverse=True) for s in predicted]
+	for res_line in res:
+		print res_line
+	print m.predict(test_X[0])
+	break
 	predicted = zip(m.get_classes(), predicted[0])
 	predicted = sorted(predicted, key=(lambda x: x[1]), reverse=True)
 	pred_list = []
