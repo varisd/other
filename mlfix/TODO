@@ -3,6 +3,8 @@
 - make statistics about old_node* -> new_node* category changes
 	-> choose which categories we want to predict/change by classification
 
+- parametrized generation of model config files
+
 experimenting:
 - multiple ScikitLearn models? (each predicting different subset of Iset classes)
 
