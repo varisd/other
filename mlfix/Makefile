@@ -47,6 +47,8 @@ SD=../scenarios
 # info about the target currently being run
 E=@echo MLFIX [$(DIRNAME)]: $@
 
+SETTINGS_FILE=settings.mak
+
 ######################
 # The actual targets #
 ######################
@@ -64,6 +66,7 @@ test:
 #default_ni:   totreex tag run_giza ner_en parse fix deepfix write_sentences eval
 #default_ni: totreex tag run_giza ner_en parse fix write_sentences eval
 default_ni: totreex tag run_giza ner_en parse mlfix write_sentences eval
+collect: totreex tag run_giza ner_en parse collect_edits
 
 # default behaviour: try to interpret the target as scenario file name
 # e.g. if you type "make fix_new" and there is a scenarios/fix_new.scen file,
@@ -95,6 +98,7 @@ init:
 	@paste $(DIRNAME)/data_src.txt $(DIRNAME)/data_mt.txt > $(DIRNAME)/data_in.txt
 
 # convert *.txt data to *.treex.gz
+# TODO: replace Scen with SCEN:: block
 PROJECT_TOKENIZATION_SCEN=project_tokenization.scen
 totreex:
 	$E PROJECT_TOKENIZATION_SCEN=$(PROJECT_TOKENIZATION_SCEN)
@@ -106,6 +110,7 @@ totreex:
 	@rm $(DIRNAME)/src_part* $(DIRNAME)/mt_part* $(DIRNAME)/ref_part* 
 # project tokenization
 	$(TREEXP) -s \
+	Util::SetGlobal language=$(LANG_TGT) source_language=$(LANG_SRC) \
 	scenarios/$(PROJECT_TOKENIZATION_SCEN) \
 	-- $(DIRNAME)/translation*.treex.gz
 
@@ -122,43 +127,45 @@ totreex_noproject:
 # run morphological analyses
 # TODO: more general
 #TGT_ANALYSIS_1_SCEN
-SRC_ANALYSIS_1_SCEN=en_analysis_1_morphodita.scen
-CS_ANALYSIS_1_SCEN=cs_analysis_1_morphodita.scen
+SRC_ISET_DRIVER=en::penn
+TGT_ISET_DRIVER=cs::pdt
+SRC_ANALYSIS_1_SCEN=Scen::MLFix::Analysis_1 language=$(LANG_SRC) iset_driver="$(SRC_ISET_DRIVER)"
+TGT_ANALYSIS_1_SCEN=Scen::MLFix::Analysis_1 language=$(LANG_TGT) iset_driver="$(TGT_ISET_DRIVER)"
 # backward compatibility
 analyze: tag
 tag:
-	$E SRC_ANALYSIS_1_SCEN=$(SRC_ANALYSIS_1_SCEN) TGT_ANALYSIS_1_SCEN=$(CS_ANALYSIS_1_SCEN)
+	$E SRC_ANALYSIS_1_SCEN=$(SRC_ANALYSIS_1_SCEN) TGT_ANALYSIS_1_SCEN=$(TGT_ANALYSIS_1_SCEN)
 	$(TREEXP) -s \
-	scenarios/$(SRC_ANALYSIS_1_SCEN) \
-	scenarios/$(CS_ANALYSIS_1_SCEN) \
+	$(SRC_ANALYSIS_1_SCEN) \
+	$(TGT_ANALYSIS_1_SCEN) \
 	-- $(DIRNAME)/translation*.treex.gz
 
 # run the Giza++ aligner
+# Mainly, we want to create alignment from the MT to SRC
 # TODO: more general
-RUN_GIZA_SCEN=run_mgiza.scen
-ADD_MISSING_LINKS_SCEN=add_missing_links.scen
+RUN_GIZA_SCEN=Scen::MLFix::RunMGiza from_language=$(LANG_TGT) to_language=$(LANG_SRC) model=$(LANG_TGT)-$(LANG_SRC)
 run_giza:
-	$E RUN_GIZA_SCEN=$(RUN_GIZA_SCEN) ADD_MISSING_LINKS_SCEN=$(ADD_MISSING_LINKS_SCEN)
-	$(TREEXP) -s scenarios/$(RUN_GIZA_SCEN) \
-	scenarios/$(ADD_MISSING_LINKS_SCEN) \
+	$E RUN_GIZA_SCEN=$(RUN_GIZA_SCEN)
+	$(TREEXP) -s $(RUN_GIZA_SCEN) \
 	-- $(DIRNAME)/translation*.treex.gz
 
 # run Named Entity Recognizer for English
-NER_SRC_SCEN=ner_en.scen
+NER_SRC_SCEN=Scen::MLFix::NER language=$(LANG_SRC) model=ner-eng-ie.crf-3-all2008.ser.gz
 ner_en:
 	$E NER_SRC_SCEN=$(NER_SRC_SCEN)
-	$(TREEXP) -s scenarios/$(NER_SRC_SCEN) \
+	$(TREEXP) -s $(NER_SRC_SCEN) \
 	-- $(DIRNAME)/translation*.treex.gz
 
-
 # run dependency parsers
-SRC_ANALYSIS_2_SCEN=en_analysis_2.scen
+#SRC_ANALYSIS_2_SCEN=en_analysis_2.scen
 # the SMT-adapted parser needs 30 GB RAM:
 #TGT_ANALYSIS_2_SCEN=cs_analysis_2_boost_model_025.scen
 # therefore, the default is the basic parser:
 #TGT_ANALYSIS_2_SCEN=cs_analysis_2_msta.scen
-TGT_ANALYSIS_2_SCEN=cs_analysis_2.scen
-parse: parse_src parse_backup parse_tgt
+SRC_ANALYSIS_2_SCEN=Scen::MLFix::Analysis_2 language=$(LANG_SRC) parser=mst
+TGT_ANALYSIS_2_SCEN=Scen::MLFix::Analysis_2 language=$(LANG_TGT) src_language=$(LANG_SRC)
+parse: parse_src parse_tgt parse_backup
+parse_src_only: parse_src parse_backup
 
 parse_backup:
 	@-mkdir $(DIRNAME)/parsed
@@ -169,26 +176,27 @@ parse_backup:
 parse_src:
 	$E SRC_ANALYSIS_2_SCEN=$(SRC_ANALYSIS_2_SCEN)
 	$(TREEXP) -s \
-	scenarios/$(SRC_ANALYSIS_2_SCEN) \
+	$(SRC_ANALYSIS_2_SCEN) \
 	-- $(DIRNAME)/translation*.treex.gz
 
 parse_tgt:
 	$E TGT_ANALYSIS_2_SCEN=$(TGT_ANALYSIS_2_SCEN)
 	$(TREEXP) -s \
-	scenarios/$(TGT_ANALYSIS_2_SCEN) \
+	$(TGT_ANALYSIS_2_SCEN) \
 	-- $(DIRNAME)/translation*.treex.gz
 
 # TODO: revision, change, fix...
-MLFIX_SCEN=mlfix.scen
+CONFIG_FILE="/net/me/merkur3/varis/workdir-git/mlfix/config/sample.yaml"
+ISET_DRIVER="cs::pdt"
 mlfix: fix_prepare mlfix_run
 mlfix_run:
 	$E
 	$(TREEXP) -s \
-	scenarios/$(MLFIX_SCEN) \
+	Scen::MLFix::Fix language=$(LANG_TGT) selector= config_file=$(CONFIG_FILE) iset_driver=$(ISET_DRIVER) \
 	-- $(DIRNAME)/translation*.treex.gz
 	$(TREEX) \
-	Util::SetGlobal language=cs selector=T source_language=$(LANG_SRC) \
-	scenarios/write_sentences.scen
+	Util::SetGlobal language=$(LANG_TGT) selector= source_language=$(LANG_SRC) \
+	scenarios/write_sentences.scen \
 	-- $(DIRNAME)/translation*.treex.gz \
 	> $(DIRNAME)/mlfix_output.txt
 
@@ -214,8 +222,8 @@ fix_prepare: restore_parsed
 OUTPUT_TXT=output.txt
 # print out the fixed sentences
 WRITE_SENTENCES_SCEN=write_sentences.scen
-write_sentences: write_fixlog
-#write_sentences:
+#write_sentences: write_fixlog
+write_sentences:
 	$E WRITE_SENTENCES_SCEN=$(WRITE_SENTENCES_SCEN) OUTPUT_TXT=$(OUTPUT_TXT)
 	$(TREEX) \
 	scenarios/$(WRITE_SENTENCES_SCEN) \
@@ -232,9 +240,9 @@ write_fixlog:
 # and show it as tab separated values
 # Evaluates original source and $(OUTPUT_TXT).
 AUTOEVAL_OUT=autoeval.out
-SRC_TXT=data_en.txt
-MT_TXT=data_cs.txt
-REF_TXT=ref_cs.txt
+SRC_TXT=data_src.txt
+MT_TXT=data_mt.txt
+REF_TXT=data_ref.txt
 eval: eval_dirname eval_lines eval_bleu eval_ter eval_show
 
 # store the working directory name
@@ -264,6 +272,26 @@ eval_cased:
 	@$(MTRICS) --case-sensitive --bleu --nist --per --ter -c $(DIRNAME)/$(MT_TXT) $(DIRNAME)/$(OUTPUT_TXT) -r $(DIRNAME)/$(REF_CS_TXT)
 
 
+# Evaluation of the predicted Iset categories
+eval_predictions: tag_ref
+#eval_predictions:
+	$E
+	$(TREEX) \
+	MLFix::ScikitLearnEval language=$(LANG_TGT) selector=T config_file=$(CONFIG_FILE) iset_driver=$(ISET_DRIVER) \
+	-- $(DIRNAME)/translation*.treex.gz \
+	> $(DIRNAME)/mlfix_pred_eval.txt	
+
+REF_ANALYSIS_1_SCEN=Scen::MLFix::Analysis_1 language=$(LANG_TGT) selector="ref" iset_driver="$(TGT_ISET_DRIVER)"
+tag_ref:
+	$E SRC_ANALYSIS_1_SCEN=$(REF_ANALYSIS_1_SCEN)
+	$(TREEXP) -s \
+	$(REF_ANALYSIS_1_SCEN) \
+	Align::A::MonolingualGreedy selector=T language=cs to_selector=ref \
+	-- $(DIRNAME)/translation*.treex.gz
+	
+align_ref:
+	
+
 view:
 	less $(DIRNAME)/$(OUTPUT_TXT)
 
@@ -272,7 +300,7 @@ view:
 # also showing reference (REF) and translation source (SRC)
 ORI=$(MT_TXT)
 NEW=$(OUTPUT_TXT)
-REF=$(REF_CS_TXT)
+REF=$(REF_TXT)
 SRC=$(SRC_TXT)
 
 # compare ORI and NEW
@@ -568,28 +596,31 @@ parse_parallel:
         Write::LemmatizedBitexts language=en to_language=cs \
 	    -- project_syndicate/nc*.treex > project_syndicate/bitexts.tsv
 
+collect_edits: analyze_ref collect_postedits
+
 # after init totreex
-collect_postedits_prepare:
-	scripts/collect_edits_prepare.shc $(DIRNAME) $(DIRNAME)
-#   $(TREEXP) -s scenarios/collect_postedits_prepare.scen \
-#   -- $(DIRNAME)/translation*.treex.gz
+#collect_postedits_prepare:
+#	scripts/collect_edits_prepare.shc $(DIRNAME) $(DIRNAME)
+
+
+REF_ANALYSIS_1_SCEN=Scen::MLFix::Analysis_1 language=$(LANG_TGT) selector=ref iset_driver=${TGT_ISET_DRIVER}
+REF_ALIGNMENT_SCEN=Align::A::MonolingualGreedy selector= language=$(LANG_TGT) to_selector=ref
+# analyze the reference sentences
+analyze_ref:
+	$E REF_ANALYSIS_1_SCEN=$(REF_ANALYSIS_1_SCEN) REF_ALIGNMENT_SCEN=$(REF_ALIGNMENT_SCEN)
+	$(TREEXP) -s \
+   	$(REF_ANALYSIS_1_SCEN) \
+    $(REF_ALIGNMENT_SCEN) \
+    -- $(DIRNAME)/translation*.treex.gz
 
 # after collect_postedits_prepare
 collect_postedits:
 	scripts/collect_edits.shc $(DIRNAME)
-#   $(TREEXP) scenarios/collect_edits.scen \
-#   -- $(DIRNAME)/translation*.treex.gz
-
-# after collect_postedits
-collect_postedits_filter:
 	zcat $(DIRNAME)/translation001_edits.tsv.gz | head -1 > $(DIRNAME)/features_header
 	cat $(DIRNAME)/features_header | gzip -c > $(DIRNAME)/all_edits.tsv.gz
 	for f in `ls $(DIRNAME)/translation*_edits.tsv.gz`; do \
 		zcat $$f | tail -n +2 | gzip -c >> $(DIRNAME)/all_edits.tsv.gz; \
 	done
-	scripts/filter_edits.R $(DIRNAME)/all_edits.tsv.gz $(DIRNAME)/all_edits_filtered.tmp
-	cat $(DIRNAME)/all_edits_filtered.tmp | gzip -c > $(DIRNAME)/all_edits_filtered.tsv.gz && \
-	rm $(DIRNAME)/all_edits_filtered.tmp
 
 # new depfix -- without saving the treex files, thus saving about half of
 # runtime (work in progress; there are still problems with mgiza and problems
@@ -629,5 +660,5 @@ full_new_parse_fix_write:
 #	$E
 #	cd $(DIRNAME) && $(TREEXP) ../scenarios/deepfix_all_new_1.scen && $(TREEXP) ../scenarios/deepfix_all_new_2.scen && $(TREEXP) ../scenarios/deepfix_all_new_3.scen
 
-include settings.mak
+include $(SETTINGS_FILE)
 
