@@ -1,8 +1,8 @@
 SHELL=bash
 .PHONY: all
-all: cv_7.pdf
+all: cv_cs.pdf cv_en.pdf
 
-cv_7.pdf paper.pdf article.pdf: varis.bib
+cv_cs.pdf cv_en.pdf paper.pdf article.pdf: varis.bib
 
 
 LATEX=pdflatex
