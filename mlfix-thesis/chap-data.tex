@@ -1,0 +1,117 @@
+\chapter{Available data}
+
+% dostupna data
+% mnozstvi
+% popis
+% vyuziti
+
+XXX TOTO ZREJME AZ DO POPISU SYSTEMU
+
+In this chapter we are going to describe the format of the input data, that
+our system require for training and present all the available datasets.
+The differences between the suggested data can seem minor but they can
+have impact on the overall performance of the system.
+
+To train our system, we require sentence-level aligned set of source sentences,
+MT output and a reference sentences
+%TODO: footnote - reference in this thesis as a triparallel data
+. The reference sentences can be either
+a classic reference translation of the source text or a result of a human
+post-editation of the MT output, they are however required because they
+provide use with the possible corrections of the MT output.
+Naturally, the closer the MT output is
+to the reference translation, the easier it should be for our system
+to extract valuable learning instances form the sentences. We also
+considered using only pair of sentence aligned pair of MT translated
+sentences and the reference sentences however, this way the trained
+model will lose some of the useful features which can be extracted from
+the triparallel data.
+
+XXX
+
+In this chapter, we are going to describe the availables datasets that
+we considered useful for our task and how they were useful.
+
+We came across a various sources of training data with various level
+of usefulness and usually of a smaller volume. Some of the sources
+are:
+\begin{itemize}
+\item Khan's school human
+post-edits of manually translated (EN$\rightarrow$CS) subtitles,
+\item the Autodesk
+triparallel data\footurl{https://autodesk.app.box.com/Autodesk-PostEditing},
+\item log files of human post-editing done by Lingea for the
+HimL\footurl{http://www.himl.eu/} test set,
+
+% uvest QT21?
+%\item data from the QT21 project\footurl{http://www.qt21.eu/deliverables/annotations/},
+
+%TODO: wmt - odkaz, footnote?
+\item results from the previous workshops on machine translation (WMTs).
+\end{itemize}
+%Later in this chapter, we will take a closer look at each of the datasets.
+
+The sources listed above (each one to a different degree, maybe except for the last one) can
+be considered a knowledge base for examining the behaviour of a human post-editor as well
+as training data for our system. We think that they might provide us
+some interesting insight into the post-editor's thought process.
+On the other hand, we found the remaining datasets very useful during the system training.
+
+We should also consider any currently available parallel corpus (containing only
+\notion{source sentences + reference translations}), translate
+the source sentences with a specific SMT system and acquire data
+(\notion{source + SMT + reference}) that can be used to train MLFix for that
+specific SMT system\footnote{Obviously, the MLFix training data have to be
+different from the parallel data used for the training of the SMT system, so
+some
+jackknife sampling should be used with limited training data.}. This method
+should help to overcome the data acquisition bottleneck that we mentioned before,
+ since there is generally much more
+parallel data then post-edited sentences.
+For Czech, the natural choice of the parallel corpus would be
+CzEng~1.0\footurl{http://ufal.mff.cuni.cz/czeng} \cite{czeng10:lrec2012}.
+We didn't use this approach in the scope of this thesis however, it might
+be considered in our future work.
+%TODO: nechat tohle az do shrnuti?
+
+%Even if we do not use this approach for the training of the final MLFix models,
+%the volume of the data might help us with feature selection and preliminary model evaluation.
+
+\begin{table*}[t]
+\centering
+\small
+
+\begin{tabular}{lcccc}
+\multirow{2}{*}{}  &  \multirow{2}{*}{\hash{} Sentences}  &  \multicolumn{3}{c}{\hash{} Tokens}  \\
+&   & English & Czech (MT) & Czech (PE) \\
+\hline
+Khan's school & NA & \tilda{}93k & \tilda{}93k & \tilda{}93k \\
+Autodesk & 46,916 & 490,005 & 456,697 & 441,645 \\
+HimL-Lingea & 3892 & 60,142 & 51,428 & 56,485 \\
+CzEng 1.0 & 15M & 206M & NA & 150M \\
+\end{tabular}
+\caption{Summary of the available post-editing data.
+}
+\label{avail-data}
+\end{table*}
+
+The basic summary of the available data is shown in 
+\Tref{avail-data}:
+the
+number of parallel sentences and the number of tokens in the English source, the
+MT output (\equo{MT}) and the post-edited MT output (\equo{PE}). Only
+English-Czech data is listed since these datasets for other target languages
+(where available) are similar in volume.
+For Khan's school, we only
+provide estimates. The CzEng data set is not translated by any SMT at the moment,
+so the related information is omitted. We provide the information only for comparison.
+
+%We do not include information about the QT21 data since we are yet to explore them.
+
+
+
+%An~example citation: \cite{Andel07}
+
+\section{Title of the first subchapter of the first chapter}
+
+\section{Title of the second subchapter of the first chapter}

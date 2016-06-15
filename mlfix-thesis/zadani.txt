@@ -1,0 +1,11 @@
+The asim of the thesis it to propose and evaluate various methods for correcting frequent errors in machine translation output and implement them within the Treex framework.
+
+The designed methods should be as language independent as possible. They will thus be primarily based on machine learning and rely on the availability of standard parallel corpora (source sentences and reference translations), monolingual data (target-side texts) as well as post-editing logs (source, MT output and editing operations of a human translator) or other possible sources.
+
+The methods will be evaluated on standard datasets (e.g. WMT test sets) for translation from English into Czech and at least one other language (e.g. German, Polish, Romanian).
+The English-to-Czech direction allows for a direct comparison with Depfix, an existing tool where the corrections were manually encoded as rules.
+
+Lit:
+http://ufal.mff.cuni.cz/biblio/?section=publication&id=-5698391071992895761&mode=view
+
+

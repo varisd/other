@@ -1,0 +1,183 @@
+%%% The main file. It contains definitions of basic parameters and includes all other parts.
+
+%% Settings for single-side (simplex) printing
+% Margins: left 40mm, right 25mm, top and bottom 25mm
+% (but beware, LaTeX adds 1in implicitly)
+\documentclass[12pt,a4paper]{report}
+\setlength\textwidth{145mm}
+\setlength\textheight{247mm}
+\setlength\oddsidemargin{15mm}
+\setlength\evensidemargin{15mm}
+\setlength\topmargin{0mm}
+\setlength\headsep{0mm}
+\setlength\headheight{0mm}
+% \openright makes the following text appear on a right-hand page
+\let\openright=\clearpage
+
+%% Settings for two-sided (duplex) printing
+% \documentclass[12pt,a4paper,twoside,openright]{report}
+% \setlength\textwidth{145mm}
+% \setlength\textheight{247mm}
+% \setlength\oddsidemargin{14.2mm}
+% \setlength\evensidemargin{0mm}
+% \setlength\topmargin{0mm}
+% \setlength\headsep{0mm}
+% \setlength\headheight{0mm}
+% \let\openright=\cleardoublepage
+
+%% Character encoding: usually latin2, cp1250 or utf8:
+\usepackage[utf8]{inputenc}
+
+%% Further useful packages (included in most LaTeX distributions)
+\usepackage{amsmath}        % extensions for typesetting of math
+\usepackage{amsfonts}       % math fonts
+\usepackage{amsthm}         % theorems, definitions, etc.
+\usepackage{bbding}         % various symbols (squares, asterisks, scissors, ...)
+\usepackage{bm}             % boldface symbols (\bm)
+\usepackage{graphicx}       % embedding of pictures
+\usepackage{fancyvrb}       % improved verbatim environment
+\usepackage[numbers]{natbib}         % citation style AUTHOR (YEAR), or AUTHOR [NUMBER]
+\usepackage[nottoc]{tocbibind} % makes sure that bibliography and the lists
+			    % of figures/tables are included in the table
+			    % of contents
+\usepackage{dcolumn}        % improved alignment of table columns
+\usepackage{booktabs}       % improved horizontal lines in tables
+\usepackage{paralist}       % improved enumerate and itemize
+\usepackage[usenames]{xcolor}  % typesetting in color
+
+\usepackage{multirow}
+%\usepackage{obo-cite}
+
+%%% Basic information on the thesis
+
+% Thesis title in English (exactly as in the formal assignment)
+\def\ThesisTitle{Automatic Error Correction of Machine Translation Output}
+
+% Author of the thesis
+\def\ThesisAuthor{Dušan Variš}
+
+% Year when the thesis is submitted
+\def\YearSubmitted{2016}
+
+% Name of the department or institute, where the work was officially assigned
+% (according to the Organizational Structure of MFF UK in English,
+% or a full name of a department outside MFF)
+\def\Department{Institute of Formal and Applied Linguistics}
+
+% Is it a department (katedra), or an institute (ústav)?
+\def\DeptType{Institute}
+
+% Thesis supervisor: name, surname and titles
+\def\Supervisor{RNDr. Ondřej Bojar, Ph.D.}
+
+% Supervisor's department (again according to Organizational structure of MFF)
+\def\SupervisorsDepartment{Institute of Formal and Applied Linguistics}
+
+% Study programme and specialization
+\def\StudyProgramme{Master of Computer Science}
+\def\StudyBranch{Mathematical Linguistics}
+
+% An optional dedication: you can thank whomever you wish (your supervisor,
+% consultant, a person who lent the software, etc.)
+\def\Dedication{%
+Dedication.
+}
+
+% Abstract (recommended length around 80-200 words; this is not a copy of your thesis assignment!)
+\def\Abstract{%
+Abstract.
+}
+
+% 3 to 5 keywords (recommended), each enclosed in curly braces
+\def\Keywords{%
+{automatic post-editing,} {machine translation,} {supervised machine learning,} {natural language processing,} {Treex}
+}
+
+%% The hyperref package for clickable links in PDF and also for storing
+%% metadata to PDF (including the table of contents).
+\usepackage[pdftex,unicode]{hyperref}   % Must follow all other packages
+\hypersetup{breaklinks=true}
+\hypersetup{pdftitle={\ThesisTitle}}
+\hypersetup{pdfauthor={\ThesisAuthor}}
+\hypersetup{pdfkeywords=\Keywords}
+\hypersetup{urlcolor=blue}
+
+
+%%%% Custom Definitions %%%
+
+\newcommand{\fixme}[1]{\textcolor{red}{FIXME: (#1)}} % macro for fixme entries
+\newcommand{\todo}[1]{\textcolor{blue}{TODO: (#1)}} % macro for todo entries
+
+\def\samp#1{``\textit{#1}''}
+\def\pojem#1{\textit{#1}}
+
+\def\Tref#1{Table~\ref{#1}}
+\def\Fref#1{Figure~\ref{#1}}
+\def\Eref#1{Example~\ref{#1}}
+\def\Sref#1{Section~\ref{#1}}
+\def\Cref#1{Chapter~\ref{#1}}
+\def\equo#1{``#1''}
+\def\notion#1{{\emph{#1}}}
+\def\perscite#1{\newcite{#1}}
+\def\parcite#1{\cite{#1}}
+\def\footurl#1{\footnote{\url{#1}}}
+\def\hash{\#}
+\def\tilda{\~{}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Definitions of macros (see description inside)
+\include{macros}
+
+% Title page and various mandatory informational pages
+\begin{document}
+\include{title}
+
+%%% A page with automatically generated table of contents of the master thesis
+
+\setcounter{page}{1}
+\tableofcontents
+
+%%% Each chapter is kept in a separate file
+\include{preface}
+
+\include{chap-system_descr}
+\include{chap-data}
+
+\include{epilog}
+
+%%% Bibliography
+%\include{bibliography}
+\bibliographystyle{plainnat}
+%\bibliographystyle{obo-bst}
+\phantomsection
+\addcontentsline{toc}{chapter}{Literature}
+\bibliography{bib-varis}
+
+
+%%% Figures used in the thesis (consider if this is needed)
+\listoffigures
+
+%%% Tables used in the thesis (consider if this is needed)
+%%% In mathematical theses, it could be better to move the list of tables to the beginning of the thesis.
+\listoftables
+
+%%% Abbreviations used in the thesis, if any, including their explanation
+%%% In mathematical theses, it could be better to move the list of abbreviations to the beginning of the thesis.
+\chapwithtoc{List of Abbreviations}
+
+%%% Attachments to the master thesis, if any. Each attachment must be
+%%% referred to at least once from the text of the thesis. Attachments
+%%% are numbered.
+%%%
+%%% The printed version should preferably contain attachments, which can be
+%%% read (additional tables and charts, supplementary text, examples of
+%%% program output, etc.). The electronic version is more suited for attachments
+%%% which will likely be used in an electronic form rather than read (program
+%%% source code, data files, interactive charts, etc.). Electronic attachments
+%%% should be uploaded to SIS and optionally also included in the thesis on a~CD/DVD.
+\chapwithtoc{Attachments}
+
+\openright
+\end{document}

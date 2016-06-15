@@ -1,0 +1,81 @@
+\chapter{System description}
+
+In this chapter we are going to describe the main components
+of the MLFix system and take a closer look at the suggested processing pipeline.
+
+The main idea of the MLFix system is to analyze the provided input data providing
+a set of input features 
+
+\section{Processing pipeline}
+
+The MLFix is, similarly to its predecessor, almost entirely implemented in the
+Treex\cite{Popel:2010:TMN:1884371.1884406}\footurl{http://ufal.mff.cuni.cz/treex}
+framework (formerly knownas TectoMT). The framework was
+originally created as deep dependency-based English-Czech
+translation system however, due to its modularity, it is
+now used for various NLP processing tasks across different
+languages. The framework is closely related to the theory of Functional Generative Description\cite{Sgall1967}
+and was adapted to the Prague Dependency Treebank\cite{pdt20:2006}.
+It defines three layers of language representation: the morphological layer, the analytical layer
+and the tectogrammatical layer.
+Since the tools available for tectogrammatical layer analysis are usually
+language specific and implemented only for a limited set of languages
+we decided to use only the other two for the representation
+of the analysed data.
+
+\subsection{M-Layer analysis}
+
+% TODO: pospat nastroje
+The MLFix analysis pipeline is derived from an existing Depfix pipeline
+with a several modifications to make it easier to apply to different
+target languages. The input data (source sentence + MT output aligned on the sentence level)
+is first read in parallel and stored into the Treex internal representation.
+Both source side and MT side are tokenized by a rule-based tokenizer. After
+that, lemmatization and POS tagging is performed on each sentence. The
+assigned POS tags are then transformed to the unified format. Optionally,
+a named-entity recognition can be applied but it isn't mandatory.
+
+\subsection{Interset}
+
+Since there are usually different tagsets used for each individual language
+we would be forced to modify our existing pipeline with each new language.
+Therefore we decided to use Interset\cite{biblio:ZeReusableTagset2008}\footurl{https://ufal.mff.cuni.cz/interset}, an interlingua-based
+representation of POS tags from various tagsets. This way, in the following steps of the analysis,
+the choice of a specific tagset becomes transparent because our blocks only
+have to deal with one well-defined set of features.
+
+\subsection{Word alignment}
+
+For the next step, we create a word-level alignment between each sentence pair
+using GIZA++\cite{och:ney:2000}. We make one-to-one word alignment where possible
+using intersection symmetrization. This steps helps us later with feature extraction
+and with further processing of the target sentence.
+
+\subsection{A-Layer analysis}
+
+% TODO: popsat nastroje
+Since we do not often have a reliable dependency parser available for many languages,
+we decided to perform dependency parsing only on the source (English) side.
+Still, research on Depfix have shown that the knowledge of the dependency structure
+of the target side sentences can significantly improve post-editor performance.
+For example, the dependency relations between the sentence nodes can help us identify
+incorrect agreement. For this reason, we decided to create the target side dependency
+structures simply by projecting the source sentence structure onto the target side
+using the word alignment.
+Such dependency structure will most likely be at least partially incorrect but we
+think that this additional information by being consistent for a given language pair
+can be of help for our statistical component.
+
+\subsection{Training pipeline}
+
+We also do preprocessing of data we use for training our statistical component.
+The pipeline is similar to the processing pipeline with addition of processing
+the reference sentences. The reference sentences are processed in a same way
+as the MT output, however they are not analyzed on the a-layer, only a simple
+lemma based word alignment with the MT output is made.
+
+\section{Statistical component}
+
+
+
+\section{Wordform generation}
