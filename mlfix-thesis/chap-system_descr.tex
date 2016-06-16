@@ -31,9 +31,10 @@ with a several modifications to make it easier to apply to different
 target languages. The input data (source sentence + MT output aligned on the sentence level)
 is first read in parallel and stored into the Treex internal representation.
 Both source side and MT side are tokenized by a rule-based tokenizer. After
-that, lemmatization and POS tagging is performed on each sentence. The
+that, lemmatization and part-of-speech (POS) tagging is performed on each sentence. The
 assigned POS tags are then transformed to the unified format. Optionally,
 a named-entity recognition can be applied but it isn't mandatory.
+%footnote: we need more than coarse tags
 
 \subsection{Interset}
 
@@ -76,6 +77,50 @@ lemma based word alignment with the MT output is made.
 
 \section{Statistical component}
 
+After the data preprocessing we can extract all the available features and
+call the trained model. The features are extracted separetely for each node and passed
+to the model. The model should be able to accomplish these two goals:
+\begin{enumerate}
+    \item identify the candidates with incorrect morphology,
+    \item fix the incorrect morphological features.
+\end{enumerate}
+Of course, these two steps can be split between multiple separate components (and models),
+we describe our post-editing process in more detail later in section XXX.
 
+We decided to use Scikit-Learn toolkit to train and executed our models since
+it has easy-to-use and quite uniform interface. However, our component can be easily
+extended to support other implementations of machine learning methods (e.g. VowpalWabbit).
+%TODO: footnote - there are wrappers for VW in treex already
+%TODO: doplint odkaz
 
 \section{Wordform generation}
+
+% sloucit s predchozi sekci?
+When we are done with identifying the morphologically incorrect words and assigning
+them a new morphological categories we need to regenerate their surface form.
+This can be done either by rule-based component (for Czech language) or with
+help of another statistical model
+%footnote: flect?
+
+\section{Language independence}
+
+From the previous description, we can notice that MLFix still depends on several
+language specific tools. It is quite dependent on the capability of the source
+language analysis, because we do not only need a POS tagger but also a dependency
+parser. We however assume that the source sentences are usually grammatical correct
+so it is much easier to provide the required tools than their modified versions
+targeted at the MT output.
+
+We also require a specific decoder of the source and target POS tags into the Interset
+structure but Interset already covers many of the most widespread tagsets available
+and its support is still growing.
+%TODO: zminit universal dependencies?
+
+Finaly, aside from a language specific post-editing models (which we do not expect
+to be reusable across different languages) we require a module that regenerates
+the correct word form (either from the lemma+tag or lemma+Interset features combination).
+Such tool might not be explicitly available for every language but if no
+other option is provided we suggest training a statistical form generator.
+In our case, we used Flect\footurl{https://github.com/UFAL-DSG/flect}, a Scikit-Learn-based
+tool that learns morphological inflection patterns from annotated corpora.
+%TODO: blize popsat?
