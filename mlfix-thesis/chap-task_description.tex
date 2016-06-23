@@ -1,11 +1,174 @@
 \chapter{Task definition}
 
 In this chapter we will present results of our closer inspection
-of the available training data and describe the machine learning
-task we assigned to the MLFix post-editing component.
+of the available training data and describe our process of developing
+the MLFix post-editing component.
+
+%issues:
+% - what to classify
+% - how to correct
+% - what are the training instances
+% - 
+
+% TODO: opravdu uz jsme to popsali?
+As we already described, we decided to approach the post-editing problem as a classification
+task. The main idea is basically to identify words with incorrect surface form,
+assign a new morphological categories to these words (e.g. via new POS tags, Interset
+categories) and generate a new surface form. Naturally, this raises several issues
+that have to be resolved, mainly:
+\begin{itemize}
+    \item What instances should we extract from our training data?
+    \item Which of the extracted instances should we mark as incorrect, as opposed
+        to instances that represent words with correct surface from?
+    \item What features should we extract for each instance?
+    \item How should we apply the trained classifier? Should we apply it
+        on each word in a sentence or should we identify the incorrect instances
+        first?
+    \item What morphological categories should be predicted by our classifier?
+\end{itemize}
+
+Another important question is how should we measure the quality of our solution.
+Obviously, we cannot base the quality of our system on the performance of the
+classifier itself since even a really well performing classifier can have only a small
+impact on the edited sentences (e.g. if we choose to predict morphological categories
+that have very small impact on the final surface form). Still, the standard metrics
+used for classifier evaluation, such as accuracy, precision, recall, can be quite helpful
+during the hyperparameter tuning.
+
+However, in the end, our main goal isn't producing a well performing classifier, but producing
+more fluent, grammatically correct sentences.
+Naturally, for this purpose, the human evaluation of the post-edited sentences is the best choice as far
+as reliable judgement goes, but it is also very costly and we usually need a more efficient
+method during system developement. Therefore we rely on the widely used BLUE score and
+probably even more suitable translation error rate (TER) metric. Relying on these methods
+has however few drawbacks which we will address in the following section.
+
+\section{Task definition}
+
+As we already mentioned, our goal is assigning new surface form to the incorrect instances
+in the MT translated text via newly predicted POS tags. For morphologically rich languages,
+this can be quite inefficient due to large sparse tagsets. Also, most of the time,
+the incorrect surface form of the word is caused by a incorrect value in only a small
+subset of morphological characteristics of the word (e.g. wrong case, number, gender).
+These reasons are why we decided to use the Intereset categories instead\footnote{It is
+not necessary for Czech, since the Czech positional tagset allows us to modify only necessary
+parts of the POS tag. However, other languages do not provide similar tagset, therefore
+Interset might be more preferable.}.
+
+Next, we decided how our post-editing system should work. We settled on three possible scenarios:
+\begin{enumerate}
+    \item Have one completely general classifier that is applied on each word in the sentence (some
+        words might be ommited, by hand crafterd rule, e.g. ignore classes that don't flect).
+    \item Identify the incorrect instances first by a separate classifier. Apply the second classifier
+        on the marked instances and predict new morphological categories.
+    \item Identify the incorrect instances as in 2. however this time also choose a classifier that
+        should be applied in the second step. The choice can be simply deterministic (e.g. via general POS), or stochastic.
+\end{enumerate}
+
+The first scenario can be quite attractive since it is very easy to implement and requires only one model.
+The problem is that requirements for such model are way too big and are difficult to satisfy therefore
+producing a well performing model can be real nightmare.
+We founded the second scenario much more plausible and it was our main focus during this research.
+It requires simple binary classifier for the first step and one multiclass (or possibly multitask\footnote{We
+define a multitask classifier as a classifier combining two classification tasks together (e.g. predicting new number and num case).
+The task are separate, however the classifier takes the possible relation of the two tasks into account.}) classifier.
+The third scenario seemed reasonable since we usually want to modify different morphological categories for different POS.
+However due to the results of the data analysis we didn't find it feasible to implement for time being.
+
+\subsection{Oracle classifier}
+
+Now that we have outlined the post-editing subtasks and assigned hypothetical classifiers 
+to solve each one of them, there are following two issues left to resolve: choice of the
+training instances and choice of the classifier targets. Since we only focus on correcting the morphological
+errors generated by the MT system and we ignore the lexical errors completely, we have to be carreful
+when picking the example instances for our classifier. For this matter, we found it very helpful to
+use a \equo{fake} classifier for this task, that we simply called \pojem{Oracle}.
+
+The basic idea behind the Oracle classifier is that it has access not only to the
+source sentences and the MT output like our production classifier but also to the \equo{correct} answers
+contained in the \pojem{reference translations}/\pojem{post-edited sentences}. The most important
+task of the Oracle is to help us to observe whether the suggested definition of \pojem{training instances} and
+moreover the definition \pojem{incorrect instances} (i.e. the instances, which required post-editing)
+has a potential of improving the MT output (in case a perfect classifier is available to us).
+
+We decided to extract \pojem{training instance} for each word in our data that met all of the following criteria:
+\begin{itemize}
+    \item the \pojem{MT-node lemma} IS\_EQUAL to the \pojem{REF-node lemma},
+    \item the \pojem{MT-parent\_node} IS\_DEFINED AND the \pojem{MT-parent\_node} IS\_NOT\_ROOT,
+    \item the \pojem{REF-parent\_node} IS\_DEFINED AND the \pojem{REF-parent\_node} IS\_NOT\_ROOT,
+    \item the \pojem{SRC-node} IS\_DEFINED,
+    \item the \pojem{SRC-parent\_node} IS\_DEFINED AND the \pojem{SRC-parent\_node} IS\_NOT\_ROOT,
+\end{itemize}
+We settled for these criteria for the following reasons: we want to extract only instances that have true predictions
+available (presence of the aligned REF-node), we want to ignore \equo{incorrect} instances related
+to lexical errors (equality of the SRC-node and REF-node lemmas) and lastly we want to make sure that
+enough relevant tree-based context information will be extracted. We haven't modified the definition
+of the training instance much during the research, but we experimenting a little with the definition
+of the \pojem{incorrect instance} (i.e. instance, that has incorrect surface form).
+We decided to experiment with these two definitions of \samp{incorrect instance}:
+\begin{enumerate}
+    \item the \pojem{MT-node form} IS\_NOT\_EQUAL to the \pojem{REF-node form},
+    \item the \pojem{MT-node form} IS\_NOT\_EQUAL to the \pojem{REF-node form} AND the \pojem{MT-parent lemma} IS\_EQUAL to the \pojem{REF-node lemma}.
+\end{enumerate}
+Both definitions work in the context of the \pojem{training instance}. In both cases, if the conditions
+are not met, the training instance is marked as correct and should be left unchanged by the classifier.
+These definitions cover both instances that should be changed (\pojem{correct} vs. \pojem{incorrect} instance)
+and how the incorrect instances should be modified (values from the REF-node). The surface forms
+generated with the use of these training instances should be indentical to those of the reference.
+This fact has one major drawback when defining the incorrect instances:
+the quality of the Oracle classifier (and therefore the \pojem{best}
+possible result) cannot be reliably measured by the automatic n-gram based metrics, because the post-edited
+sentences will always have same or better score than the MT output. Therefore manual evaluation is required
+to some extent.
+
+The first method marked about one-tenth of the training instances as incorrect. When used in combination
+with the Oracle classifier the post-edited sentences have shown moderate improvement in the automatic metrics.
+However, during the observation of the sentences we noticed modifications such as in example XXX.
+%TODO: example + comment
+
+%TODO: second method - expectations - results
+
+%TODO: compare with depfix - tady nebo az srovnani s nasimi vysledky v experimentech?
+
+%TODO: small manual eval?
 
 \section{Feature extraction}
 
-\section{Classifier definition}
+%TODO: tabulky
+% # of extracted instances (parents eq, !parents eq...)
+% automatic statistic of extracted/filtered features (variance filter)
+% popsat ruzne mnoziny featur + velikosti (extracted filtered)
+% add aggreement features
 
-\section{Oracle component}
+
+When we were designing the initial set of features we chose the following
+strategy: extract as many distinct features based on the available node information
+and later reduce the features by one or several methods (manual, or stochastic)
+of features selection.
+
+Our feature set has a hierarchical structure. For each training instance we extract
+information about the node, its parent, the aligned source node and aligned source node's
+parent. For training purposes, we also extract information from the aligned reference
+node. Note, that we ignore information about the parent of the reference node, we
+use these information only for classifying the incorrect instances.
+
+From each of these \samp{main} nodes inside the instance, we extract information
+specific to them and to their close neighbourhood (e.g. the parent, grandparent,
+preceding child, following child, preceding sibling, following sibling). We
+also extract information about the number of preceding and following children,
+direction of the edge coming from the node's parent and finally Interset representation
+of the POS tag. Every time a to be extracted value was missing, it was replaced by
+an empty string.
+
+We had also tried extracting the lemma, however it resulted in
+large increase of the already quite big feature space, so we dropped the idea
+for now. However, it might be interesting to use at least limited amount of lemmas in our
+feature set (most frequent lemmas) in the future.
+
+This way, we extracted XXX initial features. Of course, this was general feature
+set that needed further processing with every classification task. Also, the method
+by which we chose the initial features resulted in many of the features having zero
+variance. These features we removed.
+
+% TODO: statistiky
+
