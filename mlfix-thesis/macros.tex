@@ -85,3 +85,18 @@
 %%% Various table goodies
 \newcommand{\pulrad}[1]{\raisebox{1.5ex}[0pt]{#1}}
 \newcommand{\mc}[1]{\multicolumn{1}{c}{#1}}
+
+%%% Example environment
+\newcounter{excounter}
+    \newenvironment{myexample}[0]{%
+    \bigskip\noindent%
+    \refstepcounter{excounter}%
+    \newline%
+}
+{%
+    \begin{center}%
+    \textsc{\theexcounter}%
+    \end{center}%
+    \par\bigskip%
+}
+\numberwithin{excounter}{chapter}
