@@ -317,31 +317,32 @@ would become quite valuable.
 When we were designing the initial set of features we chose the following
 strategy: extract as many distinct features based on the available node information
 and later reduce the features by one or several methods (manual, or stochastic)
-of features selection.
+for features selection.
 
 Our feature set has a hierarchical structure. For each training instance we extract
 information about the node, its parent, the aligned source node and aligned source node's
 parent. For training purposes, we also extract information from the aligned reference
 node. Note, that we ignore information about the parent of the reference node, we
-use these information only for classifying the incorrect instances.
+use these information only for distinguishing the incorrect instances from the correct ones
+according to the previously described aproach.
 
 From each of these \samp{main} nodes inside the instance, we extract information
-specific to them and to their close neighbourhood (e.g. the parent, grandparent,
+specific to them and to their close neighbourhood (e.g. their parent, grandparent,
 preceding child, following child, preceding sibling, following sibling). We
 also extract information about the number of preceding and following children,
 direction of the edge coming from the node's parent and finally Interset representation
-of the POS tag. Every time a to be extracted value was missing, it was replaced by
-an empty string.
+of the POS tag. As a default, if a value is not defined we use an empty string instead.
+We are allowed to do that because we treat every feature as a set of discrete values.
 
-We had also tried extracting the lemma, however it resulted in
-large increase of the already quite big feature space, so we dropped the idea
-for now. However, it might be interesting to use at least limited amount of lemmas in our
-feature set (most frequent lemmas) in the future.
+We had also tried extracting the lemmas however, it resulted in a
+large growth of an already quite big feature space, so we dropped the idea.
+In the future, it might be interesting to use at least limited amount of lemmas in our
+feature set (most frequent lemmas) and observe how they can affect the performance of the classifiers.
 
 This way, we extracted around 1500 initial features. Of course, this was general feature
-set that needed to process further within every classification task. Also, the method
+set that needed to be further processed within every classification task. Also, the method
 by which we chose the initial features resulted in many of the features having zero
-variance. These features we removed.
+variance. Those features we removed.
 
 % TODO: statistiky
 

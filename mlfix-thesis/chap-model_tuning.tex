@@ -1,0 +1,109 @@
+\chapter{Model training}
+
+In this chapter, we are going to describe our process of developing
+the post-editing models. We will take a closer look at the feature selection
+methods we have experimented with, the task of model selection and parameter
+tuning and also the methods of evaluation we used during the tuning.
+The experiment results reported in this chapter are only for the separate
+classifier components, results of the evaluation of the whole MLFix systems
+are provided in the following chapter.
+
+In this chapter, we will cover following two classification tasks: the identification
+of the incorrect instances (words from the MT output with incorrect surface form)
+and the prediction of the new morphological categories for the incorrect instances.
+
+\section{Automatic error classification}
+
+%data rep - # of features
+%cv method
+%baseline
+
+In this task, we are facing the problem of the binary classification, where we
+assign value 0 to the instances that we consider correct and value 1 to the
+instances that needs to be fixed. The process of assigning these values to the
+training instances we extract from the data was described in the previous chapter.
+
+For model evaluation, we defined a baseline classifier, which assigned the 0 value
+to each instance, therefore marking all of the MT output as already correct.
+This baseline already achieved accuracy around XXX because only a portion of our
+training instances was marked as incorrect by our definition. For this reason
+we decided to use precision and recall based metrics during the model tuning with
+our main focus turned to maximising the model precision rather than the recall,
+because it is always better to miss some of the incorrect instances than falsely mark
+instances which are actually correct.
+
+Our training process can be separated into two stages: in the first stage, we
+focused on choosing a suitable machine learning method, we chose the most promising
+one and in the second stage we tried to further increasing the performance of model
+based on the chosen method by experimenting with various methods of feature filtering.
+We will take a closer look on both stages in the following subsections.
+
+\subsection{Machine learning method comparison}
+
+There are many machine learning methods that support binary classification, so we
+decided to only compare a limited subset of the available methods that are implemented
+in the Scikit-Learn framework. For each classifier we tried several hyperparameter
+settings to observe the changes in the classifier behaviour. However, we have maded only
+a rough examination of the hyperparameter configuration due to the number of observed
+methods. In this stage, the goal was not to train the best possible classifier but
+eliminate those, that are not suitable for the task.
+
+We tried to measure the performance of the classifiers on several datasets. We used
+the Autodesk dataset, WMT10 data, dataset extracted from the lingea logfiles and
+WMT16 newstest dataset, one translated with the Chimera\todo{ref} system and
+one translated with the experimental neural network machine translation system (NMT)
+provided by the University of Edinburgh\todo{ref}. For each dataset a counterpart
+created by substitution of the reference sentences by the Depfix output was also created
+to additionally measure the performance on the \equo{syntetic} data. The summary of the
+test data is shown in table\todo{ref}.
+
+For the purposes of the coarse evaluation we used each dataset separately for both training
+and testing of the classifers, by performing one-against-the-rest 10-fold jackknife sampling.
+Therefore the performance measured in this stage should be considered only as an in-domain
+performance for a specific MT system.
+
+We have compared the following methods: logistic regression, ridge regression classifier,
+random forests, extremely randomized trees, linear support vector machines and Gaussian Naive Bayes
+classifier. The summary of precision-recall performance of each trained classifier is shown
+in table\todo{ref}.
+%TODO okec
+
+
+\subsection{Feature filtering}
+
+%TODO: feature representation - vectorized dicts, binary features
+
+
+\section{Prediction of new categories}
+
+%TODO: graf nejcastejsich kategorii
+
+The second classification problem was predicting the correct morphological category for
+the words that were marked as incorrect. Because we are using the Interset representation
+of the morphological features we have several possibilities, how to handle this task such
+as:
+\begin{enumerate}
+    \item predict each category separately,
+    \item concatenate the features and treat them as a single prediction target,
+    \item use the methods that support multitask classification,
+\end{enumerate}
+
+With the first option, the biggest issue is determining the order in which the classifiers
+should be aplied mainly if we also want to include the current node morphological features
+into our model's feature set. The second approach eliminates this problem by predicting the
+values simultaneously. This can, however, quite easily expand the set of the predicted values,
+which will usually lead to an increased data sparsity. This can be a big problem as we have
+already shown that the amount of data, available for the post-editing task (mainly the post-edited
+data) can be quite low. The third option combines the first two by training an estimator
+which handles multiple joint classification tasks, one for each morphological category. The
+Scikit-Learn toolkit provides several classifiers which support this option.
+
+Before jumping straight into training our classifier, it is important to examine what morphological
+changes are made in our training data, how frequent they are and how can they affect the resulting
+surface form generation. We can, for instance, predict new values of the \samp{punctype} category,
+but it is almost certain that it will not affect the resulting wordform of any of the words
+classified as incorrect, because this category is related strictly to punctuation. There are
+of course less obvious examples and some categories, while being relevant for one target language
+can be pointless in another. For this reason we made a frequency analysis of the changes encountered
+in our data, shown in the figure\todo{ref}. 
+%todo okec
