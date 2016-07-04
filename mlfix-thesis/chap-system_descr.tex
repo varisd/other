@@ -1,4 +1,5 @@
 \chapter{System description}
+\label{chap:system_descr}
 
 In this chapter we are going to describe the main components
 of the MLFix system and take a closer look at the suggested processing pipeline.
@@ -10,117 +11,169 @@ a set of input features
 
 The MLFix is, similarly to its predecessor, almost entirely implemented in the
 Treex\cite{Popel:2010:TMN:1884371.1884406}\footurl{http://ufal.mff.cuni.cz/treex}
-framework (formerly knownas TectoMT). The framework was
-originally created as deep dependency-based English-Czech
-translation system however, due to its modularity, it is
-now used for various NLP processing tasks across different
-languages. The framework is closely related to the theory of Functional Generative Description\cite{Sgall1967}
-and was adapted to the Prague Dependency Treebank\cite{pdt20:2006}.
-It defines three layers of language representation: the morphological layer, the analytical layer
-and the tectogrammatical layer.
-Since the tools available for tectogrammatical layer analysis are usually
-language specific and implemented only for a limited set of languages
-we decided to use only the other two for the representation
-of the analysed data.
+framework (formerly knownas TectoMT).
+The framework was originally created as English-Czech hybrid translation system, combining
+rule-based modules with the statistical models and using deep semantic language representation
+for the sentence translation. However, due to its modularity, it is
+now used for various tasks of natural language processing (NLP) across different
+languages. The framework was built to support the methodology of the theory of Functional Generative Description\cite{Sgall1967}
+and was adapted to support sentence representation in the Prague Dependency Treebank\cite{pdt20:2006}.
+Mainly it supports the representation of the sentence on the different layers of abstaction defined in FGD: morphological layer,
+analytical layer and a tectogrammatical layer.\footnote{Usually referred to as m-layer, a-layer and t-layer where prefixes m-, a- and t- are also used to refer to the objects on the corresponding layer of abstraction.}
+Because the tools currently available for tectogrammatical layer analysis are available for
+a limited set of languages (mainly Czech and English, the developement of others is in progress),
+we decided to use only the a-layer (surface syntax) for data representation.
 
 \subsection{M-Layer analysis}
 
-% TODO: pospat nastroje
 The MLFix analysis pipeline is derived from an existing Depfix pipeline
 with a several modifications to make it easier to apply to different
-target languages. The input data (source sentence + MT output aligned on the sentence level)
-is first read in parallel and stored into the Treex internal representation.
-Both source side and MT side are tokenized by a rule-based tokenizer. After
-that, lemmatization and part-of-speech (POS) tagging is performed on each sentence. The
-assigned POS tags are then transformed to the unified format. Optionally,
-a named-entity recognition can be applied but it isn't mandatory.
-%footnote: we need more than coarse tags
+target languages. The input data (source sentence + MT output aligned on the sentence level,
+or additionaly reference sentences for extracting the training data)
+are first read in parallel and stored into the Treex internal representation.
+Both source side and MT side are tokenized by a rule-based tokenizer, each token is then
+represented by a separate m-node.
+
+Next, the lemmatization and part-of-speech (POS) tagging is performed on each m-node.
+For both English and Czech, we use MorphoDiTa\cite{strakova14:morphodita}\footurl{http://ufal.mff.cuni.cz/morphodita}
+tool for morphological analysis and tagging. MorphoDiTa is also used for Czech lemmatization.
+For English lemmatization, we use a rule-based block implemented in Treex.
+It is important to provide a POS tagger for the target language that supports
+relatively fine-grained morphological tags because our goal is to correct the morphological
+errors mainly through these tags.
+It was reported by Rosa\fixme{znovu citovat diplomku?} that tagger produces significantly more
+errors in morphological analysis of the Czech SMT outputs. In Depfix, this is covered
+by a rule-based block that identifies these errors and changes the incorrect POS tag without
+changing the surface form. We decided to omit this block and leave the issue to our statistical
+component.
+
+
+
+Last step we do in the scope of the m-layer is transformation of the POS tags into
+a more general representation. Optionally we can apply a named-entity recognition
+tool if one is available but it isn't mandatory. For English, we use the Stanford
+Named Entity Recognizer (NER)\cite{Finkel:2005:INI:1219840.1219885}\footurl{http://nlp.stanford.edu/software/CRF-NER.shtml},
+for Czech, we use a simple rule-based NER. 
 
 \subsection{Interset}
 
-Since there are usually different tagsets used for each individual language
-we would be forced to modify our existing pipeline with each new language.
+Since there are usually different tagsets used across the individual languages,
+often engineered for purposes of that specific language and with no standardized
+tag representation,
+we would be forced to modify our existing pipeline to some extent everytime
+a new language would be introduced.
 Therefore we decided to use Interset\cite{biblio:ZeReusableTagset2008}\footurl{https://ufal.mff.cuni.cz/interset}, an interlingua-based
-representation of POS tags from various tagsets. This way, in the following steps of the analysis,
-the choice of a specific tagset becomes transparent because our blocks only
+representation of POS tags from various tagsets. To be able to use this
+representation to represent tags from a given tagset, the decoding/encoding
+module is required. However, lately the support for various tagsets spanning
+through different languages started growing mainly due to the Universal Dependencies\footurl{universaldependencies.org} project.
+
+After the transformation, in the following steps of the analysis, the choice
+of a specific tagset becomes transparent because our blocks only
 have to deal with one well-defined set of features.
 
 \subsection{Word alignment}
 
 For the next step, we create a word-level alignment between each sentence pair
-using GIZA++\cite{och:ney:2000}. We make one-to-one word alignment where possible
-using intersection symmetrization. This steps helps us later with feature extraction
+using GIZA++\cite{och:ney:2000}. We make one-to-one word alignment where it is possible
+through the use of the intersection symmetrization. This step helps us later with feature extraction
 and with further processing of the target sentence.
+
+In the process of training data extraction, we also create simple alignment between
+the MT sentence and the reference sentence exploiting the forms, lemmas and tags
+of the m-nodes. The alignment between the source sentence and MT ouptut is then also
+projected to the reference sentence.
 
 \subsection{A-Layer analysis}
 
-% TODO: popsat nastroje
-Since we do not often have a reliable dependency parser available for many languages,
-we decided to perform dependency parsing only on the source (English) side.
-Still, research on Depfix have shown that the knowledge of the dependency structure
-of the target side sentences can significantly improve post-editor performance.
-For example, the dependency relations between the sentence nodes can help us identify
-incorrect agreement. For this reason, we decided to create the target side dependency
-structures simply by projecting the source sentence structure onto the target side
-using the word alignment.
-Such dependency structure will most likely be at least partially incorrect but we
-think that this additional information by being consistent for a given language pair
-can be of help for our statistical component.
+After the m-layer analysis and word alignment, we perform a dependency parsing.
+For English, we use Maximum spanning tree (MST) parser\cite{mcdonald:pereira:ribarov:hajic:2005}\footurl{http://sourceforge.net/projects/mstparser}
+implemented in the Treex framework. For the SMT output, even though there might
+be an existing dependency parser available for the target language, it is usually
+trained on the data that do not contain errors. Therefore, it has usually significantly
+lower performance when applied on the SMT output. Still research on Depfix have shown
+that the knowledge of the dependency structure of the SMT output can provide additional
+valuable information for identifying the grammatical errors\footnote{Actually, in the case of Depfix
+, the information about the dependency structure is crucial for most of the fixing components
+because e.g. the parent-child relationship is examined almost everytime.}, thus improving
+the post-editor's performance.
 
-\subsection{Training pipeline}
+For the time being we decided to build the dependency structures of the SMT output simply
+by projecting the dependency structure of the source sentence onto the target side
+using the word alignment we extracted in the preceeding step. The resulting structure
+will be far from correct, but should be at least consistent thoughout our data.
+To compensate the lower accuracy of the extracted dependency structure we perform
+a dependency parsing of the reference sentences during training, if a proper parser
+is available. For this purposes, we use the MST Parser for the Czech language as well.
+We expect that the combination of dependency parser for the reference sentences and
+a right choice of constraints applied when extracting training instances we should
+avoid polluting our training data with instances containing misleading context information
+due to an incorrect structure of the SMT dependency tree.
 
-We also do preprocessing of data we use for training our statistical component.
-The pipeline is similar to the processing pipeline with addition of processing
-the reference sentences. The reference sentences are processed in a same way
-as the MT output, however they are not analyzed on the a-layer, only a simple
-lemma based word alignment with the MT output is made.
+For the Czech SMT output, an implementation of the MST parser adapted for the SMT output
+is already available\cite{biblio:RoDuUsingParallel2012}, however, so far we haven't done any experiments
+to determine whether the dependency structures provided by the adapted parser (which
+will most likely be more precise) influence the final performance of our system.
+
+%\subsection{Training pipeline}
+
+%We also do preprocessing of data we use for training our statistical component.
+%The pipeline is similar to the processing pipeline with addition of processing
+%the reference sentences. The reference sentences are processed in a same way
+%as the MT output, however they are not analyzed on the a-layer, only a simple
+%lemma based word alignment with the MT output is made.
 
 \section{Statistical component}
 
-After the data preprocessing we can extract all the available features and
-call the trained model. The features are extracted separetely for each node and passed
-to the model. The model should be able to accomplish these two goals:
+After the data preprocessing, we extract all available features and
+apply a trained statistical model. The features are extracted separetely for each node and passed
+to the model. The model needs to accomplish these two goals:
 \begin{enumerate}
     \item identify the candidates with incorrect morphology,
     \item fix the incorrect morphological features.
 \end{enumerate}
 Of course, these two steps can be split between multiple separate components (and models),
-we describe our post-editing process in more detail later in section XXX.
+we describe the post-editing process in more detail later in chapter~\ref{chap:tuning}.
 
-We decided to use Scikit-Learn toolkit to train and executed our models since
-it has easy-to-use and quite uniform interface. However, our component can be easily
-extended to support other implementations of machine learning methods (e.g. VowpalWabbit).
-%TODO: footnote - there are wrappers for VW in treex already
-%TODO: doplint odkaz
+We decided to use Scikit-Learn\cite{scikit-learn}\footurl{biblio:RoDuUsingParallel2012} toolkit to train and execute our models since
+it has easy-to-use and quite uniform interface, which allows us to try out different
+machine learning ML methods simply by switching the model class. In Treex, we use a simple
+wrapper to load and execute the trained Scikit-Learn model. If a support for a different ML implementation
+is needed (e.g. VowpalWabbit\footurl{https://github.com/JohnLangford/vowpal_wabbit/wiki}\footnote{At the time of writing this thesis, there is already
+a limited support for VowpaWabbit.}), this wrapper can be easily modified to suit the requirements.
 
 \section{Wordform generation}
 
-% sloucit s predchozi sekci?
-When we are done with identifying the morphologically incorrect words and assigning
-them a new morphological categories we need to regenerate their surface form.
-This can be done either by rule-based component (for Czech language) or with
-help of another statistical model
-%footnote: flect?
+After we have finished identifying the morphologically incorrect words and assigning
+them a new morphological categories we need to generate a new surface form reflecting
+the changes we have made.
+This can be done either by rule-based component or with
+help of another statistical model. 
+
+For Czech, we have used a morphological generator build upon the morphology of Hajič\cite{HajicHAB2004}
+that has already been implemented within the Treex framework. For other languages,
+when there was not another option available,
+we have used Flect\cite{DBLP:conf/acl/DusekJ13}\footurl{https://ufal.mff.cuni.cz/flect}.
+It is a language independent morphological generation tool also using the Scikit-Learn
+models. The tools learns morphological inflection patters form an annotated corpora and
+is should able to even inflect previously unseen words using lemma suffixes as features
+and predicting the difference between the lemma and the form.
 
 \section{Language independence}
 
 From the previous description, we can notice that MLFix still depends on several
 language specific tools. It is quite dependent on the capability of the source
-language analysis, because we do not only need a POS tagger but also a dependency
+language analysis (in our case English), because we do not only need a POS tagger but also a dependency
 parser. We however assume that the source sentences are usually grammatical correct
 so it is much easier to provide the required tools than their modified versions
 targeted at the MT output.
 
 We also require a specific decoder of the source and target POS tags into the Interset
-structure but Interset already covers many of the most widespread tagsets available
+structure but Interset already covers large variety of the most widespread tagsets available
 and its support is still growing.
-%TODO: zminit universal dependencies?
 
 Finaly, aside from a language specific post-editing models (which we do not expect
 to be reusable across different languages) we require a module that regenerates
-the correct word form (either from the lemma+tag or lemma+Interset features combination).
-Such tool might not be explicitly available for every language but if no
-other option is provided we suggest training a statistical form generator.
-In our case, we used Flect\footurl{https://github.com/UFAL-DSG/flect}, a Scikit-Learn-based
-tool that learns morphological inflection patterns from annotated corpora.
-%TODO: blize popsat?
+the correct word form (either from the \samp{lemma+tag} or \samp{lemma+Interset features combination}).
+A state-of-the-art tool might not be explicitly available for every language but if no
+other option is provided we can use a statistical form generator, in our case Flect.

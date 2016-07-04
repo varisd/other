@@ -11,13 +11,13 @@ of linguistic knowledge gathered from the input data and the dependency
 on the language-specific third-party analysis tools, to specify the
 machine learning (ML) task which our APE component should accomplish and to train
 a sufficient ML model for correcting the machine translation (MT) output.
-We focus mainly on the English-Czech MT correction in the scope this thesis however,
-a preliminary results gathered from the English-German experiments are also presented.
+The system was developed using English-Czech language pair, however, we also present
+a preliminary results we gathered from the English-German language pair experiments.
 
 \section{Task Motivation}
 
 Even though the current state-of-the-art MT systems have been gradually improving in the
-past few decades, they are still not perfect. The currently most popular statistical machine
+past few decades, they are still not perfect. Currently the most popular statistical machine
 translation (SMT) systems can be fairly effective even without any or a little initial
 linguistic knowledge about the concerned language pair given they have access to sufficient
 amount of parallel data. However, when translating into the morphologically rich languages,
@@ -32,18 +32,17 @@ attemts to automate this process with automatic post-editing tools.
 
 \section{Related Work}
 
-\fixme{Bechara, Simard - opravit bibtex}
-
 Up to this date there have been various approaches to the task of automatic
 error correction of the machine translation output, each with a different level of success.
 
 The very first attempts in the field of automatic post-editing\cite{simard2007rule}
 focused on applying phrase-based statistical machine translation (PB-SMT)
-system on the output of the rule-base machine translation. The system was train on a monolingual
-bitext data containing the MT output as a source sentence and a reference translation as
-the target sentence. This phrase-based automatic post-editor (PB-APE) helped to improve
-the performance of the MT system in question. They also applied the post-editing component
-on a phrase-based translation system but the combined system performed worse in comparison
+system on the output of the rule-base machine translation. The system was trained on a monolingual
+bitextual data containing the MT output as a source sentence and a reference translation as
+the target sentence. This phrase-based automatic post-editor (PB-APE) helped to significantly improve
+the performance of the rule-based MT system in question.
+There were also attempts to apply the post-editing component
+on a phrase-based translation system but the combined system performed slightly worse in comparison
 with the standalone SMT system.
 
 Further experiments with PB-SMT $+$ PB-APE were done by B\'{e}chara et al.\cite{bechara:2011}
@@ -51,46 +50,68 @@ on English-French and French-English translation, where significant improvements
 for the latter translation direction. They improved the design suggested by Simard et al. by
 creating the purely statistical pipeline. The PB-APE was then expanded by adding additional
 context information about the source sentence to SMT-generated output (used as an input for
-the PB-APE).
+the PB-APE) reporting further improvement in performance. However, the presented system failed to
+improve the MT output in the opposite translation direction (English-French).
 
-Recently, we've seen attempts at applying rule-base APE Depfix\cite{depfix:2014} to English-Czech
-SMT output. The system uses a set of finely hand crafterd rules that aim at identifying
+These previous attempts can be considered purely statistical since only a little ammount of linguistic
+knowledge about the concerned languages was used during developement. To gain further insight into
+the task of automatic post-editing, B\'{e}chara\cite{bechara:master} and later Rosa\cite{biblio:RoAutomaticpostediting2013} provided
+a more thorough analysis of the most frequent errors made by the current SMT systems, the former
+for English-French and the latter for English-Czech.
+
+The error analysis was later used during developement of the rule-based APE Depfix\cite{depfix:2014},
+which was designed to correct the errors made by the English-Czech SMT systems.
+The system uses a set of finely hand crafterd rules that aim at identifying
 and correcting morphological errors such as incorrect agreement or valency, which are
 often encountered during English-Czech machine translation. It does not focus on a lexical errors
-although some minor corrections, e.g. in case of missing reflexive verbs, are made. The system
+although some minor corrections, e.g. insertion of missing reflexive verbs, are made. The system
 succeeded to improve output of various MT systems and was deployed as a stable part of the
 Chimera\cite{biblio:BoRoChimera2013} MT system.
 
-The idea behind the Depfix system seems promising however, due to its nature, it is difficult
+The idea behind the Depfix system seems promising, however, due to its rule-based nature, it is difficult
 to apply the APE on different language pair since it would required costly modifications to the
 existing set of rules. One of the goals of this thesis is to try and replace the rule-based blocks
 by a statistical ones so they applied to the different target language MT output more easily simply
 by training an appropriate statistical model.
 
-%TODO pridat "SMT error analysis"?
-
 \section{Thesis Structure}
-%Nazvy kapitol a poradi in progress
-
 %TODO: strucny popis depfixu? popis castych chyb?
-% nechat na popis pipeline (rozdily oproti depfixu) a analyzu dat (frekvence chyb v realu)
-% frekvence chyb - kombinovany barplot
 
 %TODO: odkazy
-In chapter 2, we are going to describe all the datasets which we used
-either to analyze various the aspects of the post-editing process and
-to train our post-editing system.
-In chapter 3, we will define the post-editing task as a classification
-task and go through various scenarios, we considered. In this chapter
-we are also going to justify our decissions from the analysis of the
-available data.
-In chapter 4, we are going to describe the MLFix processing pipeline.
-In chapter 5, we will describe in detail our process of model training
-and feature selection.
-In chapter 6, we are going to present our experiments and results we
-achieved with the English-Czech language pair.
-After that in chapter 7 we are going to describe our modifications to the English-Czech
-pipeline so that it can be applied to the English-Czech MT output post-editing and
-in chapter 8 we will present results we acquired from experimenting with
-this pipeline.
-Finally in chapter 9 we will conclude the thesis.
+In~chapter~\ref{chap:system_descr}, we are going to describe MLFix data processing
+pipeline and introduce all the tools we use.
+In~chapter~\ref{chap:data}, we will take a look at all datasets which we used during our system
+developement and analyze their usefulness for our system.
+In~chapter~\ref{chap:task_descr}, we are going to define the post-editing task, go through
+various modifications of the task we considered and explain our though
+process with support of the analysis of the available data.
+In~chapter~\ref{chap:tuning}, we are going to describe the process of the developement
+the statistical models for the MLFix post-editing component and present
+a preliminary results of the evaluation of the trained models.
+In chapter 6, we will evaluate the performance of the whole MLFix system
+and analyze the level of contribution to the resulting performance
+of each individual statistical compocomponent.
+In chapter 7, we will briefly describe our modifications to the English-Czech pipeline
+when used for the English-German language pair, then summarize the the differences
+in the training data and model training between the two language pairs.
+In chapter 8, we will present performance results of the modified English-German
+pipeline.
+We conclude our observations in chapter 9.\todo{Dodatek k attachmentum?}
+
+%In chapter 2, we are going to describe all the datasets which we used
+%either to analyze various the aspects of the post-editing process and
+%to train our post-editing system.
+%In chapter 3, we will define the post-editing task as a classification
+%task and go through various scenarios, we considered. In this chapter
+%we are also going to justify our decissions from the analysis of the
+%available data.
+%In chapter 4, we are going to describe the MLFix processing pipeline.
+%In chapter 5, we will describe in detail our process of model training
+%and feature selection.
+%In chapter 6, we are going to present our experiments and results we
+%achieved with the English-Czech language pair.
+%After that in chapter 7 we are going to describe our modifications to the English-Czech
+%pipeline so that it can be applied to the English-Czech MT output post-editing and
+%in chapter 8 we will present results we acquired from experimenting with
+%this pipeline.
+%Finally in chapter 9 we will conclude the thesis.
