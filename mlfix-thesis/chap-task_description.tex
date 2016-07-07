@@ -389,21 +389,58 @@ heuristic we have presented in~\Tref{marked-stats}. The statistic was computed o
 datasets we presented in the previous chapter (Autodesk, HimL, WMT10, WMT16). We also provide
 similar statistic for the data created via Depfix. We can see, that the portion of the incorrect instances
 is not very high. This is due to many sentences being considered correct by our heuristics (possibly because
-they contained too many errors, or the errors were of a different nature than the ones we detect).
+they contained either too many errors, or the errors were of a different nature than the ones we detect).
 
-We have evaluated set of \todo{how much} sentences extracted from the WMT16\footnote{Specifically, we have used a dataset
-where the MT output was created by the Chimera system.} dataset. We have also extracted
+To get a brief idea, if our heuristic has a potential of providing valuable information for the classifier
+training, we have decided to manually annotate a portion of data from the HimL testset post-edited by our
+Oracle classifier. Because this is not a final evaluation of our system, the evaluation was made only
+by the author of this thesis. The evaluation has been done on the pairs of MT output, Oracle post-edited
+output, randomly shuffled to lessen the bias of the annotator. We also provided a source sentence
+to help the annotator decide when both outputs seemed grammatically correct but had different meaning.
+We have not provided the annotator with the reference sentences due to the nature of the Oracle post-editor.
+
+ evaluated set of sentences extracted from the HimL testset. We have also extracted
 similar number of sentences from the same dataset, where the reference sentences have been replaced
 by the depfix output. The sentences have been presented in pairs of (MT output, Oracle output),
 randomly shuffled so that the annotator did not know which is which.
 This evaluation have been done mainly for the purpose of developement
 so only one annotator have been involved.
 
-In table\todo{ref} we present the results of the manual evaluation. Only the sentences, that were
-modified by the Oracle classifier were annotated by the human evaluator.
-%todo: prec recall ala depfix
+\begin{table*}[t]
+\centering
+\small
 
-\todo{results}
+\begin{tabular}{l|cc|ccc|cc}
+  &  Evaluated  &  Corrected  &  $+$  &  $-$  &  0  &  Precision  &  Recall  \\
+\hline
+Oracle  &  1050  &  318  &  204  &  54  &  60  &  64.1\%  &  19.4\%  \\
+Oracle-Depfix  & 0.009  &  0.003  &  0.003  &  &  &  &  \\
+\end{tabular}
+\caption{
+Results of the the manual evaluation of the ideal system based on the 3rd
+presented heuristic. We present the results on both normal dataset and
+the
+dataset with Depfix reference sentences.
+}
+\label{oracle-maneval}
+\end{table*}
+
+In~\Tref{oracle-maneval} we present the results of the manual evaluation.
+We present the number of sentences from the evaluted dataset, number of sentences,
+that were actually corrected by the Oracle and the nature of the corrections:
+better ($+$), worse ($-$) or indecicive (0).
+The indecisive annotations were usually a result of both translations being
+too incomprehensive or due to multiple corrections, both improving and worsening.
+In addition, we have computed the precision and recall in the same manner as Rosa during the Depfix evaluation:
+$precision = better / corrected$
+$recall = better / evaluated$
+
+We can see from the results, that the final heuristic, presented in this chapter,
+marked majority of the incorrect instances correctly (64.1\% of the corrected sentences).
+The recall is not very high, only a one-fifth of the sentences were modified
+by the Oracle classifier.
+
+\todo{depfix data comment}
 
 
 \section{Feature extraction}
