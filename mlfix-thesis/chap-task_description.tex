@@ -411,7 +411,7 @@ so only one annotator have been involved.
 \small
 
 \begin{tabular}{l|cc|ccc|cc}
-  &  Evaluated  &  Corrected  &  $+$  &  $-$  &  0  &  Precision  &  Recall  \\
+  &  Evaluated  &  Changed  &  $+$  &  $-$  &  0  &  Precision  &  Recall  \\
 \hline
 Oracle  &  1050  &  318  &  204  &  54  &  60  &  64.1\%  &  19.4\%  \\
 Oracle-Depfix  & 0.009  &  0.003  &  0.003  &  &  &  &  \\
@@ -427,16 +427,21 @@ dataset with Depfix reference sentences.
 
 In~\Tref{oracle-maneval} we present the results of the manual evaluation.
 We present the number of sentences from the evaluted dataset, number of sentences,
-that were actually corrected by the Oracle and the nature of the corrections:
+that were actually modified by the Oracle and the nature of the corrections:
 better ($+$), worse ($-$) or indecicive (0).
 The indecisive annotations were usually a result of both translations being
 too incomprehensive or due to multiple corrections, both improving and worsening.
-In addition, we have computed the precision and recall in the same manner as Rosa during the Depfix evaluation:
-$precision = better / corrected$
-$recall = better / evaluated$
+In addition, we have computed the precision~(\ref{eq:prec-or}) and recall~(\ref{eq:rec-or}) in the same manner as Rosa during the Depfix evaluation:
+
+\begin{equation} \label{eq:prec-or}
+precision = \frac{better}{changed}
+\end{equation}
+\begin{equation} \label{eq:rec-or}
+recall = \frac{better}{evaluated}
+\end{equation}
 
 We can see from the results, that the final heuristic, presented in this chapter,
-marked majority of the incorrect instances correctly (64.1\% of the corrected sentences).
+marked majority of the incorrect instances correctly (64.1\% of the changed sentences).
 The recall is not very high, only a one-fifth of the sentences were modified
 by the Oracle classifier.
 

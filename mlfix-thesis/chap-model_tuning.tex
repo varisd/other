@@ -5,16 +5,67 @@ In this chapter, we are going to describe our process of developing
 the statistical post-editing models. We will take a closer look at the feature selection
 methods we have experimented with, the task of model selection and parameter
 tuning and also the methods of evaluation we used during the tuning.
-The experiment results reported in this chapter are only for the separate
-classifier components, results of the evaluation of the whole MLFix systems
-are provided in the following chapter. The evaluation presented in this chapter
-is done on a word level, because it reflects our definition of an extracted instance.
+We only present experiment results for the separate statistical models,
+results of the evaluation of the whole MLFix system is presented in the next chapter.
 
 In this chapter, we will cover following two classification tasks: the identification
 of the incorrect instances (words from the MT output with incorrect surface form)
 and the prediction of the new morphological categories for the incorrect instances.
 
-\section{Automatic error classification}
+Our training process can be separated into three stages: in the first stage, we
+focused on choosing a suitable machine learning method, we chose the most promising
+one, in the second stage we tried to further increase the performance of the model
+based on the chosen ML method by experimenting with various methods of feature filtering
+and in the third stage, for each dataset, we search for the best hyperparameters
+of the both the selected ML method and feature filtering method.
+%We will take a closer look on both stages in the following subsections.
+
+
+\section{Model evaluation methodology}
+
+We have decided to do word-level evaluation during the model training, more precisely,
+we have evaluated the performance of the models using the instances extracted by the
+process we described in the previous chapter.
+
+For both error detection and morphological category prediction task, we have defined
+a baseline model for comparison. This model basically represents a predictor which
+does not detect any errors (all instances are marked as correct) or keeps the original
+morphological categories for each instance.
+
+Aside from the standard accuracy metric, we have decided to measure precision and recall
+of the trained models. We use standard definition of precision~(\ref{eq:prec-mod}) and recall~(\ref{eq:rec-mod}) using the following equations:
+\begin{equation} \label{eq:prec-mod}
+precision = \frac{TP}{TP + FP}
+\end{equation}
+\begin{equation} \label{eq:rec-mod}
+recall = \frac{TP}{TP + FN}
+\end{equation}
+where definitions of \pojem{true positives} (TP), \pojem{false positives} (FP) and \pojem{false negatives} (FN)
+vary slightly with each classification task. We also use f-measure to compare combined results of these metrics.
+
+For error detection, each instance which was assigned same value as the \pojem{true prediction}
+and different value than the \pojem{baseline} is marked as TP, instance
+that was assigned value different both from the \pojem{true prediction} and \pojem{baseline}
+is marked as FP and instance with \pojem{predicted value} equal to the \pojem{baseline}
+but different from the \pojem{true prediction} is marked as FN.
+
+For the morphological category prediction we use same definition of TP, however, the definitions
+of FP and FN are altered in the following way (in both cases, we assume that the \pojem{true prediction}
+does not match the \pojem{predicted value}):
+\begin{itemize}
+\item if the \pojem{baseline} value matches the \pojem{predicted value}, instance is marked as FN,
+\item if the \pojem{baseline} value matches the \pojem{true prediction}, instance is marked as FP,
+\item if the \pojem{baseline} does not match either one, the instance is marked as i\pojem{wrong positive} WP.
+\end{itemize}
+
+The WP is a special case which reflects the situation where predictor tries to predict new value (different
+from the original one) but fails and returns just another incorrect value. We must also take into account
+the fact, that the error detection classifier is a general model, which is not designed to distinguish
+the types of morphological errors and the morphological predictor might be specialized only on a limited
+set of the morphological categories. Therefore, sometimes we want it to just leave the \equo{incorrect}
+instances unchanged because the reason it was marked as incorrect can be out of its scope.
+
+\section{Automatic error detection}
 
 %data rep - # of features
 %cv method
@@ -22,8 +73,8 @@ and the prediction of the new morphological categories for the incorrect instanc
 
 We have found that not only during task specification but even during model training,
 the task of identifying morphologically incorrect words in the text is more difficult
-the task of assigning the new morphological categories. We have faced several issues
-during training which we will describe in more detail in the following subsections.
+than the task of assigning the new morphological categories. We have faced several issues
+during the training which we will describe in more detail in the following subsections.
 
 \subsection{Unbalanced data problem}
 
@@ -32,63 +83,70 @@ to assign value 0 to the instances that we consider correct and value 1 to the
 instances that need to be corrected. The process of assigning these values to the
 extracted training instances was described in the previous chapter. 
 
-For the model evaluation, we defined a baseline classifier, which assigned the 0 value
-to each instance, therefore marking all of the MT output as already correct.
-This baseline already achieved accuracy larger than 95\%, because, as we have already shown,
-only a small portion of our
-training instances has been marked as incorrect by our heuristic.
-This became a several issue since most of the machine learning method use accuracy during
-the process of searching for the best hypothesis. On the other hand, it is the minority
+%For the model evaluation, we defined a baseline classifier, which assigned the 0 value
+%to each instance, therefore marking all of the MT output as already correct.
+In this task, the \pojem{baseline classifier} already achieved accuracy larger than 95\%
+simply by marking all the instances as correct.
+As we have already pointed out, this is because only a small portion of our
+training instances is marked as incorrect by our heuristic.
+This became a severe issue since most of the machine learning methods rely more or less on accuracy during
+the process of searching for the best hypothesis, however, it is the minority
 class, that is our target during the error classification.
 
-There are several methods that can be used to solve this problem: creating syntetic
+There are several methods that can be used to solve this problem\todo{citace?}: e.g. creating syntetic
 training data by resampling instances with our minority class or removing some instances
-belonging to the dominating class, weighting of the training instances, modification of the
+belonging to the dominating class, weighting of the training instances or modification of the
 cost function. The manipulation with the training data (upsampling, downsampling) is the easieast method,
-however, the more it modifies the distribution of the classes over the training data, the worse is the final
+however, the more it modifies the distribution of the classes over the training data, the worse can become the final
 performance of the classifier on the real-life data. Still, the idea of modifying the distribution
 of our training data is worth considering.
 
-We inspired ourselves in the work of Jia\cite{biblio:ZaPoHiddenMarkov2009}, where they face similar
-classification task. During training, they filtered their training corpus using only around 5\% of
+We have inspired ourselves in the work of Jia describing the classification of grammar errors in the texts
+written by a human\cite{biblio:ZaPoHiddenMarkov2009}. They are aproaching the task, similarly to us, as an classification
+problem. During training, they filter their training corpus using only around 5\% of
 the sentences, because only those were the ones that contained grammatical errors.
 
-In our case, when we look at the results produced by the Oracle classifier, we can see that at least
-two-thirds of the MT sentences have not been modified (and would not be due to our method of marking
-the incorrect instances). These \equo{correct} (ignored by the Oracle) sentences are still part of
-our original training data. Therefore, to balance our data, we have decided to use only the training
+In our case, if we look at the results produced by the Oracle classifier, we can see that at least
+two-thirds of the MT sentences have not been modified. This means that at least two-thirds of the sentences
+were considered morphologically \equo{correct}\footnote{This is very likely not to be true, but can at least assume
+that they do not contain training instances marked as incorrect (as far as our heuristic goes).}
+These sentences are still part of our original training data introducing a significant amount of training
+instances marked as correct.
+Therefore, to balance our data, we have decided to use only the training
 instances from the sentences where at least one word was marked as incorrect. This way, we were
 able to increase the portion of the minority class up to 10\%.
 
-\todo{kam s popisem metrik?}
+This obviously creates another task and that is detection of the \equo{incorrect} sentences.
 
-For this reason
-we decided to use precision and recall based metrics during the model tuning with
-our main focus turned to maximising the model precision rather than the recall,
-because we think it is more preferable to miss some of the incorrect instances than falsely mark
-instances which are actually correct.
+%\todo{kam s popisem metrik?}
 
-For the purposes of evaluation we compute \pojem{precision} by a widely used formula:
-$precision = TP / (TP + FP)$
-where TP stands for \pojem{true positives}, in our case instances which were
-assigned same value as the \pojem{true prediction} and different value than the \pojem{baseline},
-and FP stads for \pojem{false positives}, the instances which were assigned value
-different from both \pojem{true prediction} and the \pojem{baseline}.
+%For this reason
+%we decided to use precision and recall based metrics during the model tuning with
+%our main focus turned to maximising the model precision rather than the recall,
+%because we think it is more preferable to miss some of the incorrect instances than falsely mark
+%instances which are actually correct.
 
-Similarly, we define \pojem{recall} with a following formula:
-$recall = TP / (TP + FN)$
-where FN stands for \pojem{false negatives}, the instances which were assigned value
-different from the \pojem{true prediction} and equal to the \pojem{baseline}.
-This specific definition of TP, FP and FN is similar to the standard interpretation
-of these terms due to the choice of our baseline. However, it will be important
-during evaluation of the second classification task, the prediction of new morphological
-categories.
+%For the purposes of evaluation we compute \pojem{precision} by a widely used formula:
+%$precision = TP / (TP + FP)$
+%where TP stands for \pojem{true positives}, in our case instances which were
+%assigned same value as the \pojem{true prediction} and different value than the \pojem{baseline},
+%and FP stads for \pojem{false positives}, the instances which were assigned value
+%different from both \pojem{true prediction} and the \pojem{baseline}.
 
-Our training process can be separated into two stages: in the first stage, we
-focused on choosing a suitable machine learning method, we chose the most promising
-one and in the second stage we tried to further increasing the performance of model
-based on the chosen method by experimenting with various methods of feature filtering.
-We will take a closer look on both stages in the following subsections.
+%Similarly, we define \pojem{recall} with a following formula:
+%$recall = TP / (TP + FN)$
+%where FN stands for \pojem{false negatives}, the instances which were assigned value
+%different from the \pojem{true prediction} and equal to the \pojem{baseline}.
+%This specific definition of TP, FP and FN is similar to the standard interpretation
+%of these terms due to the choice of our baseline. However, it will be important
+%during evaluation of the second classification task, the prediction of new morphological
+%categories.
+
+%Our training process can be separated into two stages: in the first stage, we
+%focused on choosing a suitable machine learning method, we chose the most promising
+%one and in the second stage we tried to further increasing the performance of model
+%based on the chosen method by experimenting with various methods of feature filtering.
+%We will take a closer look on both stages in the following subsections.
 
 \subsection{Machine learning method comparison}
 
@@ -113,7 +171,7 @@ and testing of the classifers, by performing one-against-the-rest 10-fold jackkn
 Therefore the performance measured in this stage should be considered only as an in-domain
 performance for a specific MT system.
 
-We have compared the following methods: logistic regression, ridge regression classifier,
+We have compared the following methods\todo{reference k metodam?}: logistic regression, ridge regression classifier,
 random forests, extremely randomized trees and support vector machines classifier.
 In the\todo{ref}, we can see the comparison of the performance of various classifiers based
 on the F1-measure metric. %okec
@@ -148,11 +206,11 @@ as:
 \end{enumerate}
 
 With the first option, the biggest issue is determining the order in which the classifiers
-should be aplied mainly if we also want to include the current node morphological features
-into our model's feature set. The second approach eliminates this problem by predicting the
+should be aplied. Additionally we have to decide if we also want to include the current node morphological features
+into our model's feature set or use the newly predicted ones. The second approach eliminates this problem by predicting the
 values simultaneously. This can, however, quite easily expand the set of the predicted values,
-which will usually lead to an increased data sparsity. This can be a big problem as we have
-already shown that the amount of data, available for the post-editing task (mainly the post-edited
+which usually leads to increase in data sparsity. This can be a big problem as we have
+already shown that the amount of data available for the post-editing task (mainly the post-edited
 data) can be quite low. The third option combines the first two by training an estimator
 which handles multiple joint classification tasks, one for each morphological category. The
 Scikit-Learn toolkit provides several classifiers which support this option.
@@ -173,15 +231,43 @@ we decided that it still might be worthwhile to try at least predicting grammati
 
 \subsection{Machine Learning method comparison}
 
-In the end, we decided to train three models: one predicting case only (C), one predicting case and number (CN),
-and one predicting case, number and gender (CNG). We used same datasets as in the previous task, however, this
+In the end, we have decided to train three models: one predicting case only (C), one predicting case and number (CN),
+and one predicting case, number and gender (CNG). We have used same datasets as in the previous task, however, this
 time we have used only feature vectors of the instances that were marked as incorrect in our training data. Because
 our predictors will only be classifying the incorrect instances, training them on the whole dataset would only create
-unnecesary bias.
+unnecesary bias. On the other hand, this has made the training sets quite small (containing only a few hundreds of examples
+at most). The summary of the training data is in~\Tref{cats-training-sum}. We have decided to train a separate classifier
+for each dataset instead of combining the data together, because we can simply combine the models instead (e.g. via majority
+vote, best prediction etc.). This allows us evaluating the combined model of a test set of our choice simply by leaving
+out the model which was trained on that specific test set.
 
-Again, we had to decide which ML method should we use for this task. We have ran similar set of classifiers with similar
-hyperparameters as in the error classification task to get a rough idea about their capabilities. The metrics we have used
-are also the same. The results are shown in~\Fref{cats-draft}. We can see, that even without any sophisticated parameter
+\begin{table*}[t]
+\centering
+\small
+
+\begin{tabular}{lc}
+Dataset  &  \hash{} training instances  \\
+\hline
+WMT10  &  645  \\
+HimL  & 338  \\
+WMT16-chimera  &  722  \\
+WMT10-Depfix  &  210  \\
+HimL-Depfix  &  72  \\
+WMT16-chimera-Depfix  &  99  \\
+\end{tabular}
+\caption{
+    Summary of the size of the training data extracted from each dataset.
+}
+\label{cats-training-sum}
+\end{table*}
+
+Again, we had to decide which ML method should we use for this task. 
+We have examined similar set of classifiers with similar
+hyperparameters as in the error classification task to get a rough idea about their capabilities. We compared them mainly
+through their f-measure performance.
+The rough comparisons were made with the case classifier only,
+we have assumed, that the ML performace will be similar for the other two categories.
+The results are shown in~\Fref{cats-draft}. We can see, that even without any sophisticated parameter
 tuning or feature filtering, the classifiers perform quite well. We can also notice that in most of the cases, the ensemble
 methods (random forests, extremely randomized trees) performed slightly better than the rest. Therefore we have decided
 to pick these methods for further experiments.
@@ -201,11 +287,53 @@ to pick these methods for further experiments.
 \centering
   \includegraphics[scale=0.7]{cat-class}
   \caption{
-    Overview of the classifier performance. We have tried several variations of the hyperparameters
+    Overview of the classifier performance.
+We have tried several variations of the hyperparameters
 for each classifier. The classifiers are ordered from the best to the worst. Only top 50 classifiers
 are shown for each dataset.
 }
   \label{cats-draft}
 \end{figure}
 
+\subsection{Feature selection}
+
+We have decided to perform additional feature selection with models trained on the standard HimL dataset
+and WMT10 dataset because there is still a reasonable room for an improvement. Again, we have tried two initial features
+sets, one using the source side features and one without them. We have not noticed any significant difference in performance
+between models trained on these two initial feature sets\footnote{Only difference was that the extremely randomized
+trees performed sligly better than the random forest classifier if they both used the smaller feature set.} so we decided to use the larger one and leave
+the feature selection to the separate model.
+
+We have compared several methods of feature selection: KBest selection
+(with chi-squared scoring function), selection based on lasso regularization and selection through
+models (svm, random forest). Again, we have done a rough comparison of these methods, by trying out
+several parameter configurations. We tested them on a model with a fixed parameters. The results
+are in~\Fref{cat-sel}. We can see that with the HimL dataset, the feature selection did not have
+any positive influence on the resulting model. On the other hand, we decided to use the KBest
+feature filtering for the WMT10 dataset model training.
+
+\begin{figure}
+\centering
+  \includegraphics[scale=0.7]{cat-sel}
+  \caption{
+    Overview of the random forest performance when combined with various feature selection methods.
+The classifiers are ordered from the best to the worst. Only top 50 classifiers
+are shown for each dataset.
+}
+  \label{cat-sel}
+\end{figure}
+
+\subsection{Multitask models}
+
+\subsection{Model summary}
+
+In the end, we have trained six different models, one for the each dataset presented in the rough comparison.
+The summary of their in-domain final performance is in`\Tref{cats-summary}. We have compared performance
+of three chosen classifiers, the case (C) classifier, case-number (CNG) and case-number-gender (CNG) classifier.
+%okec - zhorseny perf. s pridavanim cat?
+
+\todo{tohle az do final evaluace?}
+Since the domains of the datasets differ to a various degree, we have decided to combine the models trained
+on the different datasets, however, we do not combine different types of classifier. This combined model
+compares result of each separate classifier (with the prediction probability) and picks the most probable choice.
 
