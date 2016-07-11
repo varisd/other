@@ -76,6 +76,8 @@ the task of identifying morphologically incorrect words in the text is more diff
 than the task of assigning the new morphological categories. We have faced several issues
 during the training which we will describe in more detail in the following subsections.
 
+
+
 \subsection{Unbalanced data problem}
 
 In this task, we face the problem of the binary classification, where we decided
@@ -116,32 +118,14 @@ Therefore, to balance our data, we have decided to use only the training
 instances from the sentences where at least one word was marked as incorrect. This way, we were
 able to increase the portion of the minority class up to 10\%.
 
-This obviously creates another task and that is detection of the \equo{incorrect} sentences.
+This less unbalanced dataset, we have created this way can be used in two ways: we can simply treat
+it like a downsampled data and use the trained models \equo{globally} (on every MT sentence),
+or we can rather add another component that will be used to identify these \equo{incorrect} sentences
+and than apply our error detection model.
 
-%\todo{kam s popisem metrik?}
+%This obviously creates another task and that is detection of the \equo{incorrect} sentences.
 
-%For this reason
-%we decided to use precision and recall based metrics during the model tuning with
-%our main focus turned to maximising the model precision rather than the recall,
-%because we think it is more preferable to miss some of the incorrect instances than falsely mark
-%instances which are actually correct.
-
-%For the purposes of evaluation we compute \pojem{precision} by a widely used formula:
-%$precision = TP / (TP + FP)$
-%where TP stands for \pojem{true positives}, in our case instances which were
-%assigned same value as the \pojem{true prediction} and different value than the \pojem{baseline},
-%and FP stads for \pojem{false positives}, the instances which were assigned value
-%different from both \pojem{true prediction} and the \pojem{baseline}.
-
-%Similarly, we define \pojem{recall} with a following formula:
-%$recall = TP / (TP + FN)$
-%where FN stands for \pojem{false negatives}, the instances which were assigned value
-%different from the \pojem{true prediction} and equal to the \pojem{baseline}.
-%This specific definition of TP, FP and FN is similar to the standard interpretation
-%of these terms due to the choice of our baseline. However, it will be important
-%during evaluation of the second classification task, the prediction of new morphological
-%categories.
-
+%%% TOTO UZ JE ZMINENE NA ZACATKU %%%
 %Our training process can be separated into two stages: in the first stage, we
 %focused on choosing a suitable machine learning method, we chose the most promising
 %one and in the second stage we tried to further increasing the performance of model
@@ -153,45 +137,114 @@ This obviously creates another task and that is detection of the \equo{incorrect
 There are many machine learning methods that support binary classification, so we
 decided to only compare a limited subset of the available methods that are implemented
 in the Scikit-Learn framework. For each classifier we tried several hyperparameter
-settings to observe the changes in the classifier behaviour. However, we have maded only
+settings to observe the changes in the classifier behaviour. However, we have made only
 a rough examination of the hyperparameter configuration due to the number of observed
 methods. In this stage, the goal was not to train the best possible classifier but
 eliminate those, that are not suitable for the task.
 
-We tried to measure the performance of the classifiers on several datasets. We used
-the Autodesk dataset, WMT10 data, dataset extracted from the lingea logfiles and
-WMT16 newstest dataset translated, one with the Chimera system and
-one translated with the experimental neural network machine translation system (NMT)
-provided by the University of Edinburgh\todo{no ref, nezminovat?}. For each dataset a counterpart
-created by substitution of the reference sentences by the Depfix output was also created
+We have tried to measure the performance of the classifiers on several datasets. We have used
+the WMT10 data, dataset extracted from the lingea logfiles (HimL) and
+WMT16 newstest dataset translated by the Chimera system.
+For each datasets, only instances from the \equo{incorrect} (sentences contaning at least one error)
+sentences were used.
+%one translated with the experimental neural network machine translation system (NMT)
+%provided by the University of Edinburgh\todo{no ref, nezminovat?}.
+Additionally, a counterpart was
+created by substitution of the reference sentences with the Depfix output
 to additionally measure the performance on the \equo{syntetic} data.
+The summary of the size of the used training data is in~\Tref{wf-training-sum}
+
+\begin{table*}[t]
+\centering
+\small
+
+\begin{tabular}{lcc}
+Dataset  &  \hash{} Instances  &  \hash{} Instances (filt.)  \\
+\hline
+WMT10  &  23,470  &  6,033  \\
+HimL  & 7,234  &  2,469  \\
+WMT16-chimera  &  26,942  &  7,047  \\
+WMT10-Depfix  &  40,678  &  4,101  \\
+HimL-Depfix  &  10,491  &  1,114  \\
+WMT16-chimera-Depfix  42,021  &  1,897  \\
+\end{tabular}
+\caption{
+    Summary of the size of the training data extracted from each dataset. We present
+size before and after (filt.) removing the instances extracted from the \equo{correct} sentences.
+}
+\label{wf-training-sum}
+\end{table*}
+
 
 For the purposes of the coarse evaluation we used each dataset separately for both training
 and testing of the classifers, by performing one-against-the-rest 10-fold jackknife sampling.
-Therefore the performance measured in this stage should be considered only as an in-domain
+Therefore the results presented in this stage should be considered only as an in-domain
 performance for a specific MT system.
 
 We have compared the following methods\todo{reference k metodam?}: logistic regression, ridge regression classifier,
-random forests, extremely randomized trees and support vector machines classifier.
-In the\todo{ref}, we can see the comparison of the performance of various classifiers based
-on the F1-measure metric. %okec
+random forests, extremely randomized trees and support vector machines (SVM) classifier.
+In the~\Fref{wf-draft}, we can see the comparison of the performance of various classifiers based
+on the F1-measure metric. We can see, that for the task of error identification, the support vector
+machines with linear kernel might be the most suitable overperforming other methods in most of our
+datasets. The \equo{baseline} peformance is not spectacullar, with score of less 0.3 for the normal data
+and a slightly better score (\tilda{}0.5) for the Depfix data. Therefore we have decided to explore
+further only SVM during the following stages of model training.
 
-% todo: src, nosrc
-% init features: 1364
-% init features: 682
-% napsat do feat filtering
-% best + avg
-
-
-% The summary of precision-recall performance of each trained classifier is shown
-%in table\todo{ref}.
-%TODO okec
-
+% with source
+\begin{figure}
+\centering
+  \includegraphics[scale=0.7]{wf-class}
+  \caption{
+    Overview of the classifier performance.
+We have tried several variations of the hyperparameters
+for each classifier. The classifiers are ordered from the best to the worst. Only top 50 classifiers
+are shown for each dataset.
+}
+  \label{wf-draft}
+\end{figure}
 
 \subsection{Feature filtering}
 
-%TODO: feature representation - vectorized dicts, binary features
+During the model comparison, we have compared performance on two initial feature sets:
+one did not contain any information about the source sentence (\tilda{}680 initial features)
+and one with the source sentence features (\tilda{}1360 initial features). Before training
+the features with zero variance were removed, however, no other feature selection has been
+performed. We have noticed that the additional information provided by the source sentence features
+significatnly improves performance of the majority of the ML methods. Therefore, we have decided
+to use this feature set for the feature selection method comparison.
 
+We have picked SVM as ML of our choice. We have picked several methods for feature
+selection and compared their influence on the classifier performance. During the comparison
+we used a SVM model with fixed hyperparameters. We compared the following methods for
+feature selection: KBest selection (with chi-squared scoring function), selection of the percentile
+of the features (based on the ANOVA F-test),
+selection based on lasso regularization and selection through models with feature importance
+scoring models (svm, random forest). As far as importance scoring goes, we compared different
+model configurations and during features selection, only features with importance higher
+than the mean of the feature importance distribution were selected.
+
+The results of the feature selection method comparison are shown in~\Fref{wf-sel}. We can see
+that most of the time the feature selection performed by either ANOVA percentile selector or
+SVM slightly improved the model performance. We have therefore decided to investigate this methods
+further.
+
+\begin{figure}
+\centering
+  \includegraphics[scale=0.7]{wf-sel}
+  \caption{
+    Overview of the classifier performance.
+We have tried several variations of the hyperparameters
+for each classifier. The horizontal line marks the best performance without
+a feature selection method. The classifiers are ordered from the best to the worst. Only top 50 classifiers
+are shown for each dataset.
+}
+  \label{wf-sel}
+\end{figure}
+
+% results + okec
+
+%TODO: feature representation - vectorized dicts, binary features???
+% chceme to zminovat?
 
 \section{Prediction of new categories}
 
@@ -224,7 +277,7 @@ of course less obvious examples and some categories, while being relevant for on
 can be pointless in another.
 
 For this reason we made a frequency analysis of the changes encountered
-in our data, shown in the figure\Fref{iset-barplot}. We can see that most of the time, only the grammatical
+in our data, shown in the~\Fref{iset-barplot}. We can see that most of the time, only the grammatical
 case was modified (more than 50\% of the instances for the Depfix-based datasets and more than 40\% of the instances for
 the normal datasets). Other changes were a lot less frequent (less than 10\% of the modified instances), however,
 we decided that it still might be worthwhile to try at least predicting grammatical number and gender.
@@ -308,8 +361,8 @@ We have compared several methods of feature selection: KBest selection
 (with chi-squared scoring function), selection based on lasso regularization and selection through
 models (svm, random forest). Again, we have done a rough comparison of these methods, by trying out
 several parameter configurations. We tested them on a model with a fixed parameters. The results
-are in~\Fref{cat-sel}. We can see that with the HimL dataset, the feature selection did not have
-any positive influence on the resulting model. On the other hand, we decided to use the KBest
+are in~\Fref{cats-sel}. We can see that with the HimL dataset, the feature selection did not have
+any positive influence on the resulting model. On the other hand, we have decided to use the KBest
 feature filtering for the WMT10 dataset model training.
 
 \begin{figure}
@@ -317,10 +370,10 @@ feature filtering for the WMT10 dataset model training.
   \includegraphics[scale=0.7]{cat-sel}
   \caption{
     Overview of the random forest performance when combined with various feature selection methods.
-The classifiers are ordered from the best to the worst. Only top 50 classifiers
-are shown for each dataset.
+The methods are ordered from the best to the worst. The horizontal line marks the best performance without
+a feature selection method. Only top 50 classifiers are shown for each dataset.
 }
-  \label{cat-sel}
+  \label{cats-sel}
 \end{figure}
 
 \subsection{Multitask models}
