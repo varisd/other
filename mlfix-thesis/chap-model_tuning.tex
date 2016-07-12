@@ -195,9 +195,9 @@ further only SVM during the following stages of model training.
 \centering
   \includegraphics[scale=0.7]{wf-class}
   \caption{
-    Overview of the classifier performance.
+    Overview of the classifier performance (error detection).
 We have tried several variations of the hyperparameters
-for each classifier. The classifiers are ordered from the best to the worst. Only top 50 classifiers
+for each classifier. The classifiers are ordered from the best to the worst. Only top 50 results
 are shown for each dataset.
 }
   \label{wf-draft}
@@ -232,19 +232,21 @@ further.
 \centering
   \includegraphics[scale=0.7]{wf-sel}
   \caption{
-    Overview of the classifier performance.
+    Overview of the performance of the SVM with linear kernel when combined with various feature selection methods.
 We have tried several variations of the hyperparameters
-for each classifier. The horizontal line marks the best performance without
-a feature selection method. The classifiers are ordered from the best to the worst. Only top 50 classifiers
+for each method. The horizontal line marks the best performance without
+a feature selection method. The methods are ordered from the best to the worst. Only top 50 results
 are shown for each dataset.
 }
   \label{wf-sel}
 \end{figure}
 
-% results + okec
-
 %TODO: feature representation - vectorized dicts, binary features???
 % chceme to zminovat?
+
+\subsection{Model summary}
+
+
 
 \section{Prediction of new categories}
 
@@ -279,14 +281,37 @@ can be pointless in another.
 For this reason we made a frequency analysis of the changes encountered
 in our data, shown in the~\Fref{iset-barplot}. We can see that most of the time, only the grammatical
 case was modified (more than 50\% of the instances for the Depfix-based datasets and more than 40\% of the instances for
-the normal datasets). Other changes were a lot less frequent (less than 10\% of the modified instances), however,
-we decided that it still might be worthwhile to try at least predicting grammatical number and gender.
+the normal datasets). Other changes were a lot less frequent (less than 10\% of the modified instances).
+We have also checked, how often was each POS being changed. \Tref{changes-pos} summarizes the change frequencies for each
+POS. As a conclusion we have decided to focus on predicting these categories: grammatical case, number, gender
+and animateness.
+
+\begin{table*}[t]
+\centering
+\small
+
+\begin{tabular}{lc}
+POS  &  Frequency  \\
+\hline
+noun    &   38\%
+adj     &   16\%
+adp     &   10\%
+verb    &   9\%
+adv     &   9\%
+\end{tabular}
+\caption{
+    Part-of-speech (POS) frequencies of the changed words.
+}
+\label{changes-pos}
+\end{table*}
+
 
 \subsection{Machine Learning method comparison}
 
-In the end, we have decided to train three models: one predicting case only (C), one predicting case and number (CN),
-and one predicting case, number and gender (CNG). We have used same datasets as in the previous task, however, this
-time we have used only feature vectors of the instances that were marked as incorrect in our training data. Because
+We have decided to train four models: one predicting case only (C), one predicting case and number (CN),
+ one predicting case, number and gender (CNG) and one predicting case, number, gender and animateness (CNGA).
+We have used same datasets as in the previous task, however, this
+time we have extracted only feature vectors of the instances that were marked as incorrect in our training data. Because
 our predictors will only be classifying the incorrect instances, training them on the whole dataset would only create
 unnecesary bias. On the other hand, this has made the training sets quite small (containing only a few hundreds of examples
 at most). The summary of the training data is in~\Tref{cats-training-sum}. We have decided to train a separate classifier
@@ -340,9 +365,9 @@ to pick these methods for further experiments.
 \centering
   \includegraphics[scale=0.7]{cat-class}
   \caption{
-    Overview of the classifier performance.
+    Overview of the classifier performance (category prediction).
 We have tried several variations of the hyperparameters
-for each classifier. The classifiers are ordered from the best to the worst. Only top 50 classifiers
+for each classifier. The classifiers are ordered from the best to the worst. Only top 50 results
 are shown for each dataset.
 }
   \label{cats-draft}
@@ -371,18 +396,21 @@ feature filtering for the WMT10 dataset model training.
   \caption{
     Overview of the random forest performance when combined with various feature selection methods.
 The methods are ordered from the best to the worst. The horizontal line marks the best performance without
-a feature selection method. Only top 50 classifiers are shown for each dataset.
+a feature selection method. Only top 50 results are shown for each dataset.
 }
   \label{cats-sel}
 \end{figure}
 
-\subsection{Multitask models}
+%\subsection{Multitask models}
+%todo???
 
 \subsection{Model summary}
 
 In the end, we have trained six different models, one for the each dataset presented in the rough comparison.
-The summary of their in-domain final performance is in`\Tref{cats-summary}. We have compared performance
-of three chosen classifiers, the case (C) classifier, case-number (CNG) and case-number-gender (CNG) classifier.
+The summary of their in-domain final performance is in`\Tref{cats-summary}. Aside from the case clasiffier, we have also compared performance
+of the chosen multitask classifiers: the case-number (CN) and case-number-gender (CNG) classifier and the case-number-gender-animateness (CNGA)
+classifier.
+These classifiers were trained using the same ML methods, each one was tuned separately.
 %okec - zhorseny perf. s pridavanim cat?
 
 \todo{tohle az do final evaluace?}
