@@ -1,2 +1,54 @@
-\chapter{English-German modification}
+\chapter{English-German}
 \label{chap:german}
+
+In this chapter we are going to describe changes we have made to an existing
+English-Czech MLFix pipeline to be able to apply the system to the English-German
+SMT outputs. We are going to summarize the data available for training the models
+and evaluate the system in the system in a similar way we did with the English-Czech
+pipeline.
+
+\section{Processing pipeline modification}
+
+As we have mentioned, we have focused on making the processing pipeline as independent
+on the target language as possible. However, we still have to replace some of the tools
+used for the Czech analysis to be able to correctly process German sentences.
+
+Again, we have used the Treex framework as a backbone of the processing pipeline and
+necessary 3rd party tools were implemented into the systems via wrappers.
+After the sentences are read in parrallel, they are processed separately, English
+following the same scenario as in the English-Czech pipeline.
+German is again tokenized, this time by a set of regex rules inspired by Tiger corpus\cite{Brants2004}
+with main focus on abbreviations, ordinal numbers and compounds connected by hyphens.
+
+Next, lemmatization and POS tagging is performed by a Mate tools\footurl{http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html}
+toolkit. The tagger used CoNLL2009\cite{CoNLL-2009-ST} tagset. For tagging, we could have also
+used the Stanford POS Tagger\footurl{http://nlp.stanford.edu/software/tagger.shtml}\cite{Toutanova:2000:EKS:1117794.1117802},
+however, the tagset it uses contains only coarse tags without little morphological information.
+To convert the CoNLL2009 tags to Interset, we use a decoder, which was already implemented at the
+time of our research.
+
+For the word alignment, we again use GIZA++. Similar to English-Czech, we produce one-to-one word alignment
+with the intersetion symmetrization. We The alignment model has been trained on the European
+Parliament Parallel corpus\cite{koehn2005epc}\footnote{http://www.statmt.org/europarl/} (Europarl)
+containing nearly two million sentences. During the process of training data analysis we 
+also create monolingual alignment between the MT output and the references sentences
+in a similar way we did in the original pipeline.
+
+The dependency structure for the MT output is again produced by projecting the English dependency
+structures on the MT sentences. When processing the training data, we parse the reference sentences
+by graph-based parser\cite{Bohnet:2010:VHA:1873781.1873792} implementation which is also a part of the
+Mate tools toolkit. We stop the analysis at the a-layer, but again in the future, further analyzing
+the sentences to the t-layer to gain additional features for extraction is desired.
+
+We have reused the statistical component used in the English-Czech pipeline, because it was designed to be
+language independent (with the exception of the statistical models). For wordform generation we have
+the Flect morphological generation tool mentioned earlier. We have trained the generator on a small
+fraction (around one hundred thousand sentences) of the Europarl corpus. The tool is trained on a set
+of features based on a combination of lemma$+$Interset producing the inflected word.\todo{training data acc?}
+
+\section{Data analysis}
+\todo{avail data?}
+\todo{rozbory ala task\_descr?}
+\todo{oracle eval (human)}
+\todo{changes - iset}
+\todo{changes - pos}

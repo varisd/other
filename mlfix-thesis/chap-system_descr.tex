@@ -25,7 +25,7 @@ a limited set of languages (mainly Czech and English, the developement of others
 we decided to use only the a-layer (surface syntax) for data representation.
 
 \subsection{M-Layer analysis}
-
+\todo{a-layer analysis + okec, ze m-layer je v treexu sloucena s a-layer}
 The MLFix analysis pipeline is derived from an existing Depfix pipeline
 with a several modifications to make it easier to apply to different
 target languages. The input data (source sentence + MT output aligned on the sentence level,
@@ -101,7 +101,7 @@ the post-editor's performance.
 For the time being we decided to build the dependency structures of the SMT output simply
 by projecting the dependency structure of the source sentence onto the target side
 using the word alignment we extracted in the preceeding step. The resulting structure
-will be far from correct, but should be at least consistent thoughout our data.
+will most likely contain errors, but should be at least consistent thoughout our data.
 To compensate the lower accuracy of the extracted dependency structure we perform
 a dependency parsing of the reference sentences during training, if a proper parser
 is available. For this purposes, we use the MST Parser for the Czech language as well.
