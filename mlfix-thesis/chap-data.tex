@@ -6,35 +6,33 @@
 % popis
 % vyuziti
 
-XXX TOTO ZREJME AZ DO POPISU SYSTEMU
+%XXX TOTO ZREJME AZ DO POPISU SYSTEMU
+%In this chapter we are going to describe the format of the input data, that
+%our system require for training and present all the available datasets.
+%The differences between the suggested data can seem minor but they can
+%have impact on the overall performance of the system.
 
-In this chapter we are going to describe the format of the input data, that
-our system require for training and present all the available datasets.
-The differences between the suggested data can seem minor but they can
-have impact on the overall performance of the system.
-
-To train our system, we require sentence-level aligned set of source sentences,
-MT output and a reference sentences
+%To train our system, we require sentence-level aligned set of source sentences,
+%MT output and a reference sentences
 %TODO: footnote - reference in this thesis as a triparallel data
-. The reference sentences can be either
-a classic reference translation of the source text or a result of a human
-post-editation of the MT output, they are however required because they
-provide use with the possible corrections of the MT output.
-Naturally, the closer the MT output is
-to the reference translation, the easier it should be for our system
-to extract valuable learning instances form the sentences. We also
-considered using only pair of sentence aligned pair of MT translated
-sentences and the reference sentences however, this way the trained
-model will lose some of the useful features which can be extracted from
-the triparallel data.
-
-XXX
+%. The reference sentences can be either
+%a classic reference translation of the source text or a result of a human
+%post-editation of the MT output, they are however required because they
+%provide use with the possible corrections of the MT output.
+%Naturally, the closer the MT output is
+%to the reference translation, the easier it should be for our system
+%to extract valuable learning instances form the sentences. We also
+%considered using only pair of sentence aligned pair of MT translated
+%sentences and the reference sentences however, this way the trained
+%model will lose some of the useful features which can be extracted from
+%the triparallel data.
+%XXX
 
 In this chapter we are going to take a closer look at the available
 sources of data and describe how they contributed to our research.
 
 We came across a various sources of training data with various level
-of usefulness and usually being available in a smaller volume. Some of the sources
+of usefulness. Data was usually available only in a smaller volume. Some of the sources
 are:
 \begin{itemize}
 \item Khan's school human
@@ -48,7 +46,8 @@ HimL\footurl{http://www.himl.eu/} project test dataset,
 %\item data from the QT21 project\footurl{http://www.qt21.eu/deliverables/annotations/},
 
 %TODO: wmt - odkaz, footnote?
-\item results from the previous workshops on machine translation (namely WMT10, WTM16).
+\item results from the previous workshops on machine translation (namely WMT10 dataset \citep{callisonburch-EtAl:2010:WMT},
+and the datasets available for the upcoming WTM16).
 \end{itemize}
 
 In the following sections, we will describe each in more detail.
@@ -152,7 +151,7 @@ other SMT systems.
 This method can surely help to overcome the aforementioned data acquisition bottleneck
 since there is generally much more parallel data then post-edited sentences. For
 English-Czech language pair, the natural choice of the parallel corpus would be
-CzEng~1.0\footurl{http://ufal.mff.cuni.cz/czeng} \cite{czeng10:lrec2012}.
+CzEng~1.0 \citep{czeng10:lrec2012}\footurl{http://ufal.mff.cuni.cz/czeng}.
 
 %We didn't use this approach in the scope of this thesis however, it might
 %be considered in our future work.
@@ -172,6 +171,7 @@ We have also considered simply using bitext monolingual data (either \notion{MT 
 or \notion{MT output + reference translations}), however due to the nature of our processing
 pipeline we would be much more limited when analyzing the training data. Also this way, we would
 lose the additional information that can be extracted from the source sentences, which proved to be valuable in the practice.
+\todo{citovat priklady?}
 
 \begin{table*}[t]
 \centering

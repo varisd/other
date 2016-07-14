@@ -3,8 +3,8 @@
 %\addcontentsline{toc}{chapter}{Introduction}
 
 In this thesis we are presenting a statistical post-editing tool MLFix
-based on its rule-based predecessor Depfix\cite{depfix:2014}
-. We aim to use statistical machine learning methods to generalize the subset of Depfix rules
+based on its rule-based predecessor Depfix \citep{depfix:2014}.
+We aim to use statistical machine learning methods to generalize the subset of Depfix rules
 with focus on creating fairly language-independent automatic post-editing (APE) tool.
 Our main goal is to find a reasonable tradeoff between the amount
 of linguistic knowledge gathered from the input data and the dependency
@@ -12,7 +12,7 @@ on the language-specific third-party analysis tools, to specify the
 machine learning (ML) task which our APE component should accomplish and to train
 a sufficient ML model for correcting the machine translation (MT) output.
 The system was developed using English-Czech language pair, however, we also present
-a preliminary results we gathered from the English-German language pair experiments.
+a preliminary results we gathered from English-German language pair experiments.
 
 \section{Task Motivation}
 
@@ -27,7 +27,7 @@ errors into the translated sentences and worsen the overall fluency of the trans
 Still, these systems can be of help to the human translators since it is usually less costly
 to have even partially incorrect translations provided by the SMT system and have
 human translator correct them then to translate the source text manually.
-The human post-editors can however still be a quite costly so naturally there have been
+Human post-editors can however still be a quite costly so naturally there have been
 attemts to automate this process with automatic post-editing tools.
 
 \section{Related Work}
@@ -35,7 +35,7 @@ attemts to automate this process with automatic post-editing tools.
 Up to this date there have been various approaches to the task of automatic
 error correction of the machine translation output, each with a different level of success.
 
-The very first attempts in the field of automatic post-editing\cite{simard2007rule}
+The very first attempts in the field of automatic post-editing \citep{simard2007rule}
 focused on applying phrase-based statistical machine translation (PB-SMT)
 system on the output of the rule-base machine translation. The system was trained on a monolingual
 bitextual data containing the MT output as a source sentence and a reference translation as
@@ -45,7 +45,7 @@ There were also attempts to apply the post-editing component
 on a phrase-based translation system but the combined system performed slightly worse in comparison
 with the standalone SMT system.
 
-Further experiments with PB-SMT $+$ PB-APE were done by B\'{e}chara et al.\cite{bechara:2011}
+Further experiments with PB-SMT $+$ PB-APE \citep{bechara:2011} were done
 on English-French and French-English translation, where significant improvements were reported
 for the latter translation direction. They improved the design suggested by Simard et al. by
 creating the purely statistical pipeline. The PB-APE was then expanded by adding additional
@@ -55,20 +55,20 @@ improve the MT output in the opposite translation direction (English-French).
 
 These previous attempts can be considered purely statistical since only a little ammount of linguistic
 knowledge about the concerned languages was used during developement. To gain further insight into
-the task of automatic post-editing, B\'{e}chara\cite{bechara:master} and later Rosa\cite{biblio:RoAutomaticpostediting2013} provided
-a more thorough analysis of the most frequent errors made by the current SMT systems, the former
+the task of automatic post-editing, more thorough analysis of the most frequent errors made by the current
+SMT systems was performed by \citet{bechara:master} and later by \citet{biblio:RoAutomaticpostediting2013}, the former
 for English-French and the latter for English-Czech.
 
-The error analysis was later used during developement of the rule-based APE Depfix\cite{depfix:2014},
+The error analysis was later used during developement of the rule-based APE Depfix \citep{depfix:2014},
 which was designed to correct the errors made by the English-Czech SMT systems.
 The system uses a set of finely hand crafterd rules that aim at identifying
 and correcting morphological errors such as incorrect agreement or valency, which are
 often encountered during English-Czech machine translation. It does not focus on a lexical errors
 although some minor corrections, e.g. insertion of missing reflexive verbs, are made. The system
 succeeded to improve output of various MT systems and was deployed as a stable part of the
-Chimera\cite{biblio:BoRoChimera2013} MT system.
+Chimera \citep{biblio:BoRoChimera2013} MT system.
 
-The idea behind the Depfix system seems promising, however, due to its rule-based nature, it is difficult
+The idea behind Depfix system seems promising, however, due to its rule-based nature, it is difficult
 to apply the APE on different language pair since it would required costly modifications to the
 existing set of rules. One of the goals of this thesis is to try and replace the rule-based blocks
 by a statistical ones so they applied to the different target language MT output more easily simply
@@ -93,14 +93,15 @@ process with support of the analysis of the available data.
 In~chapter~\ref{chap:tuning}, we are going to describe the process of the developement
 the statistical models for the MLFix post-editing component and present
 a preliminary results of the evaluation of the trained models.
-In chapter 6, we will evaluate the performance of the whole MLFix system
+In~chapter~\ref{chap:eval}, we will evaluate the performance of the whole MLFix system
 and analyze the level of contribution to the resulting performance
 of each individual statistical compocomponent.
-In chapter 7, we will briefly describe our modifications to the English-Czech pipeline
-when used for the English-German language pair, then summarize the the differences
-in the training data and model training between the two language pairs.
-In chapter 8, we will present performance results of the modified English-German
-pipeline.
+In~chapter~\ref{chap:german}, we will briefly describe our modifications to English-Czech pipeline
+when used for English-German language pair, then summarize the the differences
+in the training data and model training between the two language pairs. The chapter will
+conclude with evaluation of English-German pipeline.
+%In chapter 8, we will present performance results of the modified English-German
+%pipeline.
 We conclude our observations in chapter 9.\todo{Dodatek k attachmentum?}
 
 %In chapter 2, we are going to describe all the datasets which we used

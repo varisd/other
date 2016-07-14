@@ -103,8 +103,8 @@ however, the more it modifies the distribution of the classes over the training 
 performance of the classifier on the real-life data. Still, the idea of modifying the distribution
 of our training data is worth considering.
 
-We have inspired ourselves in the work of Jia describing the classification of grammar errors in the texts
-written by a human\cite{biblio:ZaPoHiddenMarkov2009}. They are aproaching the task, similarly to us, as an classification
+We have inspired ourselves in the work of \citet{2013_Jia_CoNLL_GrammaticalError} describing the classification of grammar errors in the texts
+written by a human. They are aproaching the task, similarly to us, as an classification
 problem. During training, they filter their training corpus using only around 5\% of
 the sentences, because only those were the ones that contained grammatical errors.
 
@@ -282,9 +282,10 @@ For this reason we made a frequency analysis of the changes encountered
 in our data, shown in the~\Fref{iset-barplot}. We can see that most of the time, only the grammatical
 case was modified (more than 50\% of the instances for the Depfix-based datasets and more than 40\% of the instances for
 the normal datasets). Other changes were a lot less frequent (less than 10\% of the modified instances).
-We have also checked, how often was each POS being changed. \Tref{changes-pos} summarizes the change frequencies for each
+We have also checked, the amount of modifications POS-wise. \Tref{changes-pos} summarizes the modification frequencies for each
 POS. As a conclusion we have decided to focus on predicting these categories: grammatical case, number, gender
-and animateness.
+and animateness. These categories are relevant to the majority of the changed words, therefore, changes made by
+a classifer predicting these categories should be significant.
 
 \begin{table*}[t]
 \centering

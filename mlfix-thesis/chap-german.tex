@@ -47,8 +47,37 @@ fraction (around one hundred thousand sentences) of the Europarl corpus. The too
 of features based on a combination of lemma$+$Interset producing the inflected word.\todo{training data acc?}
 
 \section{Data analysis}
-\todo{avail data?}
+
+We have been able to collect only a smaller variety of data for English-German compared to English-Czech
+ mostly due to some datasets we mentioned earlier wer simply not available for this language pair. Still, we have been
+available to gather following datasets: WMT16, HimL and Autodesk. Note that in case of Autodesk dataset,
+the size of English-German is about three times bigger than the size of English-Czech (around 120k sentences).
+For this reason, we have decided to include Autodesk dataset into our training data even though it covers
+a limited domain.
+
+When extracting the training instances for the statistical component we have followed same scenario
+as before, using the same heuristic to identify \equo{incorrect} wordforms. We have also used the Oracle
+classifier to gather information about possible improvements this heuristic can bring when applied to German.
+
+We have also performed quick manual evaluation of the output produced by the Oracle classifier by a non-native
+German speaker.
+We have performed the evaluation on the WMT16 dataset this time because we have thought that medical domain of HimL dataset
+would be too difficult for a non-native speaker to evaluate.
+Due to limited
+resources we have again used only a single annotator for this evaluation task. The evaluator, not being familiar
+with the MLFix system, was presented set of instances containing the following: randomly shuffled MT output and Oracle output,
+the source English sentence and the German reference translation. The results of the evaluation a shown in the table\todo{ref}
+%okec
+
+After the evaluation of our data extraction method we have analyzed the extracted instances and compared them
+to the information we have gathered during Czech data analysis. The~\Fref{} shows the frequency of the changed Interset
+categories.
+%okec
+
+We
+
+%\todo{avail data?}
 \todo{rozbory ala task\_descr?}
-\todo{oracle eval (human)}
+%\todo{oracle eval (human)}
 \todo{changes - iset}
 \todo{changes - pos}
