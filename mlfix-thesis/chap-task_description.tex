@@ -413,8 +413,8 @@ so only one annotator have been involved.
 \begin{tabular}{l|cc|ccc|cc}
   &  Evaluated  &  Changed  &  $+$  &  $-$  &  0  &  Precision  &  Recall  \\
 \hline
-Oracle  &  1050  &  318  &  204  &  54  &  60  &  64.1\%  &  19.4\%  \\
-Oracle-Depfix  & 0.009  &  0.003  &  0.003  &  &  &  &  \\
+Oracle  &  800  &  242  &  155  &  42  &  45  &  64.0\%  &  19.3\%  \\
+Oracle-Depfix  & 800  &  75  &  3  &  47  &  25  &  62.6\%  &  5.5\%  \\
 \end{tabular}
 \caption{
 Results of the the manual evaluation of the ideal system based on the 3rd
@@ -443,10 +443,10 @@ recall = \frac{better}{evaluated}
 We can see from the results, that the final heuristic, presented in this chapter,
 marked majority of the incorrect instances correctly (64.1\% of the changed sentences).
 The recall is not very high, only a one-fifth of the sentences were modified
-by the Oracle classifier.
-
-\todo{depfix data comment}
-
+by the Oracle classifier. When compared to the results achieved on the data with Depfix
+reference sentences we can see that the precission remains similar, however, the recall is much
+lower. We can therefore assume that the Depfix data can be useful but they are much more sparse
+than the regular data.
 
 \section{Feature extraction}
 \label{sec:feat_extract}

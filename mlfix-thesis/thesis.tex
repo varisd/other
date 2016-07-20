@@ -51,6 +51,8 @@
 \usepackage{multirow}
 %\usepackage{obo-cite}
 
+\usepackage{listings}
+
 %%% Basic information on the thesis
 
 % Thesis title in English (exactly as in the formal assignment)
@@ -119,6 +121,8 @@ language pair.
 
 \def\samp#1{``\textit{#1}''}
 \def\pojem#1{\textit{#1}}
+\def\code#1{\texttt{#1}}
+
 
 \def\Tref#1{Table~\ref{#1}}
 \def\Fref#1{Figure~\ref{#1}}
@@ -169,7 +173,6 @@ language pair.
 \addcontentsline{toc}{chapter}{Literature}
 \bibliography{bib-varis}
 
-
 %%% Figures used in the thesis (consider if this is needed)
 \listoffigures
 
@@ -177,9 +180,11 @@ language pair.
 %%% In mathematical theses, it could be better to move the list of tables to the beginning of the thesis.
 \listoftables
 
+\appendix
+
 %%% Abbreviations used in the thesis, if any, including their explanation
 %%% In mathematical theses, it could be better to move the list of abbreviations to the beginning of the thesis.
-\chapwithtoc{List of Abbreviations}
+%\chapwithtoc{List of Abbreviations}
 
 %%% Attachments to the master thesis, if any. Each attachment must be
 %%% referred to at least once from the text of the thesis. Attachments
@@ -191,7 +196,8 @@ language pair.
 %%% which will likely be used in an electronic form rather than read (program
 %%% source code, data files, interactive charts, etc.). Electronic attachments
 %%% should be uploaded to SIS and optionally also included in the thesis on a~CD/DVD.
-\chapwithtoc{Attachments}
+%\chapwithtoc{Attachments}
+\include{scenario}
 
 \openright
 \end{document}

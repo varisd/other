@@ -65,6 +65,11 @@ the types of morphological errors and the morphological predictor might be speci
 set of the morphological categories. Therefore, sometimes we want it to just leave the \equo{incorrect}
 instances unchanged because the reason it was marked as incorrect can be out of its scope.
 
+In the end, we have found the basic accuracy metric as more informative for evaluating the morphology predictor,
+not only because of the WP instances but also due to the nature of our training data. We use only instances
+that are marked as incorrect by our heuristic. The resulting classifier then has to learn to predict the
+morphological categories of the aligned reference nodes.
+
 \section{Automatic error detection}
 
 %data rep - # of features
@@ -88,9 +93,10 @@ extracted training instances was described in the previous chapter.
 %For the model evaluation, we defined a baseline classifier, which assigned the 0 value
 %to each instance, therefore marking all of the MT output as already correct.
 In this task, the \pojem{baseline classifier} already achieved accuracy larger than 95\%
-simply by marking all the instances as correct.
-As we have already pointed out, this is because only a small portion of our
-training instances is marked as incorrect by our heuristic.
+simply by marking all the instances as correct (class 0). However, we are more insterested
+in maximizing the precision and recall of the class 1 predictions.
+As we have already pointed out, this is caused by a fact that only a small portion of our
+training instances is being marked as incorrect by our heuristic.
 This became a severe issue since most of the machine learning methods rely more or less on accuracy during
 the process of searching for the best hypothesis, however, it is the minority
 class, that is our target during the error classification.
@@ -103,7 +109,7 @@ however, the more it modifies the distribution of the classes over the training 
 performance of the classifier on the real-life data. Still, the idea of modifying the distribution
 of our training data is worth considering.
 
-We have inspired ourselves in the work of \citet{2013_Jia_CoNLL_GrammaticalError} describing the classification of grammar errors in the texts
+We have inspired ourselves by the work of \citet{2013_Jia_CoNLL_GrammaticalError} describing the classification of grammar errors in the texts
 written by a human. They are aproaching the task, similarly to us, as an classification
 problem. During training, they filter their training corpus using only around 5\% of
 the sentences, because only those were the ones that contained grammatical errors.
@@ -118,10 +124,11 @@ Therefore, to balance our data, we have decided to use only the training
 instances from the sentences where at least one word was marked as incorrect. This way, we were
 able to increase the portion of the minority class up to 10\%.
 
-This less unbalanced dataset, we have created this way can be used in two ways: we can simply treat
+This less unbalanced dataset we have created can be used in two ways: we can simply treat
 it like a downsampled data and use the trained models \equo{globally} (on every MT sentence),
-or we can rather add another component that will be used to identify these \equo{incorrect} sentences
-and than apply our error detection model.
+or we can add another component that will be used to identify these \equo{incorrect} sentences
+and than apply our error detection model. In the scope of this thesis we have chosen the former
+approach.
 
 %This obviously creates another task and that is detection of the \equo{incorrect} sentences.
 
@@ -142,11 +149,11 @@ a rough examination of the hyperparameter configuration due to the number of obs
 methods. In this stage, the goal was not to train the best possible classifier but
 eliminate those, that are not suitable for the task.
 
-We have tried to measure the performance of the classifiers on several datasets. We have used
-the WMT10 data, dataset extracted from the lingea logfiles (HimL) and
+We have measures the performance of the classifiers on several datasets:
+WMT10 data, dataset extracted from the lingea logfiles (HimL) and
 WMT16 newstest dataset translated by the Chimera system.
-For each datasets, only instances from the \equo{incorrect} (sentences contaning at least one error)
-sentences were used.
+%For each datasets, only instances from the \equo{incorrect} (sentences contaning at least one error)
+%sentences were used.
 %one translated with the experimental neural network machine translation system (NMT)
 %provided by the University of Edinburgh\todo{no ref, nezminovat?}.
 Additionally, a counterpart was
@@ -176,7 +183,7 @@ size before and after (filt.) removing the instances extracted from the \equo{co
 \end{table*}
 
 
-For the purposes of the coarse evaluation we used each dataset separately for both training
+For the purposes of the coarse evaluation we have used each dataset separately for both training
 and testing of the classifers, by performing one-against-the-rest 10-fold jackknife sampling.
 Therefore the results presented in this stage should be considered only as an in-domain
 performance for a specific MT system.
@@ -225,8 +232,8 @@ than the mean of the feature importance distribution were selected.
 
 The results of the feature selection method comparison are shown in~\Fref{wf-sel}. We can see
 that most of the time the feature selection performed by either ANOVA percentile selector or
-SVM slightly improved the model performance. We have therefore decided to investigate this methods
-further.
+SVM slightly improved the model performance. We have therefore decided to use these methods during
+the model training.
 
 \begin{figure}
 \centering
@@ -246,7 +253,7 @@ are shown for each dataset.
 
 \subsection{Model summary}
 
-
+\todo{zhodnoceni natrehovanych modelu + comment}
 
 \section{Prediction of new categories}
 
@@ -271,12 +278,12 @@ which handles multiple joint classification tasks, one for each morphological ca
 Scikit-Learn toolkit provides several classifiers which support this option.
 
 Before jumping straight into training our classifier, it is important to examine what morphological
-changes are made in our training data, how frequent they are and how can they affect the resulting
-surface form generation. We can, for instance, predict new values of the \samp{punctype} category,
-but it is almost certain that it will not affect the resulting wordform of any of the words
+changes are made in our training data, how frequently they are made and how can they affect the resulting
+surface form generation. For instance, we can predict new values of the \samp{punctype} category,
+but it is very unlikely that it will affect the resulting wordform of any of the words
 classified as incorrect, because this category is related strictly to punctuation. There are
 of course less obvious examples and some categories, while being relevant for one target language
-can be pointless in another.
+can be pointless for another.
 
 For this reason we made a frequency analysis of the changes encountered
 in our data, shown in the~\Fref{iset-barplot}. We can see that most of the time, only the grammatical
@@ -317,7 +324,7 @@ our predictors will only be classifying the incorrect instances, training them o
 unnecesary bias. On the other hand, this has made the training sets quite small (containing only a few hundreds of examples
 at most). The summary of the training data is in~\Tref{cats-training-sum}. We have decided to train a separate classifier
 for each dataset instead of combining the data together, because we can simply combine the models instead (e.g. via majority
-vote, best prediction etc.). This allows us evaluating the combined model of a test set of our choice simply by leaving
+vote, best prediction etc.). This allows us to evaluate a combined model on a test set of our choice simply by leaving
 out the model which was trained on that specific test set.
 
 \begin{table*}[t]
@@ -342,14 +349,16 @@ WMT16-chimera-Depfix  &  99  \\
 
 Again, we had to decide which ML method should we use for this task. 
 We have examined similar set of classifiers with similar
-hyperparameters as in the error classification task to get a rough idea about their capabilities. We compared them mainly
-through their f-measure performance.
-The rough comparisons were made with the case classifier only,
-we have assumed, that the ML performace will be similar for the other two categories.
+hyperparameters as in the error classification task to get a rough idea about their capabilities.
+We have considered using the f-measure again, however, due to the nature of the training data (all
+instances should be classified), the model accuracy metric seemed more informative.
+The rough comparisons were made with the case classifier only.
+Adding additional targets to the classifiers naturally lowers their overall accuracy,
+however, their performance have been similar with respect to each other
 The results are shown in~\Fref{cats-draft}. We can see, that even without any sophisticated parameter
 tuning or feature filtering, the classifiers perform quite well. We can also notice that in most of the cases, the ensemble
-methods (random forests, extremely randomized trees) performed slightly better than the rest. Therefore we have decided
-to pick these methods for further experiments.
+methods (mainly extremely randomized trees) performed slightly better than the rest of the examined ML methods. Therefore, we have decided
+to pick this method for further experiments.
 
 \begin{figure}
 \centering
@@ -364,7 +373,7 @@ to pick these methods for further experiments.
 % with source
 \begin{figure}
 \centering
-  \includegraphics[scale=0.7]{cat-class}
+  \includegraphics[scale=0.7]{cats-class}
   \caption{
     Overview of the classifier performance (category prediction).
 We have tried several variations of the hyperparameters
@@ -377,19 +386,21 @@ are shown for each dataset.
 \subsection{Feature selection}
 
 We have decided to perform additional feature selection with models trained on the standard HimL dataset
-and WMT10 dataset because there is still a reasonable room for an improvement. Again, we have tried two initial features
+and WMT10 dataset because there is still a reasonable room for an improvement. Again, we have tried two initial feature
 sets, one using the source side features and one without them. We have not noticed any significant difference in performance
-between models trained on these two initial feature sets\footnote{Only difference was that the extremely randomized
-trees performed sligly better than the random forest classifier if they both used the smaller feature set.} so we decided to use the larger one and leave
-the feature selection to the separate model.
+between models trained on these two initial feature sets so we decided to use the larger one and leave
+the feature selection to the separate model. Additionally, due probably to the nature of the classifier, we have noticed
+another slight improvement by adding the \pojem{source lemmas} (both of the aligned node and its parent) feature. Therefore, we have also
+included them to the initial features.\footnote{We have not included the \pojem{MT lemma} feature, because we wanted to
+try using models trained on Czech for German post-editing and this feature is too language-specific for that purpose.}
 
 We have compared several methods of feature selection: KBest selection
 (with chi-squared scoring function), selection based on lasso regularization and selection through
 models (svm, random forest). Again, we have done a rough comparison of these methods, by trying out
 several parameter configurations. We tested them on a model with a fixed parameters. The results
-are in~\Fref{cats-sel}. We can see that with the HimL dataset, the feature selection did not have
-any positive influence on the resulting model. On the other hand, we have decided to use the KBest
-feature filtering for the WMT10 dataset model training.
+are in~\Fref{cats-sel}. We can see that regarding HimL dataset, the feature selection did not have
+any positive influence on the resulting model. On the other hand, we have decided to use the SVM-based
+feature selection for the WMT10 dataset model training.
 
 \begin{figure}
 \centering
@@ -408,14 +419,45 @@ a feature selection method. Only top 50 results are shown for each dataset.
 \subsection{Model summary}
 
 In the end, we have trained six different models, one for the each dataset presented in the rough comparison.
-The summary of their in-domain final performance is in`\Tref{cats-summary}. Aside from the case clasiffier, we have also compared performance
-of the chosen multitask classifiers: the case-number (CN) and case-number-gender (CNG) classifier and the case-number-gender-animateness (CNGA)
-classifier.
-These classifiers were trained using the same ML methods, each one was tuned separately.
-%okec - zhorseny perf. s pridavanim cat?
+Aside from the case clasiffier, we have also compared performance of the chosen multitask classifiers:
+the case-number (CN) and case-number-gender (CNG) classifier and the case-number-gender-animateness (CNGA)
+classifier. These classifiers were trained using the same ML methods, each one was tuned separately.
+The summary of the final in-domain in~\Tref{cats-summary}.
 
-\todo{tohle az do final evaluace?}
-Since the domains of the datasets differ to a various degree, we have decided to combine the models trained
-on the different datasets, however, we do not combine different types of classifier. This combined model
-compares result of each separate classifier (with the prediction probability) and picks the most probable choice.
+We can see that by including additional categories for the multitask classification the accuracy of the trained
+model becomes naturally lower. However, we must take into account that we have only classified the predicted
+values as correct or incorrect and we have not distinguished partially correct predictions. Brief overview
+of the categories predicted by the CNGA classifer has shown us that usually a predictor misclassifies only
+one or two of the target categories. Therefore, we have still used these models during the system evaluation.
+Surprisingly, accuracy of the multitask models trained on WMT16 dataset dropped significantly when training a
+more complex classifier, underperforming even the baseline predictor. It is possible that the chosen ML
+method, even though performing well with the simple case classifier isn't suitable for this dataset.
+
+\begin{table*}[t]
+\centering
+\small
+
+\begin{tabular}{l|cccc|c}
+Dataset  &  Case  &  CN  & CNG  &  CNGA  & Baseline  \\
+\hline
+wmt10  &  72\%  &  53\%  &  40\%  &  37\%  &  35\%  \\
+himl  &  69\%  &  50\%  & 41\%  &  41\%  &  34\%  \\
+wmt16  &  93\%  &  45\%  &  34\%  &  32\%  &  50\%  \\
+wmt10-depfix  &  92\%  &  83\%  &  69\%  &  69\%  &  47\%  \\
+himl-depfix  &  92\%  &  78\%  &  73\%  &  71\%  &  45\%  \\
+wmt16-depfix  &  93\%  &  64\%  &  56\%  &  53\%  &  54\%  \\
+\end{tabular}
+\caption{
+    Final in-domain evaluation of the trained models. The evaluation was performed
+by jack-knife one-vs-rest classification of the each dataset. Performance of the baseline
+classifier is presented for comparison.
+}
+\label{cats-summary}
+\end{table*}
+
+
+%\todo{tohle az do final evaluace?}
+%Since the domains of the datasets differ to a various degree, we have decided to combine the models trained
+%on the different datasets, however, we do not combine different types of classifier. This combined model
+%compares result of each separate classifier (with the prediction probability) and picks the most probable choice.
 

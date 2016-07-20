@@ -69,15 +69,62 @@ with the MLFix system, was presented set of instances containing the following: 
 the source English sentence and the German reference translation. The results of the evaluation a shown in the table\todo{ref}
 %okec
 
+\begin{table*}[t]
+\centering
+\small
+
+\begin{tabular}{l|cc|ccc|cc}
+  &  Evaluated  &  Changed  &  $+$  &  $-$  &  0  &  Precision  &  Recall  \\
+\hline
+Oracle  &  800  &  242  &  155  &  42  &  45  &  64.0\%  &  19.3\%  \\
+\end{tabular}
+\caption{
+Results of the the manual evaluation of the ideal system based on the same heuristic
+that has been used in the English-Czech pipeline.
+}
+\label{oracle_de-maneval}
+\end{table*}
+
 After the evaluation of our data extraction method we have analyzed the extracted instances and compared them
-to the information we have gathered during Czech data analysis. The~\Fref{} shows the frequency of the changed Interset
-categories.
+to the information we have gathered during Czech data analysis. \Fref{iset_de-barplot} shows the frequency of the changed Interset
+categories. Again, case was the most changed category among our data followed by gender and number, either as a standalone change or
+as a part of a clustered change. This led us to training the category prediction models in a same manner as in the English-Czech
+pipeline with exception of the animateness (\pojem{CNGA}) models. To make sure that we can make similar assumptions during
+the model training we have also checked distribution of changes per individual POS categories, shown in~\Tref{changes_de-pos}
 %okec
+
+\begin{figure}
+\centering
+  \includegraphics[scale=0.7]{iset_de}
+  \caption{
+    Frequency of the most changed Interset categories in German data, grouped by a datasets. Categories containing
+    "\textbar" symbol (e.g. gender\textbar{}number) represent changes made simultaneously.
+}
+  \label{iset_de-barplot}
+\end{figure}
+
+\begin{table*}[t]
+\centering
+\small
+
+\begin{tabular}{lc}
+POS  &  Frequency  \\
+\hline
+noun    &   38\%  \\
+adj     &   16\%  \\
+adp     &   10\%  \\
+verb    &   9\%  \\
+adv     &   9\%  \\
+\end{tabular}
+\caption{
+    Part-of-speech (POS) frequencies of the changed words.
+}
+\label{changes_de-pos}
+\end{table*}
+
 
 We
 
 %\todo{avail data?}
 \todo{rozbory ala task\_descr?}
 %\todo{oracle eval (human)}
-\todo{changes - iset}
-\todo{changes - pos}

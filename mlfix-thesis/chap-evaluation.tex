@@ -32,6 +32,43 @@ the combined model with the best model
 
 \subsection{Category prediction evaluation}
 
+\begin{table*}[t]
+\centering
+\small
+\resizebox{0.9\textwidth}{!}{
+
+\begin{tabular}{|l|l||c||c|c|c|c|c|c|}
+\hline
+Dataset  &  System  &  Oracle  &  Case  &  CN  & CNG  &  CNGA  & Comb  &  Comb-D  \\
+\hline
+\hline
+Autodesk  &  NA  &  48.24  &  47.89  &  47.91  &  \bf{48.22}  &  48.21  &  47.90  &  47.90  \\
+\hline
+HimL  &  CU Chimera &  23.33  &  21.14  &  20.97  &  21.36  &  \bf{21.49}  &  21.03  &  21.08  \\
+\hline
+WMT10  &  CU Bojar  &  16.70  &  15.84  &  15.82  &  \bf{15.95}  &  \bf{15.95}  &  15.82  &  15.82  \\
+\hline
+\multirow{2}{*}{WMT16}  &  UEDIN NMT  &  27.31  &  26.43  &  26.48  &  26.47  &  \bf{26.50}  &  26.44  &  26.43  \\
+&  CU Chimera  &  23.13  &  21.94  &  21.99  &  22.02  &  \bf{22.05}  &  22.02  &  21.94  \\
+\hline
+\hline
+Autodek-D  &  NA  &  98.32  &  98.12  &  98.09  &  \bf{98.17}  &  98.16  &  98.08  &  98.10  \\
+\hline
+HimL-D  &  CU Chimera  &  96.05  &  95.23  &  95.04  &  95.41  &  \bf{95.42}  &  94.98  &  95.20  \\
+\hline
+WMT10-D  &  CU Bojar  &  95.72  &  95.03  &  94.99  &  \bf{95.10}  &  95.07  &  94.96  &  95.02  \\
+\hline
+WMT16-D  &  CU Chimera  &  97.51  &  97.22  &  97.23  &  97.26  &  \bf{97.27}  &  97.20  &  97.24  \\
+\hline
+\end{tabular}
+
+}
+\caption{
+    Automatic evaluation of the morphological category prediction module. For comparison, evaluation of the
+Oracle classifier is also provided. Datasets with the \pojem{-D} suffix have Depfix output in place of reference sentences.
+}
+\label{fixonly-summary}
+\end{table*}
 
 \section{Manual evaluation}
 
