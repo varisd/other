@@ -125,6 +125,63 @@ adv     &   9\%  \\
 
 We
 
+\section{Model training}
+
+\begin{tabular}{lcc}
+Dataset  &  \hash{} Instances  &  \hash{} Instances (filt.)  &  \hash{} Incorrect  \\
+\hline
+HimL  & 12,067  &  2,729  &  369  \\
+WMT16 UEDIN-NMT  &  22,353  &  3,340  &  344  \\
+WMT16 UEDIN-PBMT  &  21,394  &   3,727  &  412  \\
+Autodesk  &  1,263,750  &  124,698  &  17,268  \\
+\end{tabular}
+\caption{
+    Summary of the size of the training data extracted from each dataset. We present
+size before and after (filt.) removing the instances extracted from the \equo{correct} sentences.
+The size of datasets for category predictor training is presented in the \pojem{Incorrect} column.
+}
+\label{wf-training-sum}
+\end{table*}
+
+
+\begin{table*}[t]
+\centering
+\small
+
+\begin{tabular}{l|ccc}
+Dataset  &  Precision  &  Recall  &  F1  \\
+\hline
+himl  &  0.39  &  0.56  &  0.46  \\
+wmt16 uedin-nmt  &  0.28  &  0.43  &  0.34  \\
+wmt2016 uedin-pbmt  &  0.29  &  0.50  &  0.37  \\
+autodesk  &  0.41  &  0.77  &  0.53  \\
+\end{tabular}
+\caption{
+    Summary of the in-domain performance of the final German error detection models.
+}
+\label{wf_de-summary}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\small
+
+\begin{tabular}{l|ccc}
+Dataset  &  Case(Base)  &  CN(Base)  & CNG(Base)  \\
+\hline
+himl  &  84\%(29\%)  &  79\%(13\%)  &  70\%(5\%)  \\
+wmt2016 uedin-nmt  &  57\%(46\%)  &  48\%(27\%)  &  34\%(22\%)  \\
+wmt2016 uedin-pbmt  &  57\%(38\%)  &  47\%(21\%)  &  35\%(18\%)\\
+autodesk  &  96\%(28\%)  &  95\%(17\%)  &  93\%(8\%)  \\
+
+\end{tabular}
+\caption{
+    Summary of the in-domain performance of the final German category prediction models.
+}
+\label{cats-summary}
+\end{table*}
+
+
 %\todo{avail data?}
-\todo{rozbory ala task\_descr?}
+%\todo{rozbory ala task\_descr?}
 %\todo{oracle eval (human)}

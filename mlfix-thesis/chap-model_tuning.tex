@@ -255,6 +255,28 @@ are shown for each dataset.
 
 \todo{zhodnoceni natrehovanych modelu + comment}
 
+\begin{table*}[t]
+\centering
+\small
+
+\begin{tabular}{l|ccc}
+Dataset  &  Precision  &  Recall  &  F1  \\
+\hline
+wmt10  &  0.45  &  0.11  &  0.17  \\
+himl  &  0.40  &  0.16  &  0.23  \\
+wmt16  &  0.77  &  0.21  &  0.33  \\
+wmt10-depfix  &  0.25  &  0.20  &  0.22  \\
+himl-depfix  &  0.27  &  0.24  &  0.26  \\
+wmt16-depfix  &  0.75  &  0.38  &  0.50  \\
+\end{tabular}
+\caption{
+    Final in-domain evaluation of the trained error detection models. The evaluation was performed
+by a jack-knife one-vs-rest classification on each dataset. 
+}
+\label{wf-summary}
+\end{table*}
+
+
 \section{Prediction of new categories}
 
 The second classification problem was predicting the correct morphological category for
@@ -431,21 +453,21 @@ of the categories predicted by the CNGA classifer has shown us that usually a pr
 one or two of the target categories. Therefore, we have still used these models during the system evaluation.
 Surprisingly, accuracy of the multitask models trained on WMT16 dataset dropped significantly when training a
 more complex classifier, underperforming even the baseline predictor. It is possible that the chosen ML
-method, even though performing well with the simple case classifier isn't suitable for this dataset.
+method is not suitable for this dataset, even though it is performing well with the simple case classifier.
 
 \begin{table*}[t]
 \centering
 \small
 
-\begin{tabular}{l|cccc|c}
-Dataset  &  Case  &  CN  & CNG  &  CNGA  & Baseline  \\
+\begin{tabular}{l|cccc}
+Dataset  &  Case(Base)  &  CN(Base)  & CNG(Base)  &  CNGA(Base)  \\
 \hline
-wmt10  &  72\%  &  53\%  &  40\%  &  37\%  &  35\%  \\
-himl  &  69\%  &  50\%  & 41\%  &  41\%  &  34\%  \\
-wmt16  &  93\%  &  45\%  &  34\%  &  32\%  &  50\%  \\
-wmt10-depfix  &  92\%  &  83\%  &  69\%  &  69\%  &  47\%  \\
-himl-depfix  &  92\%  &  78\%  &  73\%  &  71\%  &  45\%  \\
-wmt16-depfix  &  93\%  &  64\%  &  56\%  &  53\%  &  54\%  \\
+wmt10  &  72\%(35\%)  &  53\%(14\%)  &  40\%(7\%)  &  37\%(7\%)  \\
+himl  &  69\%(34\%)  &  50\%(11\%)  & 41\%(5\%)  &  41\%(4\%)  \\
+wmt16  &  93\%(50\%)  &  45\%(21\%)  &  34\%(10\%)  &  32\%(10\%)  \\
+wmt10-depfix  &  92\%(45\%)  &  83\%(22\%)  &  69\%(19\%)  &  69\%(19\%)  \\
+himl-depfix  &  92\%(47\%)  &  78\%(26\%)  &  73\%(23\%)  &  71\%(23\%)  \\
+wmt16-depfix  &  93\%(54\%)  &  64\%(16\%)  &  56\%(11\%)  &  53\%(9\%)  \\
 \end{tabular}
 \caption{
     Final in-domain evaluation of the trained models. The evaluation was performed
