@@ -2,12 +2,12 @@
 %\chapter*{Introduction}
 %\addcontentsline{toc}{chapter}{Introduction}
 
-In this thesis we are presenting a statistical post-editing tool MLFix
+In this thesis, we are presenting a statistical post-editing tool MLFix
 based on its rule-based predecessor Depfix \citep{depfix:2014}.
-We aim to use statistical machine learning methods to generalize the subset of Depfix rules
+We aim to use statistical machine learning methods to generalize a subset of Depfix rules
 with focus on creating fairly language-independent automatic post-editing (APE) tool.
 Our main goal is to find a reasonable tradeoff between the amount
-of linguistic knowledge gathered from the input data and the dependency
+of linguistic knowledge gathered from the input data and the dependence
 on the language-specific third-party analysis tools, to specify the
 machine learning (ML) task which our APE component should accomplish and to train
 a sufficient ML model for correcting the machine translation (MT) output.
@@ -83,41 +83,27 @@ by training an appropriate statistical model.
 %TODO?: strucny popis depfixu? popis castych chyb ???
 
 %TODO: odkazy
-In~chapter~\ref{chap:system_descr}, we are going to describe MLFix data processing
+In~Chapter~\ref{chap:system_descr}, we describe MLFix data processing
 pipeline and introduce all the tools we use.
-In~chapter~\ref{chap:data}, we will take a look at all datasets which we used during our system
+In~Chapter~\ref{chap:data}, we take a look at all datasets which we used during our system
 developement and analyze their usefulness for our system.
-In~chapter~\ref{chap:task_descr}, we are going to define the post-editing task, go through
+In~Chapter~\ref{chap:task_descr}, we define the post-editing task, go through
 various modifications of the task we considered and explain our though
 process with support of the analysis of the available data.
-In~chapter~\ref{chap:tuning}, we are going to describe the process of the developement
+In~Chapter~\ref{chap:tuning}, we describe the process of the developement
 the statistical models for the MLFix post-editing component and present
 a preliminary results of the evaluation of the trained models.
-In~chapter~\ref{chap:eval}, we will evaluate the performance of the whole MLFix system
+In~Chapter~\ref{chap:eval}, we evaluate the performance of the whole MLFix system
 and analyze the level of contribution to the resulting performance
 of each individual statistical compocomponent.
-In~chapter~\ref{chap:german}, we will briefly describe our modifications to English-Czech pipeline
-when used for English-German language pair, then summarize the the differences
-in the training data and model training between the two language pairs. The chapter will
-conclude with evaluation of English-German pipeline.
-%In chapter 8, we will present performance results of the modified English-German
+In~Chapter~\ref{chap:german}, we briefly describe our modifications to English-Czech pipeline
+when used on English-German language pair, then summarize the differences
+in the training data and model training between the two language pairs. The Chapter concludes with evaluation of English-German pipeline.
+%In chapter 8, we present performance results of the modified English-German
 %pipeline.
-We conclude our observations in chapter 9.\todo{Dodatek k attachmentum?}
+We conclude the thesis in Chapter 9.
 
-%In chapter 2, we are going to describe all the datasets which we used
-%either to analyze various the aspects of the post-editing process and
-%to train our post-editing system.
-%In chapter 3, we will define the post-editing task as a classification
-%task and go through various scenarios, we considered. In this chapter
-%we are also going to justify our decissions from the analysis of the
-%available data.
-%In chapter 4, we are going to describe the MLFix processing pipeline.
-%In chapter 5, we will describe in detail our process of model training
-%and feature selection.
-%In chapter 6, we are going to present our experiments and results we
-%achieved with the English-Czech language pair.
-%After that in chapter 7 we are going to describe our modifications to the English-Czech
-%pipeline so that it can be applied to the English-Czech MT output post-editing and
-%in chapter 8 we will present results we acquired from experimenting with
-%this pipeline.
-%Finally in chapter 9 we will conclude the thesis.
+We include a full English-Czech and English-German Treex scenario in Attachment~\ref{attach:scen}.
+
+\fixme{Dodatek k attachmentum}
+

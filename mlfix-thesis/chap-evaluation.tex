@@ -1,72 +1,119 @@
 \chapter{System evaluation}
 \label{chap:eval}
 
-In this chapter, we will present the results of the MLFix system evaluation.
-We will describe the datasets we have used during the evaluation and the different
-configurations of MLFix we have compared. Furthemore we will present the evaluation
+In this chapter, we present the results of the whole MLFix system evaluation.
+We describe the datasets we have used during the evaluation and different
+configurations of MLFix we have compared. Furthemore, we present evaluation
 of the individual MLFix components.
-We will also present a comparison with the Depfix
+We also present a comparison with the Depfix
 system. We have performed both automatic and manual evaluation.
 
 \section{Automatic evaluation}
 
-During automatic evaluation, we have used mainly BLEU\cite{papineni:2002} translation quality metric. However, we have also
-measured Translation Edit Rate\cite{Snover06astudy} (TER) since it measures the amount of editing that is required by a human
-to change the system output to match the reference translation. Even though the BLEU is widely used standard metric
-used for SMT evaluation, we think that TER might be quite suitable for the evaluation too mainly because it indicates
-how much aditional work is required to correct the SMT output.
+During automatic evaluation, we have used mainly BLEU \citep{papineni:2002} translation
+quality metric based on measuring the n-gram difference between the MT output
+and the reference translation.
+Even though it has its limitations, it is the most widely used
+evaluation metric at the moment and it is considered a standard metric for automatic evaluation.
+In addition, we have 
+measured Translation Edit Rate (TER) \citep{Snover06astudy} because it measures
+the quality of translation based on the amount of corrections needed to match
+the reference translation. Lowering the amount of work needed to post-edit MT output
+is one of the aims of MLFix system. Besides, the metric has been proved to provide
+reasonable correlation with a human judgement.
 
-We have evaluted MLFix on the following datasets: Autodesk, WMT10, WMT16, and HimL. All these datasets
-were translated with the Chimera system. We have also measured the MLFix performance on the output of neural network
-machine translation (NMT) system produced on the WMT16 dataset.
+We have evaluted MLFix on the following datasets: Autodesk, WMT10\linebreak
+\citep{callisonburch-EtAl:2010:WMT}, WMT16 \citep{bojar-EtAl:2016:WMT1}, and HimL.
+These datasets
+were translated with various SMT systems.
 
-\todo{nejdriv komponenty, pak cely system s best configem?}
-Since the domains of the datasets differ to a various degree, we have decided to combine the final models trained
-on the different datasets. This combined model
-compares result of each separate classifier (with the prediction probability) and picks the most probable choice.
-We have used the combined model for the prediction of the new categories, for the error detection we have compared
-the combined model with the best model
+Because the domains of the datasets differ to a various degree,
+we have decided to combine the final models trained separately
+on these datasets. We then combine these to receive a resulting prediction.
+Naturally, during the evaluation, we combine the models in a leave-one-out
+fashion. The models trained on the currently post-edited data are omitted.
+
+%This combined model
+%compares result of each separate classifier (with the prediction probability) and picks the most probable choice.
+%We have used the combined model for the prediction of the new categories, for the error detection we have compared
+%the combined model with the best model
 
 
 \subsection{Error detection evaluation}
+
+We have decided to use a combination of multiple binary classifiers in our error detection module.
+However, we had to devise a voting scheme to interpret multiple outputs provided by these classifiers.
+In the end, we have compared three basic methods: \pojem{Majority} vote, \pojem{AtLeastOne} method,
+and \pojem{Average} prediction method.
+
+The \pojem{Majority} vote basically chooses the class that was marked by a majority of classifiers.
+We think that this way can help us compensate for the low precision of some of the classifiers we have trained.
+The potential drawback can be combined low recall of the error detection module. We assume that
+combining several low recall classifers can further bias the module toward the majority class when using
+this method.
+
+The \pojem{AtLeastOne} method classifies the word as incorrect if at least one classifier marks it
+as incorrect. This method should counter the problem of combining several low recall classifiers to some
+extend, however, we expect the precision to drop rapidly when adding more classifiers.
+
+Because we are using classification models that support weighting of their predicted classes, we have
+also considered \pojem{Average} voting scheme. If the combined classifier provide us not only with
+a predicted class but also a some sort of confidence value (e.g. probability of the prediction correctness),
+we can average these values and mark instance as incorrect if the averaged value exceed a certain threshold.
+This method is similar to the \pojem{Majority} scheme with a difference that it can choose a result
+predicted by a minority when their overall confidence in the prediction is large enough.
+
+We show the comparison of these three methods in~\Tref{markonly-summary}. The values of the \equo{incorrect}
+words were predicted by Oracle morphology predictor. We can notice that the AtLeastOne method achieved
+significantly better BLEU score than the other two. This was quite expected and in this case it does
+not necessarily mean that the resulting sentence improved from the human evaluation standpoint, because
+the situation is similar to the heuristic selection we presented in the task definition. Even though
+many wordforms were changed by this method to reflect the wordforms in the reference sentence, it
+might have lowered the overall fluency of the translated text. On the other hand, the BLEU scores were
+still under the Oracle classifier threshold, therefore, the method seems promising.
+
+As for the other two methods, the Average
+voting method seems to perform slightly better than the Majority voting but the difference is not significant.
 
 \begin{table*}[t]
 \centering
 \small
 \resizebox{0.9\textwidth}{!}{
 
-\begin{tabular}{|l|l||c||c|c|c|}
+\begin{tabular}{|l|l||c||c||c|c|c|}
 \hline
-Dataset  &  System  &  Oracle  &  Majority  &  AtLeastOne  &  Average  \\
-\hline
-\hline
-Autodesk  &  NA  &  49.20  &  47.89  &  47.91  &  \bf{48.22}  \\
-\hline
-HimL  &  CU Chimera &  23.33  &  21.14  &  20.97  &  21.36  \\
-\hline
-WMT10  &  CU Bojar  &  16.70  &  15.84  &  15.82  &  \bf{15.95}  \\
-\hline
-\multirow{2}{*}{WMT16}  &  UEDIN NMT  &  27.31  &  26.43  &  26.48  &  26.47  \\
-&  CU Chimera  &  23.13  &  21.94  &  21.99  &  22.02  \\
+Dataset  &  System  &  Oracle  &  Base  &  Majority  &  AtLeastOne  &  Average  \\
 \hline
 \hline
-Autodek-D  &  NA  &  98.32  &  98.12  &  98.09  &  \bf{98.17}  \\
+Autodesk  &  NA  &  49.20  &  47.82  &  47.89 (+0.06)   &  \bf{48.47} (+0.65) &  47.89 (+0.06)  \\
 \hline
-HimL-D  &  CU Chimera  &  96.05  &  95.23  &  95.04  &  95.41  \\
+HimL  &  Moses  &  23.33  &  20.66  &  20.69 (+0.02)  &  \bf{22.08} (+1.41)  &  20.69 (+0.02)  \\
 \hline
-WMT10-D  &  CU Bojar  &  95.72  &  95.03  &  94.99  &  \bf{95.10}  \\
+WMT10  &  CU Bojar  &  16.70  &  15.66  &  15.84 (+0.18)  &  \bf{16.30} (+0.64)  &  15.77 (+011)  \\
 \hline
-WMT16-D  &  CU Chimera  &  97.51  &  97.22  &  97.23  &  97.26  \\
+\multirow{2}{*}{WMT16}  &  UEDIN NMT  &  27.31  &  26.31  &  26.31 (0)  &  \bf{26.49} (+0.18)  &  26.31 (0)  \\
+&  CU Chimera  &  23.13  &  21.72  &  21.79 (+0.07)  &  \bf{22.01} (+0.28)  &  21.79 (+0.07)  \\
+\hline
+\hline
+Autodek-D  &  NA  &  98.32  &  96.93  &  97.99 (+1.05)  &  \bf{97.99} (+1.05)  &  98.31 (+1.37)  \\
+\hline
+HimL-D  &  Moses  &  96.05  &  94.23  &  94.62 (+0.39)  &  \bf{96.04} (+1.81)  &  94.62 (+0.39)  \\
+\hline
+WMT10-D  &  CU Bojar  &  95.72  &  93.42  &  94.76 (+1.33)  &  \bf{95.61} (+2.18)  &  94.80 (+1.37)  \\
+\hline
+WMT16-D  &  CU Chimera  &  97.51  &  96.56  &  97.04 (+0.48)  &  \bf{97.47} (+0.9)  &  97.05 (+0.49)  \\
 \hline
 \end{tabular}
 
 }
 \caption{
-    Automatic evaluation of the error detection module using different voting methods to interpret output of multiple
-models. For comparison, evaluation of the
-Oracle classifier is also provided. Datasets with the \pojem{-D} suffix have Depfix output in place of reference sentences.
+    Automatic evaluation of the error detection module using different voting methods to interpret
+output of multiple models using the BLEU score (mutliplied by 100).
+For comparison, evaluation of Oracle classifier is also provided.
+Values in brackets indicate the difference between the method and the baseline (Base) MT output.
+Datasets with the \pojem{-D} suffix have Depfix output in place of reference sentences.
 }
-\label{fixonly-summary}
+\label{markonly-summary}
 \end{table*}
 
 

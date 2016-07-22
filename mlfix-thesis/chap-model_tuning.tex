@@ -1,74 +1,82 @@
 \chapter{Model training}
 \label{chap:tuning}
 
-In this chapter, we are going to describe our process of developing
-the statistical post-editing models. We will take a closer look at the feature selection
-methods we have experimented with, the task of model selection and parameter
-tuning and also the methods of evaluation we used during the tuning.
+In this chapter, we describe the process of developing
+the statistical post-editing models. We take a closer look at the task of model
+selection and parameter tuning, the feature selection methods we have experimented
+with and several methods of evaluation we have used during the tuning.
 We only present experiment results for the separate statistical models,
-results of the evaluation of the whole MLFix system is presented in the next chapter.
+evaluation of the whole MLFix system is presented in the next chapter.
 
-In this chapter, we will cover following two classification tasks: the identification
-of the incorrect instances (words from the MT output with incorrect surface form)
-and the prediction of the new morphological categories for the incorrect instances.
+In this chapter, we cover the following two classification tasks: the identification
+of the incorrect instances (words from the MT output with incorrect surface form),
+addressed as \pojem{error detection} for short,
+and the prediction of the new morphological categories for the incorrect instances,
+referred to as \pojem{morphology prediction}.
 
 Our training process can be separated into three stages: in the first stage, we
-focused on choosing a suitable machine learning method, we chose the most promising
-one, in the second stage we tried to further increase the performance of the model
-based on the chosen ML method by experimenting with various methods of feature filtering
-and in the third stage, for each dataset, we search for the best hyperparameters
-of the both the selected ML method and feature filtering method.
-%We will take a closer look on both stages in the following subsections.
-
+have focused on basic comparison of different ML methods and choice of the most
+suitable candidate for each task.
+In the second stage we have tried to further increase the performance of the model
+based on the chosen ML method by experimenting with various methods for feature selection
+and in the third stage, for each dataset, we have searched for the best hyperparameters
+of the both the selected ML method and the feature filtering method.
 
 \section{Model evaluation methodology}
 
-We have decided to do word-level evaluation during the model training, more precisely,
-we have evaluated the performance of the models using the instances extracted by the
-process we described in the previous chapter.
+We have decided to do word-level evaluation during the model training. More precisely,
+we have evaluated performance of models using the instances extracted by the
+process we have described in the previous chapter.
 
-For both error detection and morphological category prediction task, we have defined
-a baseline model for comparison. This model basically represents a predictor which
+For both error detection and morphology prediction task, we have defined
+a baseline model for comparison. The baseline model basically represents a predictor which
 does not detect any errors (all instances are marked as correct) or keeps the original
 morphological categories for each instance.
 
-Aside from the standard accuracy metric, we have decided to measure precision and recall
-of the trained models. We use standard definition of precision~(\ref{eq:prec-mod}) and recall~(\ref{eq:rec-mod}) using the following equations:
+Aside from a standard accuracy metric, we have also measured
+precision and recall
+of the models we trained to gain additional information about the model performance.
+We use standard definition of precision~(\ref{eq:prec-mod}) and recall~(\ref{eq:rec-mod}) computed using the following equations:
 \begin{equation} \label{eq:prec-mod}
 precision = \frac{TP}{TP + FP}
 \end{equation}
 \begin{equation} \label{eq:rec-mod}
 recall = \frac{TP}{TP + FN}
 \end{equation}
-where definitions of \pojem{true positives} (TP), \pojem{false positives} (FP) and \pojem{false negatives} (FN)
-vary slightly with each classification task. We also use f-measure to compare combined results of these metrics.
+However, we have slightly altered the definitions of \pojem{true positives} (TP),
+\pojem{false positives} (FP) and \pojem{false negatives} (FN)
+with regard to the baseline model.
 
-For error detection, each instance which was assigned same value as the \pojem{true prediction}
-and different value than the \pojem{baseline} is marked as TP, instance
-that was assigned value different both from the \pojem{true prediction} and \pojem{baseline}
-is marked as FP and instance with \pojem{predicted value} equal to the \pojem{baseline}
+%vary slightly with each classification task. We also use f-measure to compare combined results of these metrics.
+
+For error detection, each instance that was assigned same value as the \pojem{true prediction}
+and a different value than the \pojem{baseline} is marked as TP. Instance
+that was assigned a value different from both the \pojem{true prediction} and the \pojem{baseline}
+is marked as FP and instance with a \pojem{predicted value} equal to the \pojem{baseline}
 but different from the \pojem{true prediction} is marked as FN.
 
-For the morphological category prediction we use same definition of TP, however, the definitions
-of FP and FN are altered in the following way (in both cases, we assume that the \pojem{true prediction}
+For the morphology prediction we use same definition of TP, however, the definitions
+of FP and FN are altered in the following way (the \pojem{true prediction}
 does not match the \pojem{predicted value}):
 \begin{itemize}
-\item if the \pojem{baseline} value matches the \pojem{predicted value}, instance is marked as FN,
-\item if the \pojem{baseline} value matches the \pojem{true prediction}, instance is marked as FP,
-\item if the \pojem{baseline} does not match either one, the instance is marked as i\pojem{wrong positive} WP.
+\item if the \pojem{baseline} value matches the \pojem{predicted value}, an instance is marked as FN,
+\item if the \pojem{baseline} value matches the \pojem{true prediction}, an instance is marked as FP,
+\item if the \pojem{baseline} does not match either one, an instance is marked as \pojem{wrong positive} (WP).
 \end{itemize}
 
 The WP is a special case which reflects the situation where predictor tries to predict new value (different
 from the original one) but fails and returns just another incorrect value. We must also take into account
-the fact, that the error detection classifier is a general model, which is not designed to distinguish
+that the error detection classifier is a general model, which is not designed to distinguish
 the types of morphological errors and the morphological predictor might be specialized only on a limited
 set of the morphological categories. Therefore, sometimes we want it to just leave the \equo{incorrect}
-instances unchanged because the reason it was marked as incorrect can be out of its scope.
+instances unchanged because the reason they were marked as incorrect can be out of its scope.
 
 In the end, we have found the basic accuracy metric as more informative for evaluating the morphology predictor,
 not only because of the WP instances but also due to the nature of our training data. We use only instances
-that are marked as incorrect by our heuristic. The resulting classifier then has to learn to predict the
-morphological categories of the aligned reference nodes.
+that are marked as incorrect by our heuristic, therefore,
+the precision/recall become less informative whe compared to accuracy.
+On the other hand, if we decided to expand our training data
+by \equo{correct} instances, these metrics would become more relevant. 
 
 \section{Automatic error detection}
 
@@ -76,17 +84,18 @@ morphological categories of the aligned reference nodes.
 %cv method
 %baseline
 
-We have found that not only during task specification but even during model training,
+As we have already pointed out, 
 the task of identifying morphologically incorrect words in the text is more difficult
-than the task of assigning the new morphological categories. We have faced several issues
-during the training which we will describe in more detail in the following subsections.
+than the task of assigning the new morphological categories. It is not surprising
+that we have faced several issues
+during the training which we describe in more detail in the following subsections.
 
 
 
 \subsection{Unbalanced data problem}
 
-In this task, we face the problem of the binary classification, where we decided
-to assign value 0 to the instances that we consider correct and value 1 to the
+In this task, we face the problem of the binary classification, where we
+assign value 0 to instances that we consider correct (the are not going to change) and value 1 to
 instances that need to be corrected. The process of assigning these values to the
 extracted training instances was described in the previous chapter. 
 
@@ -126,7 +135,7 @@ able to increase the portion of the minority class up to 10\%.
 
 This less unbalanced dataset we have created can be used in two ways: we can simply treat
 it like a downsampled data and use the trained models \equo{globally} (on every MT sentence),
-or we can add another component that will be used to identify these \equo{incorrect} sentences
+or we can add another component for identifying these \equo{incorrect} sentences
 and than apply our error detection model. In the scope of this thesis we have chosen the former
 approach.
 
@@ -137,7 +146,7 @@ approach.
 %focused on choosing a suitable machine learning method, we chose the most promising
 %one and in the second stage we tried to further increasing the performance of model
 %based on the chosen method by experimenting with various methods of feature filtering.
-%We will take a closer look on both stages in the following subsections.
+%We take a closer look on both stages in the following subsections.
 
 \subsection{Machine learning method comparison}
 
@@ -342,7 +351,7 @@ We have decided to train four models: one predicting case only (C), one predicti
  one predicting case, number and gender (CNG) and one predicting case, number, gender and animateness (CNGA).
 We have used same datasets as in the previous task, however, this
 time we have extracted only feature vectors of the instances that were marked as incorrect in our training data. Because
-our predictors will only be classifying the incorrect instances, training them on the whole dataset would only create
+our predictors classify only the incorrect instances, training them on the whole dataset would only create
 unnecesary bias. On the other hand, this has made the training sets quite small (containing only a few hundreds of examples
 at most). The summary of the training data is in~\Tref{cats-training-sum}. We have decided to train a separate classifier
 for each dataset instead of combining the data together, because we can simply combine the models instead (e.g. via majority

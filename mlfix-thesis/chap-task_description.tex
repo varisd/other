@@ -319,7 +319,7 @@ we have tried another, little limited, method for creating and extracting the tr
     \label{ex-oracle-ambig}
     \end{center}
 \end{myexample}
-\todo{ukazat i rozdilne dep. struktury u ex. 4.4?}
+%\todo{ukazat i rozdilne dep. struktury u ex. 4.4?}
 
 \subsection{Depfix reference}
 
@@ -347,9 +347,10 @@ did not reflect the modification made by Depfix was when Depfix made one of its 
 
 This method seems quite viable for the task of identifying incorrect instances and learning the
 right correction method because it should reflect at least the thought process behind creating the corrections rules.
-It should be also aplicable on various MT systems because, as Rosa\todo{ref again?} has
+It should be also aplicable on various MT systems because, as \citet{depfix:2014} has
 previously reported, Depfix was able to improve the quality of various systems to some degree.
-The downside is, that this method is currently limited only to the Czech language since the Depfix was
+The main downside to this method is currently being
+limited only to the Czech language since the Depfix was
 created with the aim to post-edit English-Czech machine translation.
 Furthermore, it is questionable whether the system trained on these data can surpass the performance
 of the original post-editing system. 
@@ -357,9 +358,8 @@ This aproach might become more interesting if a viable method of adapting the tr
 to another language pairs is devised in the future.
 
 \subsection{Oracle evaluation}
-\fixme{finish this}
 
-In this section, we are going to present a brief evaluation of the Oracle classifier to show
+In this section, we present a brief evaluation of the Oracle classifier to show
 what is the possible upper limit, that can be reached by our statistical components. This is
 important, because the resulting model cannot perform well with regard to our demands, if the extracted
 instances that are provided during training are already incorrectly classified.
@@ -395,26 +395,22 @@ To get a brief idea, if our heuristic has a potential of providing valuable info
 training, we have decided to manually annotate a portion of data from the HimL testset post-edited by our
 Oracle classifier. Because this is not a final evaluation of our system, the evaluation was made only
 by the author of this thesis. The evaluation has been done on the pairs of MT output, Oracle post-edited
-output, randomly shuffled to lessen the bias of the annotator. We also provided a source sentence
-to help the annotator decide when both outputs seemed grammatically correct but had different meaning.
-We have not provided the annotator with the reference sentences due to the nature of the Oracle post-editor.
-
- evaluated set of sentences extracted from the HimL testset. We have also extracted
+output, randomly shuffled to lessen the bias of the annotator. We have also provided a source sentence
+to help the annotator decide whenever both outputs seemed grammatically correct but had different meaning.
+We have not provided the annotator with the reference sentences due to the nature of Oracle post-editor. For comparison, we have also extracted
 similar number of sentences from the same dataset, where the reference sentences have been replaced
-by the depfix output. The sentences have been presented in pairs of (MT output, Oracle output),
-randomly shuffled so that the annotator did not know which is which.
-This evaluation have been done mainly for the purpose of developement
-so only one annotator have been involved.
+by the depfix output. This evaluation has been done mainly for the purpose
+of developement so only one annotator have been involved.
 
 \begin{table*}[t]
 \centering
 \small
 
 \begin{tabular}{l|cc|ccc|cc}
-  &  Evaluated  &  Changed  &  $+$  &  $-$  &  0  &  Precision  &  Recall  \\
+  &  Evaluated  &  Changed  &  $+$  &  $-$  &  0  &  Precision  &  Impact  \\
 \hline
-Oracle  &  800  &  242  &  155  &  42  &  45  &  64.0\%  &  19.3\%  \\
-Oracle-Depfix  & 800  &  75  &  3  &  47  &  25  &  62.6\%  &  5.5\%  \\
+Oracle  &  800  &  95  &  61  &  16  &  18  &  79.2\%  &  7.6\%  \\
+Oracle-Depfix  & 800  &  75  &  47  &  3  &  25  &  94.0\%  &  5.5\%  \\
 \end{tabular}
 \caption{
 Results of the the manual evaluation of the ideal system based on the 3rd
@@ -425,28 +421,32 @@ dataset with Depfix reference sentences.
 \label{oracle-maneval}
 \end{table*}
 
-In~\Tref{oracle-maneval} we present the results of the manual evaluation.
-We present the number of sentences from the evaluted dataset, number of sentences,
-that were actually modified by the Oracle and the nature of the corrections:
+We present in~\Tref{oracle-maneval} results of the manual evaluation.
+We present number of sentences in the evaluted dataset, number of sentences,
+that were actually modified by Oracle and the nature of the corrections:
 better ($+$), worse ($-$) or indecicive (0).
-The indecisive annotations were usually a result of both translations being
+Indecisive annotations were usually a result of both translations being
 too incomprehensive or due to multiple corrections, both improving and worsening.
-In addition, we have computed the precision~(\ref{eq:prec-or}) and recall~(\ref{eq:rec-or}) in the same manner as Rosa during the Depfix evaluation:
+In addition, we have computed the precision~(\ref{eq:prec-or}) and
+impact~(\ref{eq:rec-or}) of Oracle in a same manner as \citet{bojar-rosa-tamchyna:2013:WMT} did during Depfix evaluation in the Chimera MT system:
 
 \begin{equation} \label{eq:prec-or}
-precision = \frac{better}{changed}
+precision = \frac{better}{better + worse}
 \end{equation}
 \begin{equation} \label{eq:rec-or}
-recall = \frac{better}{evaluated}
+impact = \frac{better}{evaluated}
 \end{equation}
 
-We can see from the results, that the final heuristic, presented in this chapter,
-marked majority of the incorrect instances correctly (64.1\% of the changed sentences).
-The recall is not very high, only a one-fifth of the sentences were modified
-by the Oracle classifier. When compared to the results achieved on the data with Depfix
-reference sentences we can see that the precission remains similar, however, the recall is much
-lower. We can therefore assume that the Depfix data can be useful but they are much more sparse
-than the regular data.
+We can see from the results, that the final heuristic presented in this chapter,
+if we ignore the indecisive corrections,
+made mostly positive changes to the MT output (about four-fifths of the time)
+However, the impact is quite low, only slightly more than 7\% of the sentences were modified
+by Oracle classifier. When compared to the results achieved on the data with Depfix
+reference sentences we can see that the precision grows even more
+and the overall impact drops a little lower.
+We can therefore assume that the presented heuristic can provide us with
+quite reliable training data. Sadly, due to the low impact, much larger
+volumes of post-edited data are to extract of reasonably big training dataset
 
 \section{Feature extraction}
 \label{sec:feat_extract}
@@ -456,11 +456,10 @@ than the regular data.
 % popsat ruzne mnoziny featur + velikosti (extracted filtered) - src vs nosrc - az v dalsi kap ???
 % add aggreement features ???
 
-
-When we were designing the initial set of features we chose the following
-strategy: extract as many distinct features based on the available node information
-and later reduce the features by one or several methods
-for features selection, either manual or stochastic.
+We have chosen the following strategy wehn designing the initial set of features:
+we extract as many distinct features based on the available node information
+and later we reduce the features by one or several methods
+of features selection, either manual or stochastic.
 
 Our feature set has a hierarchical structure. For each training instance we extract
 information about the node, its parent, the aligned source node and aligned source node's

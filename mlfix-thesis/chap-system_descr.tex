@@ -1,11 +1,16 @@
 \chapter{System description}
 \label{chap:system_descr}
 
-In this chapter we are going to describe the main components
+In this chapter we describe the main components
 of MLFix system and take a closer look at the suggested processing pipeline.
+We focus on English-Czech pipeline, however, we also describe modifications
+needed to apply MLFix for other language pairs.
 
-The main idea of MLFix system is to analyze the provided input data providing
-a set of input features 
+Full examples of currently deployed Treex scenarios (English-Czech and English-German)
+are included in Attachment~\ref{attach:scen}.
+
+%The main idea of MLFix system is to analyze the provided input data providing
+%a set of input features 
 
 \section{Processing pipeline}
 
@@ -96,10 +101,10 @@ valuable information for identifying grammatical errors\footnote{Actually, in th
 because e.g. a parent-child relationship is examined almost everytime.}, thus improving
 the post-editor's performance.
 
-For the time being we decided to build the dependency structures of the SMT output simply
+For the time being we have decided to build the dependency structures of the SMT output simply
 by projecting the dependency structure of the source sentence onto the target side
 using the word alignment we extracted in the preceeding step. The resulting structure
-will most likely contain errors, but should be at least consistent thoughout our data.
+is likely to contain errors, but should be at least consistent thoughout our data.
 To compensate for the lower accuracy of the extracted dependency structure we perform
 a dependency parsing of the reference sentences during training, if a proper parser
 is available. For this purposes, we use the MST Parser for the Czech language as well.
@@ -111,7 +116,7 @@ due to an incorrect structure of the SMT dependency tree.
 For Czech SMT output, an implementation of the MST parser adapted for the SMT output
 is already available \citep{biblio:RoDuUsingParallel2012}, however, so far we haven't done any experiments
 to determine whether the dependency structures provided by the adapted parser (which
-will most likely be more precise) influence the final performance of our system.
+should be more accurate) influence the final performance of our system.
 
 %\subsection{Training pipeline}
 

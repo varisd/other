@@ -7,7 +7,7 @@
 % vyuziti
 
 %XXX TOTO ZREJME AZ DO POPISU SYSTEMU
-%In this chapter we are going to describe the format of the input data, that
+%In this chapter we describe the format of the input data, that
 %our system require for training and present all the available datasets.
 %The differences between the suggested data can seem minor but they can
 %have impact on the overall performance of the system.
@@ -24,33 +24,34 @@
 %to extract valuable learning instances form the sentences. We also
 %considered using only pair of sentence aligned pair of MT translated
 %sentences and the reference sentences however, this way the trained
-%model will lose some of the useful features which can be extracted from
+%model loses some of the useful features which can be extracted from
 %the triparallel data.
 %XXX
 
-In this chapter we are going to take a closer look at the available
+In this chapter we take a closer look at the available
 sources of data and describe how they contributed to our research.
 
 We came across a various sources of training data with various level
 of usefulness. Data was usually available only in a smaller volume. Some of the sources
 are:
 \begin{itemize}
-\item Khan's school human
+\item Khan's school\footurl{https://khanovaskola.cz/} human
 post-edits of manually translated (EN$\rightarrow$CS) subtitles,
 \item the Autodesk
 triparallel data\footurl{https://autodesk.app.box.com/Autodesk-PostEditing},
 \item log files of human post-editing done by Lingea for the
-HimL\footurl{http://www.himl.eu/} project test dataset,
+Health in my Language\footurl{http://www.himl.eu/} (HimL) project test dataset,
 
 % uvest QT21?
 %\item data from the QT21 project\footurl{http://www.qt21.eu/deliverables/annotations/},
 
 %TODO: wmt - odkaz, footnote?
-\item results from the previous workshops on machine translation (namely WMT10 dataset \citep{callisonburch-EtAl:2010:WMT},
-and the datasets available for the upcoming WTM16).
+\item results from the previous workshops on machine translation (mainly\linebreak
+WMT10\footurl{http://www.statmt.org/wmt10/},
+and WTM16\footurl{http://www.statmt.org/wmt16/} datasets).
 \end{itemize}
 
-In the following sections, we will describe each in more detail.
+In the following sections, we describe each in more detail.
 
 \subsection{Khan's school}
 
@@ -81,7 +82,7 @@ learning methods.
 \subsection{HimL-Lingea logs}
 
 The data provided by Lingea\footurl{http://www.lingea.cz/} were collected when official test sets for
-Healt In My Language\footurl{http://www.himl.eu/} (HimL) project were
+HimL project were
 created. The data consist mainly of the public health related texts.
 The original English sentences were first
 machine-translated to languages at which
@@ -177,16 +178,24 @@ lose the additional information that can be extracted from the source sentences,
 \centering
 \small
 
-\begin{tabular}{lcccc}
-\multirow{2}{*}{}  &  \multirow{2}{*}{\hash{} Sentences}  &  \multicolumn{3}{c}{\hash{} Tokens}  \\
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\multirow{2}{*}{}  &  \multirow{2}{*}{\hash{} Sentences}  &  \multicolumn{3}{c|}{\hash{} Tokens}  \\
+\cline{3-5}
 &   & English & Czech (MT) & Czech (PE) \\
 \hline
 Khan's school & \tilda{}14k & \tilda{}93k & \tilda{}93k & \tilda{}93k \\
+\hline
 Autodesk & 46,916 & 490,005 & 456,697 & 441,645 \\
+\hline
 HimL-Lingea & 3892 & 60,142 & 51,428 & 56,485 \\
+\hline
 WMT10 & 2,489 & 54,021 & 44,578 & 45,422 \\
+\hline
 WMT16 & 2,999 & 57,418 & 48,037 & 48,915 \\
+\hline
 CzEng 1.0 & 15M & 206M & NA & 150M \\
+\hline
 \end{tabular}
 \caption{Summary of the available post-editing data. Only English-Czech data is listed, however, for datasets
 where data for other language pairs are available, their volume is roughly the same. We provide only rough estimates for the Khan's school data.
