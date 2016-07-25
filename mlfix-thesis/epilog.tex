@@ -7,7 +7,7 @@ post-editing of the incorrect morphology in the machine translation output. The 
 developed as a successor of a rule-based Depfix system, with aim to generalize some of its
 rules to a stochastic model which can be applied across languages.
 
-During the developement, we had to find a compromise between the level of language independence
+During the development, we had to find a compromise between the level of language independence
 and overall usefulness fo the system. In the end, we have chosen a unique approach to the problem of correcting
 the morphology by solving a two-step classification task: error detection and morphology prediction.
 We have faced a problem of automatic identification of correct/incorrect training instances
@@ -27,7 +27,7 @@ these models have potential use even in different fields of application, e.g. as
 correction suggestion in a human post-editing framework.
 
 The task detecting targets for our morphology prediction tool, became main a hurdle
-during the developement of MLFix. Aside from the correct identification of the training instances
+during the development of MLFix. Aside from the correct identification of the training instances
 in our data, there was also an issue with highly unbalanced training set which we partially resolved
 by upsampling the minority class and filtering out instances from the \equo{correct} sentences.
 Even though the resulting models performance seemed unsatisfactory at first, they performed resonably
@@ -55,7 +55,7 @@ This result caught our attention and will be investigated closely in the near fu
 the application to the increasingly popular aproach to the machine translation might become valuable.
 
 We have also evaluated performance of a modification aimed at correction German SMT output. We were
-satisfied with the results during model developement, achieving results similar to Czech pipeline,
+satisfied with the results during model development, achieving results similar to Czech pipeline,
 which confirms that the classification tasks themselves (as they were defined in the thesis) are
 not language dependent. No special attention to manually modifying the feature set or choosing
 different approach was required.

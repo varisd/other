@@ -7,7 +7,7 @@ SMT outputs. We summarize the data available for training the models
 and evaluate the system in a similar way we did with the English-Czech
 pipeline.
 
-\section{Processing Pipeline Modification}
+\section{Processing Pipeline Modifications}
 
 As we have already pointed out, we have focused on making the processing pipeline as independent
 on the target language as possible. However, we still have to replace some of the tools
@@ -101,7 +101,7 @@ to the information we have gathered during Czech data analysis. \Fref{iset_de-ba
 categories. Again, case was the most changed category among our data followed by gender and number, either as a standalone change or
 as a part of a clustered change. This led us to training the category prediction models in a same manner as in the English-Czech
 pipeline with exception of the animateness (\pojem{CNGA}) models. To make sure that we can make similar assumptions during
-the model developement we have also checked distribution of changes per individual POS classes, The summary is shown in~\Tref{changes_de-pos}.
+the model development we have also checked distribution of changes per individual POS classes, The summary is shown in~\Tref{changes_de-pos}.
 Even though the distribution is slightly different, nouns and adjectives are still teh most changed words which further supports
 our decision for training Case, CN and CNG models.
 
@@ -141,7 +141,7 @@ conj    &   7\%  \\
 We have skipped the process of choosing proper ML and feature selection method
 assuming that the ones used for training models for English-Czech pipeline should
 be also sufficient for German. We have only searched for the best combination
-of hyperparameters during model developements process. We have used both source
+of hyperparameters during model development process. We have used both source
 and MT features with addition of the source language lemmas. We present a summary
 of the available training data for both error detection and morphology prediction in~\Tref{wf-cat-data-sum}.
 Again, we can see, that the training data are quite small with exception of the Autodesk
@@ -256,7 +256,7 @@ systems performed poorly and it might look like the Czech MLFix provided the bes
 we also provide summary of a number of sentences that were changed by each system in~\Tref{final_de-chgd}.
 We can see, that our suspicion that the negative score correlates with the recall of each configuation was not
 completely off-target. When we compare results we have gathered during Oracle evaluation and model
-developement for each language, we do not think that the poor performance during final evaluation was caused by the fixing
+development for each language, we do not think that the poor performance during final evaluation was caused by the fixing
 components. We suspect that the current performance bottleneck lies within the inflection module.
 A more thorough investigation of the inflection module is required in the future, with a possible
 replacement with an alternative module.
