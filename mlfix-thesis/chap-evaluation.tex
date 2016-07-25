@@ -1,25 +1,25 @@
-\chapter{System evaluation}
+\chapter{System Evaluation}
 \label{chap:eval}
 
-In this chapter, we present the results of the whole MLFix system evaluation.
-We describe the datasets we have used during the evaluation and different
+In this chapter, we present the results of the final MLFix system evaluation.
+We describe additional datasets we have used during the evaluation and different
 configurations of MLFix we have compared. Furthemore, we present evaluation
 of the individual MLFix components.
 We also present a comparison with the Depfix
 system. We have performed both automatic and manual evaluation.
 
-\section{Automatic evaluation}
+\section{Automatic Evaluation}
 
-During automatic evaluation, we have used mainly BLEU \citep{papineni:2002} translation
+During automatic evaluation, we have used BLEU \citep{papineni:2002} translation
 quality metric based on measuring the n-gram difference between the MT output
 and the reference translation.
 Even though it has its limitations, it is the most widely used
 evaluation metric at the moment and it is considered a standard metric for automatic evaluation.
-In addition, we have 
-measured Translation Edit Rate (TER) \citep{Snover06astudy} because it measures
+We have relied mainly on the BLEU scoring metric, however, we have 
+also measured Translation Edit Rate (TER) \citep{Snover06astudy} during system developement because it measures
 the quality of translation based on the amount of corrections needed to match
 the reference translation. Lowering the amount of work needed to post-edit MT output
-is one of the aims of MLFix system. Besides, the metric has been proved to provide
+is one of the aims of MLFix system. Furthermore, the metric has been proved to provide
 reasonable correlation with a human judgement.
 
 We have evaluted MLFix on the following datasets: Autodesk, WMT10\linebreak
@@ -29,42 +29,115 @@ were translated with various SMT systems.
 
 Because the domains of the datasets differ to a various degree,
 we have decided to combine the final models trained separately
-on these datasets. We then combine these to receive a resulting prediction.
-Naturally, during the evaluation, we combine the models in a leave-one-out
-fashion. The models trained on the currently post-edited data are omitted.
+on these datasets. The methods for combining the output of multiple classifiers
+differ with each MLFix component and are described in more detail in the following
+subsections.
+Naturally, for each dataset we exclude the models trained on that dataset from
+the evaluation.
 
 %This combined model
 %compares result of each separate classifier (with the prediction probability) and picks the most probable choice.
 %We have used the combined model for the prediction of the new categories, for the error detection we have compared
 %the combined model with the best model
 
+\subsection{Morphology Prediction Evaluation}
 
-\subsection{Error detection evaluation}
+We have performed the evaluation of the morphology prediction module first to determine
+which combined model to use during the error detection evaluation. We have compared
+several model combinations: \pojem{Case} models only, \pojem{CN} models only, \pojem{CNG} models only, 
+\pojem{CNGA} models only and a combination of all available models (\pojem{Comb}). We have also
+made evaluation of combined models, which did not use the Depfix data (\pojem{Comb-D}).
+Each combined model runs all classifiers separately and stores the probabilities of their
+predictions. Using these predictions, the candidate tags are generated and are scored by 
+these probabilities. If a tag is predicted by multiple classifiers, the scores are summed together.
+The tag with the highest score is then chosen a result of the combined model.
 
-We have decided to use a combination of multiple binary classifiers in our error detection module.
-However, we had to devise a voting scheme to interpret multiple outputs provided by these classifiers.
+We present the final results of the morphology prediction module evaluation in~\Tref{fixonly-summary}.
+We compare BLEU scores of each model combination and their improvement over the baseline scores.
+The values are multiplied by 100 for easier reading. We can see that the CNG
+and CNGA models had a largest impact most of the time. Since the difference between the CNG and CNGA
+performance is very small we have chosen CNG model for the final evaluation because its models
+performed better during the model training.
+
+Surprisingly, the performance of the Comb models have been lower than we anticipated. This might be caused
+by the fact that these models use basically four times more classifiers and no weighting is used
+on the produced results. Therefore, the results of these models may be biased. Still, more thorough
+investigation is needed in the future.
+
+\begin{table*}[t]
+\centering
+\small
+\resizebox{0.98\textwidth}{!}{
+
+\begin{tabular}{|l|l||c||c||c|c|c|c|c|c|}
+\hline
+Dataset  &  System  &  Oracle  &  Base  &  Case  &  CN  & CNG  &  CNGA  & Comb  &  Comb-D  \\
+\hline
+\hline
+Autodesk  &  NA  &  49.20  &  47.82  &  47.89 (+0.07)  &  47.91 (+0.09)  &  \bf{48.22} (+0.40)  &  48.21 (+0.39)  &  47.90 (+0.08)  &  47.90 (+0.08)  \\
+\hline
+HimL  &  Moses &  23.33  &  20.66  &  21.14 (+0.48)  &  20.97 (+0.31)  &  21.36 (+0.70)  &  \bf{21.49} (+0.83)  &  21.03 (+0.37)  &  21.08 (+0.42)  \\
+\hline
+WMT10  &  CU Bojar  &  16.70  &  15.66  &  15.84 (+0.18)  &  15.82 (+0.16)  &  \bf{15.95} (+0.29)  &  \bf{15.95} (+0.29)  &  15.82 (+0.16)  &  15.82 (+0.16)  \\
+\hline
+\multirow{2}{*}{WMT16}  &  UEDIN NMT  &  27.31  &  26.31  &  26.43 (+0.12)  &  26.48 (+0.17)  &  26.47 (+0.16)  &  \bf{26.50} (+0.19)  &  26.44 (+0.13)  &  26.43 (+0.12)  \\
+&  CU Chimera  &  23.13  &  21.72  &  21.94 (+0.22)  &  21.99 (+0.27)  &  22.02 (+0.30)  &  \bf{22.05} (+0.33)  &  22.02 (+0.30)  &  21.94 (+0.22)  \\
+\hline
+\hline
+Autodek-D  &  NA  &  98.32  &  96.93  &  98.12 (+1.19)  &  98.09 (+1.16)  &  \bf{98.17} (+1.24)  &  98.16 (+1.23)  &  98.08 (+1.15)  &  98.10 (+1.17)  \\
+\hline
+HimL-D  &  Moses  &  96.05  &  94.23  &  95.23 (+1.00)  &  95.04 (+0.81)  &  95.41 (+1.18)  &  \bf{95.42} (+1.19)  &  94.98 (+0.75)  &  95.20 (+0.97)  \\
+\hline
+WMT10-D  &  CU Bojar  &  95.72  &  93.42  &  95.03 (+1.61)  &  94.99 (+1.57)  &  \bf{95.10} (+1.68)  &  95.07 (+1.65)  &  94.96 (+1.54)  &  95.02 (+1.60)  \\
+\hline
+WMT16-D  &  CU Chimera  &  97.51  &  96.56  &  97.22 (+0.66)  &  97.23 (+0.67)  &  97.26 (+0.70)  &  \bf{97.27} (+0.71)  &  97.20 (+0.64)  &  97.24 (+0.68)  \\
+\hline
+\end{tabular}
+
+}
+\caption{
+    Automatic evaluation of the morphology prediction module using BLEU metric, multiplied by 100 for easier reading,
+and the relative improvement over the baseline MT output.
+Performance of 
+Oracle classifier is also provided for comparison. Datasets with the \pojem{-D} suffix have Depfix output in place of reference sentences.
+The best model for each dataset is printedin bold.
+}
+\label{fixonly-summary}
+\end{table*}
+
+
+\subsection{Error Detection Evaluation}
+
+We have performed the error detection evaluation in a similar way. We have used a combination
+of binary classifiers in our prediction module. However, we have chosen a different strategy
+for combining the output of multiple classifiers.
+We have decided to use voting scheme to interpret outputs provided by these classifiers.
 In the end, we have compared three basic methods: \pojem{Majority} vote, \pojem{AtLeastOne} method,
 and \pojem{Average} prediction method.
 
 The \pojem{Majority} vote basically chooses the class that was marked by a majority of classifiers.
 We think that this way can help us compensate for the low precision of some of the classifiers we have trained.
-The potential drawback can be combined low recall of the error detection module. We assume that
+Because the classifiers were trained on different datasets, there should be some level of complementarity
+between them. Still, we have not performed more thorough analysis to support this assumption.
+A potential drawback of this method can be combined low recall of the error detection module. We assume that
 combining several low recall classifers can further bias the module toward the majority class when using
 this method.
 
 The \pojem{AtLeastOne} method classifies the word as incorrect if at least one classifier marks it
 as incorrect. This method should counter the problem of combining several low recall classifiers to some
-extend, however, we expect the precision to drop rapidly when adding more classifiers.
+extend, however, we expect the precision to drop rapidly when adding more classifiers, especially if their own
+precision is low to begin with.
 
-Because we are using classification models that support weighting of their predicted classes, we have
+Because we are using classification models that support weighting of the predicted classes, we have
 also considered \pojem{Average} voting scheme. If the combined classifier provide us not only with
 a predicted class but also a some sort of confidence value (e.g. probability of the prediction correctness),
 we can average these values and mark instance as incorrect if the averaged value exceed a certain threshold.
 This method is similar to the \pojem{Majority} scheme with a difference that it can choose a result
-predicted by a minority when their overall confidence in the prediction is large enough.
+predicted by a minority when their overall confidence of the prediction is large enough.
 
-We show the comparison of these three methods in~\Tref{markonly-summary}. The values of the \equo{incorrect}
-words were predicted by Oracle morphology predictor. We can notice that the AtLeastOne method achieved
+We present the comparison of these three methods in~\Tref{markonly-summary}. The values of the \equo{incorrect}
+words were predicted by Oracle morphology predictor, but only a morphological case, number and gender were predicted.
+We can notice that the AtLeastOne method achieved
 significantly better BLEU score than the other two. This was quite expected and in this case it does
 not necessarily mean that the resulting sentence improved from the human evaluation standpoint, because
 the situation is similar to the heuristic selection we presented in the task definition. Even though
@@ -78,7 +151,7 @@ voting method seems to perform slightly better than the Majority voting but the 
 \begin{table*}[t]
 \centering
 \small
-\resizebox{0.9\textwidth}{!}{
+\resizebox{0.98\textwidth}{!}{
 
 \begin{tabular}{|l|l||c||c||c|c|c|}
 \hline
@@ -116,53 +189,119 @@ Datasets with the \pojem{-D} suffix have Depfix output in place of reference sen
 \label{markonly-summary}
 \end{table*}
 
+\section{System-wide Evaluation}
 
-\subsection{Category prediction evaluation}
+In this section, we present final evaluation of MLFix system. Based on the evaluation of the
+separate components, we have chosen CNG model combination for morphology prediction and we
+have decided to compare both AtLeastOne and Average voting method for error detection. We
+have also made comparison with Depfix system. The results are summarized in~\Tref{final-summary}.
+The amount of changed sentences for each system is shown in~\Tref{final-chgd}.
+
+From the results we can confirm that AtLeastOne voting method, while having large recall, does not work
+quite well with morphology prediction module. We cannot tell how many of the marked instances were actually
+correct, nevertheless, the morphology correction had hard time predicting correct morphological categories
+for these instances. On the other hand, we can see, that MLFix with the Average voting method
+was able to improve every tested MT output. However, the improvement was
+usually quite small. Most of the time, the improvement was smaller compared to Depfix. Interestingly,
+Depfix wasn't quite able to improve output of the neural network machine translation system (UEDIN NMT),
+while MLFix was the best. It might be only a coincidence but it should be investigated more thoroughly
+in the future. Depfix results on the CU-Chimera dataset should be taken with a grain of salt since
+Depfix is already part of the Chimera SMT system.
+
+Even though the changes were positive according to the automatic evaluation, the impact of MLFix was
+very low. If we compare the number of sentences changed by MLFix and Depfix, we can see that MLFix
+modified five to ten times less sentences depending on the dataset. We think that this might be
+caused mainly by the poorly performing error detection classifiers in our error detection module.
+Furthermore, Depfix covers wider range of corrections which also relfects in a larger overall impact.
 
 \begin{table*}[t]
 \centering
 \small
-\resizebox{0.9\textwidth}{!}{
+\resizebox{0.98\textwidth}{!}{
 
-\begin{tabular}{|l|l||c||c|c|c|c|c|c|}
+\begin{tabular}{|l|l||c||c|c|c|c|}
 \hline
-Dataset  &  System  &  Oracle  &  Case  &  CN  & CNG  &  CNGA  & Comb  &  Comb-D  \\
-\hline
-\hline
-Autodesk  &  NA  &  49.20  &  47.89  &  47.91  &  \bf{48.22}  &  48.21  &  47.90  &  47.90  \\
-\hline
-HimL  &  CU Chimera &  23.33  &  21.14  &  20.97  &  21.36  &  \bf{21.49}  &  21.03  &  21.08  \\
-\hline
-WMT10  &  CU Bojar  &  16.70  &  15.84  &  15.82  &  \bf{15.95}  &  \bf{15.95}  &  15.82  &  15.82  \\
-\hline
-\multirow{2}{*}{WMT16}  &  UEDIN NMT  &  27.31  &  26.43  &  26.48  &  26.47  &  \bf{26.50}  &  26.44  &  26.43  \\
-&  CU Chimera  &  23.13  &  21.94  &  21.99  &  22.02  &  \bf{22.05}  &  22.02  &  21.94  \\
+Dataset  &  System  &  Base  &  ALO-CNG  &  Avg-CNG  &  Depfix  \\
 \hline
 \hline
-Autodek-D  &  NA  &  98.32  &  98.12  &  98.09  &  \bf{98.17}  &  98.16  &  98.08  &  98.10  \\
+Autodesk  &  NA  &  47.82  &  44.94 (-2.87)  &  \bf{47.89} (+0.06)  &  \\
 \hline
-HimL-D  &  CU Chimera  &  96.05  &  95.23  &  95.04  &  95.41  &  \bf{95.42}  &  94.98  &  95.20  \\
+HimL  &  Moses  &  20.66  &  18.91 (-1.75)  &  20.69 (+0.02)  &  \bf{21.02} (+0.35)\\
 \hline
-WMT10-D  &  CU Bojar  &  95.72  &  95.03  &  94.99  &  \bf{95.10}  &  95.07  &  94.96  &  95.02  \\
+WMT10  &  CU Bojar  &  15.66  &  14.61 (-1.04)  &  15.76 (+0.10)  &  \bf{15.91} (+0.25)  \\
 \hline
-WMT16-D  &  CU Chimera  &  97.51  &  97.22  &  97.23  &  97.26  &  \bf{97.27}  &  97.20  &  97.24  \\
+\multirow{2}{*}{WMT16}  &  UEDIN NMT  &  26.31  &  25.75 (-0.55)  &  \bf{26.49} (+0.18)  &  26.15 (-0.15)  \\
+&  CU Chimera  &  21.72  &  21.44 (0.27)  &  \bf{21.79} (+0.07)  &  21.75 (+0.02)  \\
 \hline
 \end{tabular}
 
 }
 \caption{
-    Automatic evaluation of the morphological category prediction module. For comparison, evaluation of the
-Oracle classifier is also provided. Datasets with the \pojem{-D} suffix have Depfix output in place of reference sentences.
+	Final evaluation of MLFix. AtLeastOne (ALO-CNG) and Average (Avg-CNG) voting methods
+	were compared. Performance of Depfix is shown for comparison.
 }
-\label{fixonly-summary}
+\label{final-summary}
 \end{table*}
 
-\section{Manual evaluation}
+\begin{table*}[t]
+\centering
+\small
+\resizebox{0.98\textwidth}{!}{
 
-For manual evaluation, we have used the HimL dataset. We have used two independent annotators, both were presented with 
-with a set of sentences randomly selected from the dataset.
+\begin{tabular}{|l|l||c|c|c||c|}
+\hline
+Dataset  &  System  &  ALO-CNG  &  Avg-CNG  &  Depfix  &  Sent.  \\
+\hline
+\hline
+Autodesk  &  NA  &  20,104  &  7,203  &    &  42,259  \\
+\hline
+HimL  &  Moses  &  473  &  30  &  261  &  800  \\
+\hline
+WMT10  &  CU Bojar  &  1,441  &  202  &  973  &  2,489  \\
+\hline
+\multirow{2}{*}{WMT16}  &  UEDIN NMT  &  668  &  86  &  418  &  2,999  \\
+&  CU Chimera  &  713  &  122  &  624  &  2,999  \\
+\hline
+\end{tabular}
 
-A total of \todo{cislo} sentences were evaluated by the annotators. The results are shown in\todo{table}.
+}
+\caption{
+	Number of sentences changed by different systems. Total number of
+	sentences in each dataset (\pojem{Sent.}) is also listed.
+	}
+	\label{final-chgd}
+	\end{table*}
+
+
+
+\section{Manual Evaluation}
+
+For manual evaluation, we have used the HimL dataset. We have used two independent annotators, both were presented with pairs
+of MT output and MLFix output which were randomly shuffled. The source sentence and reference translation were also provided for each pair.
+The evaluated datasets were HimL and WMT16 CU Chimera, post-edited by the Avg-CNG MLFix configuration. Therefore, total
+of 126 sentences was evaluated. The results are shown in~\Tref{maneval-final}.
 %okec
+
+\begin{table*}[t]
+\centering
+\small
+
+\begin{tabular}{l|cc|ccc|cc}
+  &  Evaluated  &  Changed  &  $+$  &  $-$  &  0  &  Precision  &  Impact  \\
+\hline
+HimL-A  &  800  &  30  &  5  &  17  &  8  &  77.2\%  &  2.1\%  \\
+WMT16-A  &  2,999  &  122  &  73  &  21  &  28  &  77.6\%  &  2.4\%  \\
+HimL-B  &  800  &  30  &    &    &    &    &    \\
+WMT16-B  &  2,999  &  122  &    &    &    &    &    \\
+\hline
+Total & & & & & & & \\
+\end{tabular}
+\caption{
+Results of the manual evaluation of best MLFix configuration (Avg-CNG). Annotators
+A and B are distinguished by a suffix for each dataset.
+}
+\label{maneval-final}
+\end{table*}
+
 
 %okec k agreementu

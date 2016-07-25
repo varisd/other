@@ -1,4 +1,4 @@
-\chapter{System description}
+\chapter{System Description}
 \label{chap:system_descr}
 
 In this chapter we describe the main components
@@ -12,7 +12,7 @@ are included in Attachment~\ref{attach:scen}.
 %The main idea of MLFix system is to analyze the provided input data providing
 %a set of input features 
 
-\section{Processing pipeline}
+\section{Processing Pipeline}
 
 MLFix is, similarly to its predecessor, almost entirely implemented in the
 Treex \citep{Popel:2010:TMN:1884371.1884406}\footurl{http://ufal.mff.cuni.cz/treex}
@@ -29,7 +29,7 @@ Because the tools currently available for tectogrammatical layer analysis are av
 a limited set of languages (mainly Czech and English, a developement of others is in progress),
 we decided to use only the a-layer (surface syntax) for data representation.
 
-\subsection{M-Layer analysis}
+\subsection{M-Layer Analysis}
 
 MLFix analysis pipeline is derived from an existing Depfix pipeline
 with a several modifications to make it easier to apply to different
@@ -75,7 +75,7 @@ After the transformation, in following steps of the analysis, a choice
 of a specific tagset becomes transparent because MLFix blocks only
 have to deal with one well-defined set of features.
 
-\subsection{Word alignment}
+\subsection{Word Alignment}
 
 In the next step, we create a word-level alignment between each sentence pair
 using GIZA++ \citep{och:ney:2000}. We make one-to-one word alignment where possible
@@ -87,7 +87,7 @@ the MT sentence and the reference sentence exploiting forms, lemmas and tags
 of the m-nodes. The alignment between the source sentence and the MT ouptut is then also
 projected to the reference sentence.
 
-\subsection{A-Layer analysis}
+\subsection{A-Layer Analysis}
 
 After the m-layer analysis and the word alignment, we perform a dependency parsing.
 For English, we use Maximum spanning tree (MST) parser \citep{mcdonald:pereira:ribarov:hajic:2005}\footurl{http://sourceforge.net/projects/mstparser}
@@ -126,7 +126,7 @@ should be more accurate) influence the final performance of our system.
 %as the MT output, however they are not analyzed on the a-layer, only a simple
 %lemma based word alignment with the MT output is made.
 
-\section{Statistical component}
+\section{Statistical Component}
 
 After data preprocessing, we extract all available features and
 apply a trained statistical model. The features are extracted separetely for each node and passed
@@ -145,7 +145,7 @@ wrapper to load and execute the trained Scikit-Learn model. If a support for a d
 is needed (e.g. VowpalWabbit\footurl{https://github.com/JohnLangford/vowpal\_wabbit/wiki}\footnote{At the time of writing this thesis, there is already
 a limited support for VowpaWabbit.}), this wrapper can be easily modified to suit the requirements.
 
-\section{Wordform generation}
+\section{Wordform Generation}
 
 After we have identified morphologically incorrect words and assigned
 them a new morphological categories we need to generate a new surface form reflecting
@@ -162,7 +162,7 @@ models. The tool learns morphological inflection patters form an annotated corpo
 should able to inflect even previously unseen words using lemma suffixes as features
 and predicting a difference between a lemma and a surface form.
 
-\section{Language independence}
+\section{Language Independence}
 
 From the previous description, we can notice that MLFix still depends on several
 language specific tools. It is quite dependent on the capability of a source

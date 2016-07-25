@@ -1,2 +1,36 @@
-\chapter*{Conclusion}
-\addcontentsline{toc}{chapter}{Conclusion}
+\chapter{Conclusion}
+%\chapter*{Conclusion}
+%\addcontentsline{toc}{chapter}{Conclusion}
+
+In this thesis, we have present MLFix, an automatic post-editing tool focusing on statistical
+post-editing of the incorrect morphology in the machine translation output. The system was
+developed as a successor of a rule-based Depfix system, with aim to generalize some of its
+rules to a stochastic model which can be applied across languages.
+
+During the developement, we had to find a compromise between the level of language independence
+and overall usefulness fo the system. In the end, we have chosen a unique approach to the problem of correcting
+the morphology by solving a two-step classification task: error detection and morphology prediction.
+We have faced a problem of automatic identification of correct/incorrect training instances
+which we have solved with a fairly effective heuristic. Still, further refinement of the
+training data extraction method is desired in the future.
+
+Out of the two classification tasks, the morphology prediction proved to be much easier
+to handle resulting in models whose performance was naturally dropping with increasing
+task complexity but which performed quite well when combined together. We think that
+these models have potential in different fields of application, e.g. as a part of automatic
+correction suggestion in a human post-editing framework.
+
+The task detecting targets for our post-editing tool, incorrect instances, became main hurdle
+during the developement of MLFix. Aside from the correct identification of the training instances
+in our data, there was also an issue with highly unbalanced training set which we partially resolved
+by upsampling the minority class and filtering out instances from the \equo{correct} sentences.
+Even though the resulting models performance seemed unsatisfactory at first, the performed resonably
+well during final evaluation as far as precission of the resulting system is concerned. The weaker
+side was fairly low overall impact on the MT output.
+
+Aside from the smaller impact, the system performed well during the final evaluation \todo{okec manevalu, s prihlednutim na interanot agr.}, surprisingly
+even surpasing Depfix in the BLEU scoring when applied on a output of a neural machine translation.
+This result needs to be investigated more closely in the future, because if confirmed, the application
+on the increasingly popular NMT systems might be valuable.
+
+We have also evaluated performance of a modification aimed at correction German SMT output.\todo{okec vysledku}

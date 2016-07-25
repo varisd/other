@@ -1,4 +1,4 @@
-\chapter{Task definition}
+\chapter{Task Definition}
 \label{chap:task_descr}
 
 In this chapter we will present results of the closer inspection
@@ -49,7 +49,7 @@ method during system developement. Therefore we rely on the widely used BLEU sco
 probably even more suitable translation error rate (TER) metric. Relying on these methods alone
 has however few drawbacks which we will address later in the in this chapter.
 
-\section{Specifying the task}
+\section{Specifying the Task}
 
 As mentioned above, our goal is assigning new surface form to the incorrect instances
 in the MT translated text via newly predicted POS tags. For morphologically rich languages,
@@ -89,7 +89,7 @@ can be simply trained only on the incorrect istances.
 The third scenario seemed reasonable because we usually want to modify different morphological categories for different POS.
 However due to the results of the data analysis (presented in more detail in section~\ref{sec:feat_extract}) we have found it unnecessary to implement for time being.
 
-\subsection{Oracle classifier}
+\subsection{Oracle Classifier}
 
 Now that we have outlined the post-editing subtasks and assigned hypothetical classifiers 
 to solve each one of them, there are following two issues left to resolve: choice of the
@@ -321,7 +321,7 @@ we have tried another, little limited, method for creating and extracting the tr
 \end{myexample}
 %\todo{ukazat i rozdilne dep. struktury u ex. 4.4?}
 
-\subsection{Depfix reference}
+\subsection{Depfix Reference}
 
 From the previous observations, we assume that the constraint based method achieves
 best results when combined with data, where reference sentences
@@ -357,7 +357,7 @@ of the original post-editing system.
 This aproach might become more interesting if a viable method of adapting the trained models
 to another language pairs is devised in the future.
 
-\subsection{Oracle evaluation}
+\subsection{Oracle Evaluation}
 
 In this section, we present a brief evaluation of the Oracle classifier to show
 what is the possible upper limit, that can be reached by our statistical components. This is
@@ -448,7 +448,7 @@ We can therefore assume that the presented heuristic can provide us with
 quite reliable training data. Sadly, due to the low impact, much larger
 volumes of post-edited data are to extract of reasonably big training dataset
 
-\section{Feature extraction}
+\section{Feature Extraction}
 \label{sec:feat_extract}
 
 %TODO: tabulky

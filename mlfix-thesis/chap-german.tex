@@ -4,58 +4,64 @@
 In this chapter we describe changes we have made to an existing
 English-Czech MLFix pipeline to be able to apply the system to the English-German
 SMT outputs. We summarize the data available for training the models
-and evaluate the system in the system in a similar way we did with the English-Czech
+and evaluate the system in a similar way we did with the English-Czech
 pipeline.
 
-\section{Processing pipeline modification}
+\section{Processing Pipeline Modification}
 
-As we have mentioned, we have focused on making the processing pipeline as independent
+As we have already pointed out, we have focused on making the processing pipeline as independent
 on the target language as possible. However, we still have to replace some of the tools
-used for the Czech analysis to be able to correctly process German sentences.
+used during the Czech analysis to be able to correctly process German sentences.
 
 Again, we have used the Treex framework as a backbone of the processing pipeline and
 necessary 3rd party tools were implemented into the systems via wrappers.
 After the sentences are read in parrallel, they are processed separately, English
 following the same scenario as in the English-Czech pipeline.
-German is again tokenized, this time by a set of regex rules inspired by Tiger corpus\cite{Brants2004}
+German is tokenized, this time by a set of regex rules inspired by Tiger corpus \citep{Brants2004}
 with main focus on abbreviations, ordinal numbers and compounds connected by hyphens.
 
 Next, lemmatization and POS tagging is performed by a Mate tools\footurl{http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html}
-toolkit. The tagger used CoNLL2009\cite{CoNLL-2009-ST} tagset. For tagging, we could have also
-used the Stanford POS Tagger\footurl{http://nlp.stanford.edu/software/tagger.shtml}\cite{Toutanova:2000:EKS:1117794.1117802},
-however, the tagset it uses contains only coarse tags without little morphological information.
-To convert the CoNLL2009 tags to Interset, we use a decoder, which was already implemented at the
+toolkit. The tagger is using CoNLL2009 \citep{CoNLL-2009-ST} tagset. We have also considered using
+Stanford POS Tagger \citep{Toutanova:2000:EKS:1117794.1117802}\footurl{http://nlp.stanford.edu/software/tagger.shtml},
+however, the tagset it uses contains only coarse tags with little morphological information.
+To convert the CoNLL2009 tags to Interset, we use a decoder which was already implemented at the
 time of our research.
 
-For the word alignment, we again use GIZA++. Similar to English-Czech, we produce one-to-one word alignment
-with the intersetion symmetrization. We The alignment model has been trained on the European
-Parliament Parallel corpus\cite{koehn2005epc}\footnote{http://www.statmt.org/europarl/} (Europarl)
+For the word alignment, we use GIZA++ again. Similar to English-Czech, we produce one-to-one word alignment
+via intersetion symmetrization. The alignment model has been trained on the European
+Parliament Parallel corpus \citep{koehn2005epc}\footnote{http://www.statmt.org/europarl/} (Europarl)
 containing nearly two million sentences. During the process of training data analysis we 
 also create monolingual alignment between the MT output and the references sentences
 in a similar way we did in the original pipeline.
 
-The dependency structure for the MT output is again produced by projecting the English dependency
-structures on the MT sentences. When processing the training data, we parse the reference sentences
-by graph-based parser\cite{Bohnet:2010:VHA:1873781.1873792} implementation which is also a part of the
-Mate tools toolkit. We stop the analysis at the a-layer, but again in the future, further analyzing
-the sentences to the t-layer to gain additional features for extraction is desired.
+The dependency structure for the MT output is produced by projecting the English dependency
+structures on the MT sentences. When we process the training data, we parse the reference sentences
+by graph-based parser implementation \citep{Bohnet:2010:VHA:1873781.1873792} which is also a part of the
+Mate tools toolkit. We stop the analysis at the a-layer, but again, in the future, further analyzing
+the sentences to the t-layer to gain additional features for extraction might be helpful.
 
 We have reused the statistical component used in the English-Czech pipeline, because it was designed to be
-language independent (with the exception of the statistical models). For wordform generation we have
-the Flect morphological generation tool mentioned earlier. We have trained the generator on a small
+language independent (with the exception of the statistical models). For wordform generation we use
+Flect morphology generation tool mentioned earlier. We have trained the generator on a small
 fraction (around one hundred thousand sentences) of the Europarl corpus. The tool is trained on a set
-of features based on a combination of lemma$+$Interset producing the inflected word.\todo{training data acc?}
+of features based on a combination of lemma$+$Interset producing the inflected word. The feature set
+was copied from the Dutch feature set so it might not contain all the useful features. The accuracy
+of the inflection model measured on a separate test set was around 94.5\%. However, when we briefly examined
+the sentences produced via Oracle, we have noticed that much larger amount of words was flected incorrectly.
 
-\section{Data analysis}
+It is not in the scope of this thesis but it is a future goal to replace the current inflection model
+with a better solution, either stochastic or rule-based.
 
-We have been able to collect only a smaller variety of data for English-German compared to English-Czech
- mostly due to some datasets we mentioned earlier wer simply not available for this language pair. Still, we have been
-available to gather following datasets: WMT16, HimL and Autodesk. Note that in case of Autodesk dataset,
+\section{Data Analysis}
+
+We have been able to collect only a smaller variety of data for English-German compared to English-Czech,
+ mostly due to some datasets we mentioned earlier were simply not available for this language pair. Still, we have been
+able to gather following datasets: WMT16, HimL and Autodesk. Note that in case of Autodesk dataset,
 the size of English-German is about three times bigger than the size of English-Czech (around 120k sentences).
 For this reason, we have decided to include Autodesk dataset into our training data even though it covers
-a limited domain.
+a quite specific domain.
 
-When extracting the training instances for the statistical component we have followed same scenario
+When extracting the training instances for the model training we have followed same scenario
 as before, using the same heuristic to identify \equo{incorrect} wordforms. We have also used the Oracle
 classifier to gather information about possible improvements this heuristic can bring when applied to German.
 
@@ -66,32 +72,38 @@ would be too difficult for a non-native speaker to evaluate.
 Due to limited
 resources we have again used only a single annotator for this evaluation task. The evaluator, not being familiar
 with the MLFix system, was presented set of instances containing the following: randomly shuffled MT output and Oracle output,
-the source English sentence and the German reference translation. The results of the evaluation a shown in the table\todo{ref}
-%okec
+the source English sentence and the German reference translation. The results of the evaluation a shown in the~\Tref{oracle_de-maneval}.
+We have decided to only correct morphological categories by Oracle leaving the surface form generation to Flect module because
+we wanted to see the best possible outcome that can be achieved by the statistical fixing components. In the future
+the Oracle evaluation with \equo{Oracle} surface form generation might also be a valuable source of information.
+This choice likely resulted in worse performance of Oracle classifier when compared to Czech Oracle. Therefore
+we still chose to use the same heuristic for marking incorrect instances in the training data.
 
 \begin{table*}[t]
 \centering
 \small
 
 \begin{tabular}{l|cc|ccc|cc}
-  &  Evaluated  &  Changed  &  $+$  &  $-$  &  0  &  Precision  &  Recall  \\
+  &  Evaluated  &  Changed  &  $+$  &  $-$  &  0  &  Precision  &  Impact  \\
 \hline
-Oracle  &  800  &  242  &  155  &  42  &  45  &  64.0\%  &  19.3\%  \\
+Oracle  &  800  &  77  &  20  &  39  &  18  &  33.9\%  &  2.5\%  \\
 \end{tabular}
 \caption{
-Results of the the manual evaluation of the ideal system based on the same heuristic
-that has been used in the English-Czech pipeline.
+Results of the the manual evaluation of the ideal fixing module based on the same heuristic
+that has been used in the English-Czech pipeline. For wordform generation, statistical component
+was used impacting the overall performance.
 }
 \label{oracle_de-maneval}
 \end{table*}
 
-After the evaluation of our data extraction method we have analyzed the extracted instances and compared them
+After the evaluation of the data extraction method we have analyzed the extracted instances and compared them
 to the information we have gathered during Czech data analysis. \Fref{iset_de-barplot} shows the frequency of the changed Interset
 categories. Again, case was the most changed category among our data followed by gender and number, either as a standalone change or
 as a part of a clustered change. This led us to training the category prediction models in a same manner as in the English-Czech
 pipeline with exception of the animateness (\pojem{CNGA}) models. To make sure that we can make similar assumptions during
-the model training we have also checked distribution of changes per individual POS categories, shown in~\Tref{changes_de-pos}
-%okec
+the model developement we have also checked distribution of changes per individual POS classes, The summary is shown in~\Tref{changes_de-pos}.
+Even though the distribution is slightly different, nouns and adjectives are still teh most changed words which further supports
+our decision for training Case, CN and CNG models.
 
 \begin{figure}
 \centering
@@ -110,22 +122,36 @@ the model training we have also checked distribution of changes per individual P
 \begin{tabular}{lc}
 POS  &  Frequency  \\
 \hline
-noun    &   38\%  \\
-adj     &   16\%  \\
-adp     &   10\%  \\
-verb    &   9\%  \\
-adv     &   9\%  \\
+noun    &   35\%  \\
+adj     &   25\%  \\
+punc	&	10\%  \\
+adp     &   8\%  \\
+conj    &   7\%  \\
 \end{tabular}
 \caption{
-    Part-of-speech (POS) frequencies of the changed words.
+    Part-of-speech (POS) frequencies of the changed words. Only the 5 most
+	frequent classes are displayed.
 }
 \label{changes_de-pos}
 \end{table*}
 
 
-We
+\section{Model Developement}
 
-\section{Model training}
+We have skipped the process of choosing proper ML and feature selection method
+assuming that the ones used for training models for English-Czech pipeline should
+be also sufficient for German. We have only searched for the best combination
+of hyperparameters during model developements process. We have used both source
+and MT features with addition of the source language lemmas. We present a summary
+of the available training data for both error detection and morphology prediction in~\Tref{wf-cat-data-sum}.
+Again, we can see, that the training data are quite small with exception of the Autodesk
+dataset. That is also the main motivation behind including it in our training data.
+
+The summary of the final error detection models is in~\Tref{wf_de-summary}. Surprisingly,
+while having quite similar precision to the Czech models they achieved much better
+recall overall. At this moment, we cannot say if it is caused by a ML method choice or a suitable
+initial feature set, however, since there is still room for improvement, we consider investigating
+the issue furter in the future.
 
 \begin{table*}[t]
 \centering
@@ -134,7 +160,7 @@ We
 \begin{tabular}{lccc}
 Dataset  &  \hash{} Instances  &  \hash{} Instances (filt.)  &  \hash{} Incorrect  \\
 \hline
-HimL  & 12,067  &  2,729  &  369  \\
+HimL Moses  & 12,067  &  2,729  &  369  \\
 WMT16 UEDIN-NMT  &  22,353  &  3,340  &  344  \\
 WMT16 UEDIN-PBMT  &  21,394  &   3,727  &  412  \\
 Autodesk  &  1,263,750  &  124,698  &  17,268  \\
@@ -144,9 +170,16 @@ Autodesk  &  1,263,750  &  124,698  &  17,268  \\
 size before and after (filt.) removing the instances extracted from the \equo{correct} sentences.
 The size of datasets for category predictor training is presented in the \pojem{Incorrect} column.
 }
-\label{wf-training-sum}
+\label{wf-cat-data-sum}
 \end{table*}
 
+In~\Tref{cats+de-summary}, we present performance of the final German
+mophology prediction models. The results are fairly similar to Czech models with
+HimL model being slightly better, possibly due to a lesser amount of possible values
+of the case category. Surprisingly, the accuracy of  a model trained on the Autodesk
+dataset drops only a little with increasing complexity suggesting that increasing
+the amount of training data can significantly improve the overall accuracy of the
+resulting model.
 
 \begin{table*}[t]
 \centering
@@ -155,10 +188,10 @@ The size of datasets for category predictor training is presented in the \pojem{
 \begin{tabular}{l|ccc}
 Dataset  &  Precision  &  Recall  &  F1  \\
 \hline
-himl  &  0.39  &  0.56  &  0.46  \\
-wmt16 uedin-nmt  &  0.28  &  0.43  &  0.34  \\
-wmt2016 uedin-pbmt  &  0.29  &  0.50  &  0.37  \\
-autodesk  &  0.41  &  0.77  &  0.53  \\
+HimL Moses  &  0.39  &  0.56  &  0.46  \\
+WMT16 UEDIN-NMT  &  0.28  &  0.43  &  0.34  \\
+WMT16 UEDIN-NMT  &  0.29  &  0.50  &  0.37  \\
+Autodesk  &  0.41  &  0.77  &  0.53  \\
 \end{tabular}
 \caption{
     Summary of the in-domain performance of the final German error detection models.
@@ -173,19 +206,135 @@ autodesk  &  0.41  &  0.77  &  0.53  \\
 \begin{tabular}{l|ccc}
 Dataset  &  Case(Base)  &  CN(Base)  & CNG(Base)  \\
 \hline
-himl  &  84\%(29\%)  &  79\%(13\%)  &  70\%(5\%)  \\
-wmt2016 uedin-nmt  &  57\%(46\%)  &  48\%(27\%)  &  34\%(22\%)  \\
-wmt2016 uedin-pbmt  &  57\%(38\%)  &  47\%(21\%)  &  35\%(18\%)\\
-autodesk  &  96\%(28\%)  &  95\%(17\%)  &  93\%(8\%)  \\
+HimL Moses  &  84\%(29\%)  &  79\%(13\%)  &  70\%(5\%)  \\
+WMT16 UEDIN-NMT  &  57\%(46\%)  &  48\%(27\%)  &  34\%(22\%)  \\
+WMT16 UEDIN-PBMT  &  57\%(38\%)  &  47\%(21\%)  &  35\%(18\%)\\
+Autodesk  &  96\%(28\%)  &  95\%(17\%)  &  93\%(8\%)  \\
 
 \end{tabular}
 \caption{
-    Summary of the in-domain performance of the final German category prediction models.
+    Summary of the in-domain performance of the final German category prediction models
+	and its comparison with the baseline predictor.
 }
-\label{cats-summary}
+\label{cats_de-summary}
 \end{table*}
 
 
 %\todo{avail data?}
-%\todo{rozbory ala task\_descr?}
-%\todo{oracle eval (human)}
+
+\section{Evaluation}
+
+We chose
+
+\begin{table*}[t]
+\centering
+\small
+\resizebox{0.98\textwidth}{!}{
+
+\begin{tabular}{|l|l||c||c||c|c|c|c|c|c|}
+\hline
+Dataset  &  System  &  Oracle  &  Base  &  Case  &  CN  & CNG  & Comb  \\
+\hline
+\hline
+Autodesk  &  NA  &    &  45.90  &  45.96 (+0.06)  &  45.95 (+0.05)  &  \bf{46.02} (+0.12)  &    \\
+\hline
+HimL  &  CU Moses &  31.94  &  30.95  &  31.37 (+0.41)  &  31.29 (+0.34)  &  \bf{31.59} (+0.63)  &  31.46 (+0.50)\\
+\hline
+\multirow{2}{*}{WMT16}  &  UEDIN NMT  &  35.05  &  34.82  &  34.82 (0)  &  34.82 (0)  &  34.82 (0)  &  34.82 (0) \\
+&  UEDIN PBMT  &  29.38  &  29.11  &  29.11 (0)  &  29.11 (0)  &  29.11 (0)  &  29.11 (0)  \\
+\hline
+\end{tabular}
+
+}
+\caption{
+    Automatic evaluation of the morphology prediction module using BLEU metric, multiplied by 100 for easier reading,
+and the relative improvement over the baseline MT output.
+Performance of
+Oracle classifier is provided for comparison. 
+The best model for each dataset is printed in bold.
+}
+\label{fixonly_de-summary}
+\end{table*}
+
+
+\begin{table*}[t]
+\centering
+\small
+\resizebox{0.98\textwidth}{!}{
+
+\begin{tabular}{|l|l||c||c||c|c|c|c|c|c|}
+\hline
+Dataset  &  System  &  Oracle  &  Base  &  Majority  &  AtLeastOne  & Average  \\
+\hline
+\hline
+Autodesk  &  NA  &    &  45.90  &    &    &  \\
+\hline
+HimL  &  CU Moses &  31.94  &  30.95  &  \bf{30.89} (-0.05)  &  30.17 (-0.77)  &  30.58 (-0.36)  \\
+\hline
+\multirow{2}{*}{WMT16}  &  UEDIN NMT  &  35.05  &  34.82  &  \bf{33.25} (-1.56)  &  30.15 (-4.67)  &  30.78 (-4.03)  \\
+&  UEDIN PBMT  &  29.38  &  29.11  &  \bf{27.96} (-1.15)  &  25.41 (-3.7)  &  25.97 (-3.14)  \\
+\hline
+\end{tabular}
+
+}
+\caption{
+    Automatic evaluation of the error detection module using different voting methods to interpret output
+of mutliple models using BLEU metric. Values are multiplied by 100 for easier reading,
+and the relative improvement over the baseline MT output.
+Performance of
+Oracle classifier is provided for comparison.
+The best model for each dataset is printed in bold.
+}
+\label{markonly_de-summary}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\small
+\resizebox{0.98\textwidth}{!}{
+
+\begin{tabular}{|l|l||c||c||c|c|c|c|c|c|}
+\hline
+Dataset  &  System  &  Base  &  Majority-CNG  &  Avg-CNG  &  CS-Best  \\
+\hline
+\hline
+Autodesk  &  NA  &  45.90  &    &   \\
+\hline  
+HimL  &  CU Moses &  30.95  &    &  \\
+\hline  
+\multirow{2}{*}{WMT16}  &  UEDIN NMT  &  34.82  &    &  \\
+&  UEDIN PBMT  &  29.11  &    &  \\
+\hline
+\end{tabular}
+
+}
+\caption{
+	Final evaluation of Englsh-German configuration of MLFix. Majority-CNG and Avg-CNG methods were compared
+with the best English-Czech configuration.
+}
+\label{final_de-summary}
+\end{table*}
+
+
+\todo{fix values - maneval}
+\begin{table*}[t]
+\centering
+\small
+
+\begin{tabular}{l|cc|ccc|cc}
+  &  Evaluated  &  Changed  &  $+$  &  $-$  &  0  &  Precision  &  Impact  \\
+\hline
+HimL-A  &  800  &  30  &  5  &  17  &  8  &  77.2\%  &  2.1\%  \\
+WMT16-A  &  2,999  &  122  &  73  &  21  &  28  &  77.6\%  &  2.4\%  \\
+HimL-B  &  800  &  30  &    &    &    &    &    \\
+WMT16-B  &  2,999  &  122  &    &    &    &    &    \\
+\hline
+Total & & & & & & & \\
+\end{tabular}
+\caption{
+Results of the manual evaluation of best MLFix configuration (Avg-CNG). Annotators
+A and B are distinguished by a suffix for each dataset.
+}
+\label{maneval-final}
+\end{table*}
+ 
