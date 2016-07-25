@@ -173,7 +173,7 @@ The size of datasets for category predictor training is presented in the \pojem{
 \label{wf-cat-data-sum}
 \end{table*}
 
-In~\Tref{cats+de-summary}, we present performance of the final German
+In~\Tref{cats_de-summary}, we present performance of the final German
 mophology prediction models. The results are fairly similar to Czech models with
 HimL model being slightly better, possibly due to a lesser amount of possible values
 of the case category. Surprisingly, the accuracy of  a model trained on the Autodesk
@@ -224,7 +224,42 @@ Autodesk  &  96\%(28\%)  &  95\%(17\%)  &  93\%(8\%)  \\
 
 \section{Evaluation}
 
-We chose
+We have followed same procedure during German MLFix evaluation as we followed during
+Czech evaluation. We have compared several configurations of the morphology prediction
+module and error detection module separately first, using Oracle to substitute the other
+module, then we have evaluated the whole MLFix system. We have compared same configurations
+we have used in Czech MLFix: \pojem{Case}, \pojem{CN}, \pojem{CNG} and \pojem{Combined} model configuration for morphology
+prediction and \pojem{Majority}, \pojem{AtLeastOne} and \pojem{Average} voting scheme for error
+detection. For the whole system evaluation, we have picked two most promising configurations
+and compared their performance. We have also measured a performance of the best Czech configuration
+(using Czech models) when applied to German. We have used BLEU score during automatic evaluation.
+The evaluation was performed on the following datasets: Autodesk, HimL Lingea logs and WMT16.
+
+We present the results of morphology prediction module evaluation in~\Tref{fixonly_de-summary}.
+Once again, CNG configuration proved to be the reliable choice, having best score on each dataset.
+However, the overall improvement in BLEU score is much lower when compared with Czech version
+of MLFix. This is little surprising because the individual performance of the morphology prediction
+models measured during training was equal and in some cases better than the one of the Czech models.
+It is possible that this might be either a result of lower diversity in our data (most of the data belongs
+to Autodesk dataset) or a consequence of the poor performance of the iflection module.
+
+In~\Tref{markonly_de-summary}, we present the results of the evaluation of the error detection module.
+We can see, that the module was performing quite poorly, not bringing any improvement to any dataset att all. Due to the nature of the error detection module evaluation (new morphological categories are taken from the reference sentences), we suspect that the main reason behind the poor performance is truly the
+inflection module. Aside from that, we can see that this time it was the Majority scheme which performed
+ much better than the rest. However, the results might only point to the fact that the Majority scheme
+ marked the smallest number of instances as incorrect thus worsening the MT output much less than the
+ other two.
+
+Nevertheless, we have decided to pick \pojem{Majority-CNG} and \pojem{Average-CNG} configurations
+for the final evaluation. Their performance is summarized in~\Tref{final_de-summary}. Again, both
+systems performed poorly and it might look like the Czech MLFix provided the best results. Therefore,
+we also provide summary of a number of sentences that were changed by each system in~\Tref{final_de-chgd}.
+We can see, that our suspicion that the negative score correlates with the recall of each configuation was not
+completely off-target. When we compare results we have gathered during Oracle evaluation and model
+developement for each language, we do not think that the poor performance during final evaluation was caused by the fixing
+components. We suspect that the current performance bottleneck lies within the inflection module.
+A more thorough investigation of the inflection module is required in the future, with a possible
+replacement with an alternative module.
 
 \begin{table*}[t]
 \centering
@@ -236,9 +271,9 @@ We chose
 Dataset  &  System  &  Oracle  &  Base  &  Case  &  CN  & CNG  & Comb  \\
 \hline
 \hline
-Autodesk  &  NA  &    &  45.90  &  45.96 (+0.06)  &  45.95 (+0.05)  &  \bf{46.02} (+0.12)  &    \\
+Autodesk  &  NA  &  46.23  &  45.90  &  45.96 (+0.06)  &  45.95 (+0.05)  &  \bf{46.02} (+0.12)  &  45.98 (+0.08)  \\
 \hline
-HimL  &  CU Moses &  31.94  &  30.95  &  31.37 (+0.41)  &  31.29 (+0.34)  &  \bf{31.59} (+0.63)  &  31.46 (+0.50)\\
+HimL  &  Moses &  31.94  &  30.95  &  31.37 (+0.41)  &  31.29 (+0.34)  &  \bf{31.59} (+0.63)  &  31.46 (+0.50)\\
 \hline
 \multirow{2}{*}{WMT16}  &  UEDIN NMT  &  35.05  &  34.82  &  34.82 (0)  &  34.82 (0)  &  34.82 (0)  &  34.82 (0) \\
 &  UEDIN PBMT  &  29.38  &  29.11  &  29.11 (0)  &  29.11 (0)  &  29.11 (0)  &  29.11 (0)  \\
@@ -267,9 +302,9 @@ The best model for each dataset is printed in bold.
 Dataset  &  System  &  Oracle  &  Base  &  Majority  &  AtLeastOne  & Average  \\
 \hline
 \hline
-Autodesk  &  NA  &    &  45.90  &    &    &  \\
+Autodesk  &  NA  &  46.23  &  45.90  &  \bf{45.80} (-0.10)  &  45.52 (-0.38)  &  45.79 (-0.11)  \\
 \hline
-HimL  &  CU Moses &  31.94  &  30.95  &  \bf{30.89} (-0.05)  &  30.17 (-0.77)  &  30.58 (-0.36)  \\
+HimL  &  Moses &  31.94  &  30.95  &  \bf{30.89} (-0.05)  &  30.17 (-0.77)  &  30.58 (-0.36)  \\
 \hline
 \multirow{2}{*}{WMT16}  &  UEDIN NMT  &  35.05  &  34.82  &  \bf{33.25} (-1.56)  &  30.15 (-4.67)  &  30.78 (-4.03)  \\
 &  UEDIN PBMT  &  29.38  &  29.11  &  \bf{27.96} (-1.15)  &  25.41 (-3.7)  &  25.97 (-3.14)  \\
@@ -293,17 +328,17 @@ The best model for each dataset is printed in bold.
 \small
 \resizebox{0.98\textwidth}{!}{
 
-\begin{tabular}{|l|l||c||c||c|c|c|c|c|c|}
+\begin{tabular}{|l|l||c||c|c|c|}
 \hline
-Dataset  &  System  &  Base  &  Majority-CNG  &  Avg-CNG  &  CS-Best  \\
+Dataset  &  System  &  Base  &  Major-CNG  &  Avg-CNG  &  CS-Best  \\
 \hline
 \hline
-Autodesk  &  NA  &  45.90  &    &   \\
+Autodesk  &  NA  &  45.90  &    &   &  \\
 \hline  
-HimL  &  CU Moses &  30.95  &    &  \\
+HimL  &  Moses &  30.95  &  34.81 (-0.56)  &  28.35 (-2.60)  &  30.95 (0) \\
 \hline  
-\multirow{2}{*}{WMT16}  &  UEDIN NMT  &  34.82  &    &  \\
-&  UEDIN PBMT  &  29.11  &    &  \\
+\multirow{2}{*}{WMT16}  &  UEDIN NMT  &  34.82  &  30.46 (-4.36)  &  19.95 (-14.87)  &  34.81 (0)  \\
+&  UEDIN PBMT  &  29.11  &  25.70 (-3.41)  &  17.02 (-12.09)  &  29.11 (0)  \\
 \hline
 \end{tabular}
 
@@ -315,6 +350,34 @@ with the best English-Czech configuration.
 \label{final_de-summary}
 \end{table*}
 
+\begin{table*}[t]
+\centering
+\small
+\resizebox{0.98\textwidth}{!}{
+
+\begin{tabular}{|l|l||c|c|c||c|}
+\hline
+Dataset  &  System  &  Major-CNG  &  Avg-CNG  &  CS-Best  &  Sent.  \\
+\hline
+\hline
+Autodesk  &  NA  &    &    &   &  124,498  \\
+\hline
+HimL  &  Moses  &  145  &  421  &  0  &  800  \\
+\hline
+\multirow{2}{*}{WMT16}  &  UEDIN NMT  &  2,078  &  2,949  &  3  &  2,999  \\
+&  UEDIN PBMT  &  2,014  &  2,921  &  5  &  2,999  \\
+\hline
+\end{tabular}
+
+}
+\caption{
+    Number of sentences changed by different systems. Total number of
+sentences in each dataset (\pojem{Sent.}) is also listed.
+}   
+\label{final_de-chgd}
+\end{table*}
+
+
 
 \todo{fix values - maneval}
 \begin{table*}[t]
@@ -324,16 +387,13 @@ with the best English-Czech configuration.
 \begin{tabular}{l|cc|ccc|cc}
   &  Evaluated  &  Changed  &  $+$  &  $-$  &  0  &  Precision  &  Impact  \\
 \hline
-HimL-A  &  800  &  30  &  5  &  17  &  8  &  77.2\%  &  2.1\%  \\
-WMT16-A  &  2,999  &  122  &  73  &  21  &  28  &  77.6\%  &  2.4\%  \\
-HimL-B  &  800  &  30  &    &    &    &    &    \\
-WMT16-B  &  2,999  &  122  &    &    &    &    &    \\
+A  &  640  &  313  &  36  &  263  &  14  &  12.0\%  &  5.6\%  \\
+B  &  800  &    &    &    &    &    &    \\
 \hline
 Total & & & & & & & \\
 \end{tabular}
 \caption{
-Results of the manual evaluation of best MLFix configuration (Avg-CNG). Annotators
-A and B are distinguished by a suffix for each dataset.
+Results of the manual evaluation of best MLFix configuration (Avg-CNG)
 }
 \label{maneval-final}
 \end{table*}
