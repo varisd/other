@@ -60,7 +60,7 @@ sub processLinePerTer {
     my $handle = shift;
     my $line = <$handle>;
     chomp $line;
-    $line =~ /([PT]ER):\t(0\.[0-9]{1,4})$/;
+    $line =~ /([PT]ER):\t(0\.[0-9]{1,6})$/;
     my $type = $1;
     my $score = $2;
     return ($score, $type);

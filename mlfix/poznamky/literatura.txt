@@ -1,0 +1,20 @@
+Simard, Goutte, Isabelle - Statistical Phrase-based Post-editing
+- phrase-based APE on PBMT ...
+
+K. Oflazer and I.D. El-Kahlout (2007) Exploring different representational units in english-to-turkish statistical machine translation
+- phrases-to-"word+moprho"
+
+H. Béchara, Y. Ma and J. van Genabith (2011) Statistical post-editing for a statistical mt system. 
+- Nice evaluation and result analysis, small improvement.
+- E#F' -> F'' translation
+- half of edits are insertions
+- word order edits
+
+An Evaluation of Statistical Post-editing Systems Applied to RBMT and SMT Systems
+- RBMT, SMT (both with + SPE) eval and error analysis
+
+Minkov et. al.
+
+Talbot and Osborne 2006
+
+Zens and Ney 2006 - posterior probabilities

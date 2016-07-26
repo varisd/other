@@ -29,6 +29,9 @@ while (<$file1>) {
     my $b = <$file2>;
     $a =~ s/\r?\n?$//;
     $b =~ s/\r?\n?$//;
+    $a =~ s/\s+$//;
+    $b =~ s/\s+$//;
+
     if ( $a ne $b ) {
         $count++
     }

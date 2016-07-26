@@ -1,24 +1,62 @@
 #!/bin/bash
 
-train_file=$1
-#file_test=$2
+## CHECK THESE VARIABLES ##
+# targets - what to predict
+# target_dir - where to store the eval results
+# input_file - leave it be (most of the time)
+# base_file - baseline predictions
+# sel/selector - switch if needed
 
-#targets="new_node_number new_node_gender"
-targets="new_node_pos new_node_prontype new_node_numtype new_node_numform new_node_numvalue new_node_adpostype new_node_conjtype new_node_poss new_node_reflex new_node_abbr new_node_hyph new_node_negativeness new_node_gender new_node_animateness new_node_number new_node_case new_node_prepcase new_node_degree new_node_person new_node_possgender new_node_possnumber new_node_verbform new_node_mood new_node_tense new_node_voice new_node_aspect new_node_variant new_node_style new_node_tagset new_node_other"
+function die() {
+    echo $1
+    exit
+}
 
-# train models
-while read p; do
-	param1=$(echo $p | cut -d" " -f1)
-	param2=$(echo $p | cut -d" " -f2)
-	param3=$(echo $p | cut -d" " -f3)
-	model_file="models/${param3}_combined.pkl"
-	targets_str=$(echo $targets | tr ' ' '|')
-	~bojar/tools/shell/qsubmit --mem=30g "scripts/scikit-train.py $train_file '$targets_str' $param1 $param2 $model_file"
+# experiment dir: must contain $input_file and $base_file
+dir=$1
 
-	continue
+model=$2
+m_params=$3
+selector=$4
+sel_params=$5
 
-	for target in $targets; do
-		model_file="models/${param3}_${target}.gz"
-		~bojar/tools/shell/qsubmit --mem=30g "scripts/scikit-train.py $train_file $target $param1 $param2 $model_file"
-	done
-done <config/model_params
+
+targets="wrong_form_3"
+#targets="new_node_case"
+#targets="new_node_number new_node_case"
+#targets="new_node_gender new_node_number new_node_case"
+#targets="new_node_gender new_node_animateness new_node_number new_node_case"
+
+target_dir="models/$dir"
+
+#model_name="best.case.pkl"
+#model_name="best.cn.pkl"
+#model_name="best.cng.pkl"
+#model_name="best.cnga.pkl"
+model_name=best.wrong_form.pkl
+
+
+#input_file=${dir}/all_edits.tsv.gz
+#input_file=${dir}/all_edits_wrongonly.tsv.gz
+
+#base_file=${dir}/base.new_node_case.tsv.gz
+#base_file=${dir}/base.case.tsv.gz
+#base_file=${dir}/base.cn.tsv.gz
+#base_file=${dir}/base.cng.tsv.gz
+#base_file=${dir}/base.cnga.tsv.gz
+
+input_file=${dir}/all_edits2.tsv.gz
+base_file=${dir}/base.wrong_form_3.tsv.gz
+
+[ -f ${input_file} ] || die "File $input_file does not exist."
+[ -f ${base_file} ] || die "File $base_file does not exist."
+
+(>&2 echo "$targets")
+
+mkdir -p "${target_dir}"
+
+queue=`lowestQueue`
+targets_str=$(echo "$targets" | tr ' ' '|')
+jobName="mlfix_train_${model_name}_${model}_${selector}"
+
+~bojar/tools/shell/qsubmit --mem=15g --priority="-100" --queue=$queue --jobname=${jobName} "scripts/scikit-cv-class.py --input_file=$input_file --base_file=$base_file --feat_selector=$selector --feat_selector_params='${sel_params}' --target='$targets_str' --model_type=$model --model_params='${m_params}' --save_model=${target_dir}/${model_name} | tee -a ${target_dir}/${jobName}.out"

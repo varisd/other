@@ -1,0 +1,9 @@
+## examples of dataset initializations:
+
+make init LANG_SRC=en LANG_TGT=cs DIRLABEL=autodesk_train DATA_MT=data/autodesk/autodesk_train_mt.txt DATA_SRC=data/autodesk/autodesk_train_src.txt DATA_REF=data/autodesk/autodesk_train_pe.txt
+make init LANG_SRC=en LANG_TGT=cs DIRLABEL=autodesk_test DATA_MT=data/autodesk/autodesk_test_mt.txt DATA_SRC=data/autodesk/autodesk_test_src.txt DATA_REF=data/autodesk/autodesk_test_pe.txt
+make init LANG_SRC=en LANG_TGT=cs DIRLABEL=wmt10 DATA_MT=data-depfix/wmt10_bojar-2012.cs DATA_SRC=data-depfix/wmt10_src.en DATA_REF=data-depfix/wmt10_ref.cs
+make init LANG_SRC=en LANG_TGT=cs DIRLABEL=wmt13encs DATA_MT=data/wmt14/postedits/wmt13encs.mt.txt DATA_SRC=data/wmt14/postedits/wmt13encs.src.txt DATA_REF=data/wmt14/postedits/wmt13encs.pe.txt
+make init LANG_SRC=en LANG_TGT=cs DIRLABEL=wmt16himltest DATA_MT=data/wmt16/wmt16-metrics-inputs-for-seg-level-only/himltest.himlsystem.0.en-cs DATA_SRC=data/wmt16/wmt16-metrics-inputs-for-seg-level-only/himltest-encs-src.en DATA_REF=data/wmt16/wmt16-metrics-inputs-for-seg-level-only/himltest-encs-ref.cs
+make init LANG_SRC=en LANG_TGT=cs DIRLABEL=wmt16newstest-uedin-nmt DATA_MT=data/wmt16/wmt16-metrics-inputs-for-seg-level-only/newstest2016.uedin-nmt.4360.en-cs DATA_SRC=data/wmt16/wmt16-metrics-inputs-for-seg-level-only/newstest2016-encs-src.en DATA_REF=data/wmt16/wmt16-metrics-inputs-for-seg-level-only/newstest2016-encs-ref.cs
+make init LANG_SRC=en LANG_TGT=cs DIRLABEL=wmt16newstest-cu-chimera DATA_MT=data/wmt16/wmt16-metrics-inputs-for-seg-level-only/newstest2016.cu-chimera.4527.en-cs DATA_SRC=data/wmt16/wmt16-metrics-inputs-for-seg-level-only/newstest2016-encs-src.en DATA_REF=data/wmt16/wmt16-metrics-inputs-for-seg-level-only/newstest2016-encs-ref.cs

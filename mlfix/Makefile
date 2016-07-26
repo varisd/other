@@ -40,7 +40,8 @@ TREEXP=treex
 #BOOTSTRAP=${TMT_ROOT}/tools/bootstrap_eval/
 BOOTSTRAP=scripts/bootstrap_eval/
 #MTRICS=${TMT_ROOT}/share/external_tools/mtrics/bin/mtrics --tokenize 
-MTRICS=scripts/mtrics --tokenize
+#MTRICS=scripts/mtrics --tokenize
+MTRICS=scripts/mtrics
 
 SD=../scenarios
 
@@ -67,6 +68,7 @@ test:
 #default_ni: totreex tag run_giza ner_en parse fix write_sentences eval
 default_ni: totreex tag run_giza ner_en parse mlfix write_sentences eval
 collect: totreex tag run_giza ner_en parse collect_edits
+collect_mono: totreex_mono tag_mono collect_edits
 
 # default behaviour: try to interpret the target as scenario file name
 # e.g. if you type "make fix_new" and there is a scenarios/fix_new.scen file,
@@ -114,6 +116,15 @@ totreex:
 	scenarios/$(PROJECT_TOKENIZATION_SCEN) \
 	-- $(DIRNAME)/translation*.treex.gz
 
+# No source sentences provided
+totreex_mono:
+	$E PROJECT_TOKENIZATION_SCEN=$(PROJECT_TOKENIZATION_SCEN)
+	@split -a 5 -d -l 100 $(DIRNAME)/data_mt.txt $(DIRNAME)/mt_part 
+	@split -a 5 -d -l 100 $(DIRNAME)/data_ref.txt  $(DIRNAME)/ref_part 
+	$(TREEX) -s Read::AlignedSentences file_stem=$(DIRNAME)/translation $(LANG_TGT)="!$(DIRNAME)/mt_part*" $(LANG_TGT)_ref="!$(DIRNAME)/ref_part*"
+#remove temporary data
+	@rm $(DIRNAME)/mt_part* $(DIRNAME)/ref_part* 
+
 totreex_noproject:
 	$E
 	@split -a 5 -d -l 100 $(DIRNAME)/data_en.txt $(DIRNAME)/en_part
@@ -126,11 +137,11 @@ totreex_noproject:
 
 # run morphological analyses
 # TODO: more general
-#TGT_ANALYSIS_1_SCEN
+TAGGER_TGT=morphodita
 SRC_ISET_DRIVER=en::penn
 TGT_ISET_DRIVER=cs::pdt
 SRC_ANALYSIS_1_SCEN=Scen::MLFix::Analysis_1 language=$(LANG_SRC) iset_driver="$(SRC_ISET_DRIVER)"
-TGT_ANALYSIS_1_SCEN=Scen::MLFix::Analysis_1 language=$(LANG_TGT) iset_driver="$(TGT_ISET_DRIVER)"
+TGT_ANALYSIS_1_SCEN=Scen::MLFix::Analysis_1 language=$(LANG_TGT) tagger=$(TAGGER_TGT) iset_driver="$(TGT_ISET_DRIVER)"
 # backward compatibility
 analyze: tag
 tag:
@@ -140,10 +151,16 @@ tag:
 	$(TGT_ANALYSIS_1_SCEN) \
 	-- $(DIRNAME)/translation*.treex.gz
 
+tag_mono:
+	$E SRC_ANALYSIS_1_SCEN=$(SRC_ANALYSIS_1_SCEN) TGT_ANALYSIS_1_SCEN=$(TGT_ANALYSIS_1_SCEN)
+	$(TREEXP) -s \
+    $(TGT_ANALYSIS_1_SCEN) \
+    -- $(DIRNAME)/translation*.treex.gz
+
 # run the Giza++ aligner
 # Mainly, we want to create alignment from the MT to SRC
 # TODO: more general
-RUN_GIZA_SCEN=Scen::MLFix::RunMGiza from_language=$(LANG_TGT) to_language=$(LANG_SRC) model=$(LANG_TGT)-$(LANG_SRC)
+RUN_GIZA_SCEN=Scen::MLFix::RunMGiza from_language=$(LANG_TGT) to_language=$(LANG_SRC) model=$(LANG_TGT)-$(LANG_SRC) 
 run_giza:
 	$E RUN_GIZA_SCEN=$(RUN_GIZA_SCEN)
 	$(TREEXP) -s $(RUN_GIZA_SCEN) \
@@ -162,8 +179,9 @@ ner_en:
 #TGT_ANALYSIS_2_SCEN=cs_analysis_2_boost_model_025.scen
 # therefore, the default is the basic parser:
 #TGT_ANALYSIS_2_SCEN=cs_analysis_2_msta.scen
+PARSER_TGT=
 SRC_ANALYSIS_2_SCEN=Scen::MLFix::Analysis_2 language=$(LANG_SRC) parser=mst
-TGT_ANALYSIS_2_SCEN=Scen::MLFix::Analysis_2 language=$(LANG_TGT) src_language=$(LANG_SRC)
+TGT_ANALYSIS_2_SCEN=Scen::MLFix::Analysis_2 language=$(LANG_TGT) src_language=$(LANG_SRC) parser=$(PARSER_TGT)
 parse: parse_src parse_tgt parse_backup
 parse_src_only: parse_src parse_backup
 
@@ -186,20 +204,18 @@ parse_tgt:
 	-- $(DIRNAME)/translation*.treex.gz
 
 # TODO: revision, change, fix...
-CONFIG_FILE="/net/me/merkur3/varis/workdir-git/mlfix/config/sample.yaml"
-ISET_DRIVER="cs::pdt"
+MARK_CONFIG_FILE=""
+FIX_CONFIG_FILE=""
+WRITE_SENTENCES_SCEN=Scen::MLFix::WriteSentences language=$(LANG_TGT)
 mlfix: fix_prepare mlfix_run
+#default scikit-learn mlfix run
+VOTING_METHOD="majority"
+MARK2FIX_THRESHOLD="0.5"
 mlfix_run:
-	$E
+	$E MARK_CONFIG_FILE=$(MARK_CONFIG_FILE) FIX_CONFIG_FILE=$(FIX_CONFIG_FILE)
 	$(TREEXP) -s \
-	Scen::MLFix::Fix language=$(LANG_TGT) selector= config_file=$(CONFIG_FILE) iset_driver=$(ISET_DRIVER) \
+	Scen::MLFix::Fix language=$(LANG_TGT) selector= mark_config_file=$(MARK_CONFIG_FILE) fix_config_file=$(FIX_CONFIG_FILE) iset_driver=$(TGT_ISET_DRIVER) voting_method=$(VOTING_METHOD) threshold=$(MARK2FIX_THRESHOLD) \
 	-- $(DIRNAME)/translation*.treex.gz
-	$(TREEX) \
-	Util::SetGlobal language=$(LANG_TGT) selector= source_language=$(LANG_SRC) \
-	scenarios/write_sentences.scen \
-	-- $(DIRNAME)/translation*.treex.gz \
-	> $(DIRNAME)/mlfix_output.txt
-
 
 # restore parsed files without fixes
 restore_parsed:
@@ -207,27 +223,30 @@ restore_parsed:
 	cp $(DIRNAME)/parsed/translation*.treex.gz $(DIRNAME)
 
 # prepare for fixing but do not fix
-NER_TGT_SCEN=ner_cs.scen
-FIX_PREPARE_SCEN=fix_prepare_new.scen
+#NER_TGT_SCEN=scenarios/ner_cs.scen
+NER_TGT_SCEN=Scen::MLFix::NER language=$(LANG_TGT)
+#FIX_PREPARE_SCEN=fix_prepare_new.scen
+FIX_PREPARE_SCEN=Scen::MLFix::FixPrepare src_language=$(LANG_SRC) tgt_language=$(LANG_TGT)
 fix_prepare: restore_parsed
-	$E
+	$E FIX_PREPARE_SCEN=$(FIX_PREPARE_SCEN)
 	$(TREEXP) -s \
-	scenarios/$(FIX_PREPARE_SCEN) \
-	scenarios/$(NER_TGT_SCEN) \
+	$(FIX_PREPARE_SCEN) \
+	$(NER_TGT_SCEN) \
 	-- $(DIRNAME)/translation*.treex.gz
 
 
 # Results of mlfix - written by write_sentences,
 # to be used in evaluation (both auto and manual) and comparison
-OUTPUT_TXT=output.txt
+OUTPUT_TXT=mlfix_output.txt
 # print out the fixed sentences
-WRITE_SENTENCES_SCEN=write_sentences.scen
 #write_sentences: write_fixlog
 write_sentences:
 	$E WRITE_SENTENCES_SCEN=$(WRITE_SENTENCES_SCEN) OUTPUT_TXT=$(OUTPUT_TXT)
-	$(TREEX) \
-	scenarios/$(WRITE_SENTENCES_SCEN) \
-	-- $(DIRNAME)/translation*.treex.gz \
+	$(TREEXP) \
+	$(WRITE_SENTENCES_SCEN) \
+	Write::Sentences to=. \
+	-- $(DIRNAME)/translation*.treex.gz 
+	cat $(DIRNAME)/translation*.txt \
 	> $(DIRNAME)/$(OUTPUT_TXT)
 
 write_fixlog:
@@ -235,6 +254,15 @@ write_fixlog:
 	scenarios/write_fixlog.scen \
 	-- $(DIRNAME)/translation*.treex.gz \
 	> $(DIRNAME)/fixlog.txt
+
+WRITE_TRIPARALLEL_SCEN=Scen::MLFix::WriteTriparallel language=$(LANG_TGT)
+write_triparallel:
+	$E WRITE_TRIPARALLEL_SCEN=$(WRITE_TRIPARALLEL_SCEN)
+	$(TREEX) \
+	$(WRITE_TRIPARALLEL_SCEN) \
+	-- $(DIRNAME)/translation*.treex.gz | \
+	scripts/filter_sent.pl \
+	> $(DIRNAME)/triparallel.txt
 
 # perform automatic evaluation, storing its result into $(AUTOEVAL_OUT),
 # and show it as tab separated values
@@ -269,7 +297,7 @@ eval_show:
 
 
 eval_cased:
-	@$(MTRICS) --case-sensitive --bleu --nist --per --ter -c $(DIRNAME)/$(MT_TXT) $(DIRNAME)/$(OUTPUT_TXT) -r $(DIRNAME)/$(REF_CS_TXT)
+	@$(MTRICS) --tokenize --case-sensitive --bleu --nist --per --ter -c $(DIRNAME)/$(MT_TXT) $(DIRNAME)/$(OUTPUT_TXT) -r $(DIRNAME)/$(REF_TXT)
 
 
 # Evaluation of the predicted Iset categories
@@ -277,11 +305,12 @@ eval_predictions: tag_ref
 #eval_predictions:
 	$E
 	$(TREEX) \
-	MLFix::ScikitLearnEval language=$(LANG_TGT) selector=T config_file=$(CONFIG_FILE) iset_driver=$(ISET_DRIVER) \
+	MLFix::ScikitLearnEval language=$(LANG_TGT) selector=T config_file=$(FIX_CONFIG_FILE) iset_driver=$(ISET_DRIVER) \
 	-- $(DIRNAME)/translation*.treex.gz \
 	> $(DIRNAME)/mlfix_pred_eval.txt	
 
-REF_ANALYSIS_1_SCEN=Scen::MLFix::Analysis_1 language=$(LANG_TGT) selector="ref" iset_driver="$(TGT_ISET_DRIVER)"
+PARSER_REF=mst
+REF_ANALYSIS_1_SCEN=Scen::MLFix::Analysis_1 language=$(LANG_TGT) selector="ref" parser=${PARSER_REF} iset_driver="$(TGT_ISET_DRIVER)"
 tag_ref:
 	$E SRC_ANALYSIS_1_SCEN=$(REF_ANALYSIS_1_SCEN)
 	$(TREEXP) -s \
@@ -350,7 +379,7 @@ ALPHA=0.05
 #TODO: check this out
 bootstrap_eval:
 #ngrams:
-	$(BOOTSTRAP)/get_ngrams.pl $(DIRNAME)/$(REF_CS_TXT) $(DIRNAME)/data_cs.txt $(DIRNAME)/$(OUTPUT_TXT) > $(DIRNAME)/ngrams
+	$(BOOTSTRAP)/get_ngrams.pl $(DIRNAME)/$(REF_TXT) $(DIRNAME)/data_cs.txt $(DIRNAME)/$(OUTPUT_TXT) > $(DIRNAME)/ngrams
 #bleu.tsv: ngrams
 	head -n 1 $(DIRNAME)/ngrams | cut -f 2- > $(DIRNAME)/bleu.tsv
 	tail -n +2 $(DIRNAME)/ngrams | $(BOOTSTRAP)/bleu.pl >> $(DIRNAME)/bleu.tsv
@@ -408,26 +437,28 @@ ANNOT_LINES=3003
 #number of annotation chunks for manual evaluation
 ANNOT_NUM=20
 #files prefix
-MAN_PREFIX=depfix_maneval
+MAN_SUFFIX=mlfix_maneval
 #dir with manual evaluation files
-MAN_DIR=$(MAN_PREFIX)_$(DIRNAME)
+MAN_DIR=$(DIRNAME)_$(MAN_SUFFIX)
+
+#scripts/quickjudge.pl --refs=$(MAN_DIR)/EN_ORIG_$$a,$(MAN_DIR)/CS_REF_$$a $(MAN_DIR)/$(MAN_PREFIX)_$$a $(MAN_DIR)/CS_BASE_$$a $(MAN_DIR)/CS_OUR_$$a ;
+#scripts/quickjudge.pl --refs=$(MAN_DIR)/EN_ORIG_$$a $(MAN_DIR)/$(MAN_PREFIX)_$$a $(MAN_DIR)/CS_BASE_$$a $(MAN_DIR)/CS_OUR_$$a ;
 
 maneval_prepare:
 #prepare data and create annotation files
 	mkdir $(MAN_DIR)
-	head -n $(ANNOT_LINES) $(DIRNAME)/data_en.txt > $(MAN_DIR)/EN_ORIG
-	head -n $(ANNOT_LINES) $(DIRNAME)/$(REF_CS_TXT) > $(MAN_DIR)/CS_REF
-	head -n $(ANNOT_LINES) $(DIRNAME)/data_cs.txt > $(MAN_DIR)/CS_BASE.tmp
+	head -n $(ANNOT_LINES) $(DIRNAME)/data_src.txt > $(MAN_DIR)/EN_ORIG
+	head -n $(ANNOT_LINES) $(DIRNAME)/$(REF_TXT) > $(MAN_DIR)/CS_REF
+	head -n $(ANNOT_LINES) $(DIRNAME)/data_mt.txt > $(MAN_DIR)/CS_BASE.tmp
 	head -n $(ANNOT_LINES) $(DIRNAME)/$(OUTPUT_TXT) > $(MAN_DIR)/CS_OUR.tmp
 	export chunksize=`echo $(ANNOT_LINES)/$(ANNOT_NUM) | bc` ; \
-	cd $(MAN_DIR) ; \
-	../scripts/highlight.pl CS_BASE.tmp CS_OUR.tmp CS_BASE CS_OUR ; \
+	scripts/highlight.pl $(MAN_DIR)/CS_BASE.tmp $(MAN_DIR)/CS_OUR.tmp $(MAN_DIR)/CS_BASE $(MAN_DIR)/CS_OUR ; \
 	for a in `seq $(ANNOT_NUM)` ; do \
-	  head -n `echo $$a*$$chunksize | bc` EN_ORIG | tail -n $$chunksize > EN_ORIG_$$a; \
-	  head -n `echo $$a*$$chunksize | bc` CS_REF | tail -n $$chunksize > CS_REF_$$a; \
-	  head -n `echo $$a*$$chunksize | bc` CS_BASE | tail -n $$chunksize > CS_BASE_$$a; \
-	  head -n `echo $$a*$$chunksize | bc` CS_OUR | tail -n $$chunksize > CS_OUR_$$a; \
-	  ../scripts/quickjudge.pl --refs=EN_ORIG_$$a,CS_REF_$$a $(MAN_PREFIX)_$$a CS_BASE_$$a CS_OUR_$$a ; \
+	  head -n `echo $$a*$$chunksize | bc` $(MAN_DIR)/EN_ORIG | tail -n $$chunksize > $(MAN_DIR)/EN_ORIG_$$a; \
+	  head -n `echo $$a*$$chunksize | bc` $(MAN_DIR)/CS_REF | tail -n $$chunksize > $(MAN_DIR)/CS_REF_$$a; \
+	  head -n `echo $$a*$$chunksize | bc` $(MAN_DIR)/CS_BASE | tail -n $$chunksize > $(MAN_DIR)/CS_BASE_$$a; \
+	  head -n `echo $$a*$$chunksize | bc` $(MAN_DIR)/CS_OUR | tail -n $$chunksize > $(MAN_DIR)/CS_OUR_$$a; \
+	  scripts/quickjudge.pl --refs=$(MAN_DIR)/EN_ORIG_$$a,$(MAN_DIR)/CS_REF_$$a $(MAN_DIR)/$(MAN_PREFIX)_$$a $(MAN_DIR)/CS_BASE_$$a $(MAN_DIR)/CS_OUR_$$a ; \
 	done
 
 maneval_eval:
@@ -436,7 +467,7 @@ maneval_eval:
 	for a in *.anot ; do \
 	  ../scripts/quickjudge.pl $${a%.anot} --print > $${a%.anot}.out ; \
 	  ../scripts/maneval_eval.pl $${a%.anot} $$(echo "`cat $$a | wc -l`/5" | bc) >> $(MAN_PREFIX)_results.tsv ; \
-	done \
+	done ;\
 	cat $(MAN_PREFIX)_results.tsv
 
 cross_annot_agree:
@@ -457,7 +488,7 @@ maneval_prepare_r:
 #prepare data and create annotation files
 	mkdir $(MAN_DIR)
 	cp $(DIRNAME)/data_en.txt $(MAN_DIR)/EN_ORIG.tmp
-	cp $(DIRNAME)/$(REF_CS_TXT) $(MAN_DIR)/CS_REF.tmp
+	cp $(DIRNAME)/$(REF_TXT) $(MAN_DIR)/CS_REF.tmp
 	cp $(DIRNAME)/data_cs.txt $(MAN_DIR)/CS_BASE.tmp
 	cp $(DIRNAME)/$(OUTPUT_TXT) $(MAN_DIR)/CS_OUR.tmp
 # randomize, split and let quickjudge generate its files
@@ -482,7 +513,7 @@ maneval_prepare_2:
 #prepare data and create annotation files
 	mkdir $(MAN_DIR)
 	cp $(DIRNAME)/data_en.txt $(MAN_DIR)/EN_ORIG.tmp
-	cp $(DIRNAME)/$(REF_CS_TXT) $(MAN_DIR)/CS_REF.tmp
+	cp $(DIRNAME)/$(REF_TXT) $(MAN_DIR)/CS_REF.tmp
 	cp $(DIRNAME)/data_cs.txt $(MAN_DIR)/CS_BASE.tmp
 	cp $(DIRNAME)/$(OUTPUT_TXT) $(MAN_DIR)/CS_OUR1.tmp
 	cp $(DIRNAME2)/$(OUTPUT_TXT) $(MAN_DIR)/CS_OUR2.tmp
@@ -508,7 +539,7 @@ maneval_prepare_3:
 #prepare data and create annotation files
 	mkdir $(MAN_DIR)
 	cp $(DIRNAME)/data_en.txt $(MAN_DIR)/EN_ORIG.tmp
-	cp $(DIRNAME)/$(REF_CS_TXT) $(MAN_DIR)/CS_REF.tmp
+	cp $(DIRNAME)/$(REF_TXT) $(MAN_DIR)/CS_REF.tmp
 	cp $(DIRNAME)/data_cs.txt $(MAN_DIR)/CS_BASE.tmp
 	cp $(DIRNAME)/$(OUTPUT_TXT) $(MAN_DIR)/CS_OUR1.tmp
 	cp $(DIRNAME2)/$(OUTPUT_TXT) $(MAN_DIR)/CS_OUR2.tmp
@@ -596,31 +627,90 @@ parse_parallel:
         Write::LemmatizedBitexts language=en to_language=cs \
 	    -- project_syndicate/nc*.treex > project_syndicate/bitexts.tsv
 
-collect_edits: analyze_ref collect_postedits
+collect_edits: analyze_ref parse_backup collect_postedits
 
 # after init totreex
 #collect_postedits_prepare:
 #	scripts/collect_edits_prepare.shc $(DIRNAME) $(DIRNAME)
 
-
-REF_ANALYSIS_1_SCEN=Scen::MLFix::Analysis_1 language=$(LANG_TGT) selector=ref iset_driver=${TGT_ISET_DRIVER}
+TAGGER_REF=morphodita
+REF_ANALYSIS_1_SCEN=Scen::MLFix::Analysis_1 language=$(LANG_TGT) selector=ref tagger=$(TAGGER_REF) iset_driver=${TGT_ISET_DRIVER}
+NER_REF_SCEN=Scen::MLFix::NER language=$(LANG_TGT) selector=ref model=""
 REF_ALIGNMENT_SCEN=Align::A::MonolingualGreedy selector= language=$(LANG_TGT) to_selector=ref
 # analyze the reference sentences
-analyze_ref:
+analyze_ref: analyze_1_ref analyze_2_ref
+analyze_1_ref:
 	$E REF_ANALYSIS_1_SCEN=$(REF_ANALYSIS_1_SCEN) REF_ALIGNMENT_SCEN=$(REF_ALIGNMENT_SCEN)
 	$(TREEXP) -s \
    	$(REF_ANALYSIS_1_SCEN) \
+	$(NER_REF_SCEN) \
     $(REF_ALIGNMENT_SCEN) \
     -- $(DIRNAME)/translation*.treex.gz
 
+REF_ANALYSIS_2_SCEN=Scen::MLFix::Analysis_2 language=$(LANG_TGT) selector=ref
+analyze_2_ref:
+	$E REF_ANALYSIS_2_SCEN=$(REF_ANALYSIS_2_SCEN)
+	$(TREEXP) -s \
+	$(REF_ANALYSIS_2_SCEN) \
+	-- $(DIRNAME)/translation*.treex.gz
+
+
 # after collect_postedits_prepare
-collect_postedits:
-	scripts/collect_edits.shc $(DIRNAME)
-	zcat $(DIRNAME)/translation001_edits.tsv.gz | head -1 > $(DIRNAME)/features_header
+collect_postedits:	
+	$(TREEXP) \
+	-L$(LANG_TGT) MLFix::CollectEdits print_column_names=1 language=$(LANG_TGT) selector=  to=. config_file=~/workdir-git/mlfix/config/all_fields.yaml \
+	-- $(DIRNAME)/translation*.treex.gz
+	zcat $(DIRNAME)/translation*_edits.tsv.gz | head -1 > $(DIRNAME)/features_header
 	cat $(DIRNAME)/features_header | gzip -c > $(DIRNAME)/all_edits.tsv.gz
 	for f in `ls $(DIRNAME)/translation*_edits.tsv.gz`; do \
 		zcat $$f | tail -n +2 | gzip -c >> $(DIRNAME)/all_edits.tsv.gz; \
 	done
+
+#collect_postedits: 
+#   scripts/collect_edits.shc $(DIRNAME)
+#   zcat $(DIRNAME)/translation*_edits.tsv.gz | head -1 > $(DIRNAME)/features_header
+#   cat $(DIRNAME)/features_header | gzip -c > $(DIRNAME)/all_edits.tsv.gz
+#   for f in `ls $(DIRNAME)/translation*_edits.tsv.gz`; do \
+#       zcat $$f | tail -n +2 | gzip -c >> $(DIRNAME)/all_edits.tsv.gz; \
+#   done
+
+OUTPUT_DIR=stats/default
+collect_statistics:
+	@mkdir -p $(OUTPUT_DIR)
+	zcat $(DIRNAME)/all_edits.tsv.gz | scripts/print_columns.pl "old_node_lemma|old_node_pos" | grep -v punc | cut -f1 | sort | uniq -c | sort -nr > $(OUTPUT_DIR)/lemma_freq
+	zcat $(DIRNAME)/all_edits.tsv.gz | scripts/analyze_changes.pl 0 > $(OUTPUT_DIR)/changed_categories_freq
+	zcat $(DIRNAME)/all_edits.tsv.gz | scripts/analyze_changes.pl 1 > $(OUTPUT_DIR)/different_pos
+	zcat $(DIRNAME)/all_edits.tsv.gz | scripts/analyze_changes.pl 2 > $(OUTPUT_DIR)/changes_all
+	zcat $(DIRNAME)/all_edits.tsv.gz | scripts/analyze_changes.pl 3 > $(OUTPUT_DIR)/changes_iset
+	zcat $(DIRNAME)/all_edits.tsv.gz | scripts/analyze_changes.pl 4 > $(OUTPUT_DIR)/feat_clusters
+	zcat $(DIRNAME)/all_edits.tsv.gz | scripts/analyze_changes.pl 5 > $(OUTPUT_DIR)/changes_agr
+	zcat $(DIRNAME)/all_edits.tsv.gz | scripts/analyze_changes.pl 6 > $(OUTPUT_DIR)/features_size
+	zcat $(DIRNAME)/all_edits.tsv.gz | scripts/analyze_changes.pl 7 > $(OUTPUT_DIR)/changed_pos_freq
+	scripts/get_stats.R 2016-04-10_19-02-56_0818207012_autodesk_train_collect/all_edits.tsv.gz > $(OUTPUT_DIR)/statistics
+
+#####
+## You should run 'make collect' before running the oracle
+#####
+#mlfix_oracle_markonly: analyze_ref fix_prepare
+mlfix_oracle_markonly: fix_prepare
+	$E
+	$(TREEXP) -s \
+	Scen::MLFix::Fix mark_method=oracle language=$(LANG_TGT) selector= mark_config_file=$(MARK_CONFIG_FILE) fix_config_file=$(FIX_CONFIG_FILE) iset_driver=$(TGT_ISET_DRIVER) \
+	-- $(DIRNAME)/translation*.treex.gz
+
+#mlfix_oracle_fixonly: analyze_ref fix_prepare
+mlfix_oracle_fixonly: fix_prepare
+	$E
+	$(TREEXP) -s \
+	Scen::MLFix::Fix fix_method=oracle language=$(LANG_TGT) selector= mark_config_file=$(MARK_CONFIG_FILE) fix_config_file=$(FIX_CONFIG_FILE) iset_driver=$(TGT_ISET_DRIVER) voting_method=$(VOTING_METHOD) threshold=$(MARK2FIX_THRESHOLD) \
+	-- $(DIRNAME)/translation*.treex.gz
+
+#mlfix_oracle_all: analyze_ref fix_prepare
+mlfix_oracle_all: fix_prepare
+	$E
+	$(TREEXP) -s \
+	Scen::MLFix::Fix mark_method=oracle fix_method=oracle language=$(LANG_TGT) selector= mark_config_file=$(MARK_CONFIG_FILE) fix_config_file=$(FIX_CONFIG_FILE) iset_driver=$(TGT_ISET_DRIVER) \
+	-- $(DIRNAME)/translation*.treex.gz
 
 # new depfix -- without saving the treex files, thus saving about half of
 # runtime (work in progress; there are still problems with mgiza and problems

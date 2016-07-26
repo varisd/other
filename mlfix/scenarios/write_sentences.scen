@@ -1,4 +1,4 @@
-Util::SetGlobal language=cs selector=T
+Util::SetGlobal language=cs selector=
 A2W::Detokenize
 #A2W::CS::DetokenizeUsingRules
 #A2W::CS::DetokenizeDashes

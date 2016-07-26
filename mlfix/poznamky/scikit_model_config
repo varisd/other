@@ -1,0 +1,11 @@
+knn:
+- non-binary features
+- DictVectorizer
+- SelectKBest - ok
+
+ridge_classifier:
+- non-binary features
+- DictVectorizer
+- SelectKBest - ok
+
+
