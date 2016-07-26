@@ -143,7 +143,7 @@ assuming that the ones used for training models for English-Czech pipeline shoul
 be also sufficient for German. We have only searched for the best combination
 of hyperparameters during model development process. We have used both source
 and MT features with addition of the source language lemmas. We present a summary
-of the available training data for both error detection and morphology prediction in~\Tref{wf-cat-data-sum}.
+of the available training data for both error detection and morphological prediction in~\Tref{wf-cat-data-sum}.
 Again, we can see, that the training data are quite small with exception of the Autodesk
 dataset. That is also the main motivation behind including it in our training data.
 
@@ -225,7 +225,7 @@ Autodesk  &  96\%(28\%)  &  95\%(17\%)  &  93\%(8\%)  \\
 \section{Evaluation}
 
 We have followed same procedure during German MLFix evaluation as we followed during
-Czech evaluation. We have compared several configurations of the morphology prediction
+Czech evaluation. We have compared several configurations of the morphological prediction
 module and error detection module separately first, using Oracle to substitute the other
 module, then we have evaluated the whole MLFix system. We have compared same configurations
 we have used in Czech MLFix: \pojem{Case}, \pojem{CN}, \pojem{CNG} and \pojem{Combined} model configuration for morphology
@@ -235,10 +235,10 @@ and compared their performance. We have also measured a performance of the best 
 (using Czech models) when applied to German. We have used BLEU score during automatic evaluation.
 The evaluation was performed on the following datasets: Autodesk, HimL Lingea logs and WMT16.
 
-We present the results of morphology prediction module evaluation in~\Tref{fixonly_de-summary}.
+We present the results of morphological prediction module evaluation in~\Tref{fixonly_de-summary}.
 Once again, CNG configuration proved to be the reliable choice, having best score on each dataset.
 However, the overall improvement in BLEU score is much lower when compared with Czech version
-of MLFix. This is little surprising because the individual performance of the morphology prediction
+of MLFix. This is little surprising because the individual performance of the morphological prediction
 models measured during training was equal and in some cases better than the one of the Czech models.
 It is possible that this might be either a result of lower diversity in our data (most of the data belongs
 to Autodesk dataset) or a consequence of the poor performance of the iflection module.
@@ -261,6 +261,13 @@ components. We suspect that the current performance bottleneck lies within the i
 A more thorough investigation of the inflection module is required in the future, with a possible
 replacement with an alternative module.
 
+We have also performed manual evaluation of the Average-CNG configuration\footnote{At the moment, we cannot surely tell what is
+the best possible configuration for german, so we have simply followed the approach from English-Czech pipeline.}. Two
+independent non-native German speakers jointly evaluated 444 changed sentences. The results of manual evaluation are in~\Tref{maneval_de-final}.
+They both evaluated a subset of 141 to measure their inter-annotator agreement, shown in~\Tref{maneval_de-agree}.
+We can see that the recall of the German pipeline was similar to the Czech pipeline. However, the low precision ($\sim$13\%)
+confirms the results measured by the automatic metric. This is further supported by a reasonalby high inter-annotator agreement of 83\%.
+
 \begin{table*}[t]
 \centering
 \small
@@ -282,7 +289,7 @@ HimL  &  Moses &  31.94  &  30.95  &  31.37 (+0.41)  &  31.29 (+0.34)  &  \bf{31
 
 }
 \caption{
-    Automatic evaluation of the morphology prediction module using BLEU metric, multiplied by 100 for easier reading,
+    Automatic evaluation of the morphological prediction module using BLEU metric, multiplied by 100 for easier reading,
 and the relative improvement over the baseline MT output.
 Performance of
 Oracle classifier is provided for comparison. 
@@ -333,7 +340,7 @@ The best model for each dataset is printed in bold.
 Dataset  &  System  &  Base  &  Major-CNG  &  Avg-CNG  &  CS-Best  \\
 \hline
 \hline
-Autodesk  &  NA  &  45.90  &    &   &  \\
+Autodesk  &  NA  &  45.90  &  45.64 (-0.26)  &  45.54 (-0.36)  &  \\
 \hline  
 HimL  &  Moses &  30.95  &  34.81 (-0.56)  &  28.35 (-2.60)  &  30.95 (0) \\
 \hline  
@@ -360,7 +367,7 @@ with the best English-Czech configuration.
 Dataset  &  System  &  Major-CNG  &  Avg-CNG  &  CS-Best  &  Sent.  \\
 \hline
 \hline
-Autodesk  &  NA  &    &    &   &  124,498  \\
+Autodesk  &  NA  &  6,626  &  8,794  &    &  124,498  \\
 \hline
 HimL  &  Moses  &  145  &  421  &  0  &  800  \\
 \hline
@@ -379,7 +386,6 @@ sentences in each dataset (\pojem{Sent.}) is also listed.
 
 
 
-\todo{fix values - maneval}
 \begin{table*}[t]
 \centering
 \small
@@ -388,13 +394,32 @@ sentences in each dataset (\pojem{Sent.}) is also listed.
   &  Evaluated  &  Changed  &  $+$  &  $-$  &  0  &  Precision  &  Impact  \\
 \hline
 A  &  640  &  313  &  36  &  263  &  14  &  12.0\%  &  5.6\%  \\
-B  &  800  &    &    &    &    &    &    \\
+B  &  320  &  141  &  18   &  118  &  5  &  13\%  &  5.6\%  \\ 
 \hline
-Total & & & & & & & \\
+Total &  960  &  444  &  54  &  381  &  19  &  12.4\%  &  5.6\%  \\
 \end{tabular}
 \caption{
-Results of the manual evaluation of best MLFix configuration (Avg-CNG)
+Results of the manual evaluation of chosen German MLFix configuration (Avg-CNG)
+on a subset of HimL dataset.
 }
-\label{maneval-final}
+\label{maneval_de-final}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\small
+
+\begin{tabular}{l|cc|c}
+ A/B  &  Better  &  Worse  &  Indef  \\
+\hline
+Better  &  7  &  10  &  1  \\
+Worse  &  6  &  109  &  3  \\
+\hline
+Indef &  0  &  2  &  3  \\
+\end{tabular}
+\caption{
+    Matrix containing inter-annotator agreement of German MLFix manual evaluation
+}
+\label{maneval_de-agree}
 \end{table*}
  

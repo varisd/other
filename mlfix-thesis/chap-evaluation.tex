@@ -42,7 +42,7 @@ the evaluation.
 
 \subsection{Morphology Prediction Evaluation}
 
-We have performed the evaluation of the morphology prediction module first to determine
+We have performed the evaluation of the morphological prediction module first to determine
 which combined model to use during the error detection evaluation. We have compared
 several model combinations: \pojem{Case} models only, \pojem{CN} models only, \pojem{CNG} models only, 
 \pojem{CNGA} models only and a combination of all available models (\pojem{Comb}). We have also
@@ -52,7 +52,7 @@ predictions. Using these predictions, the candidate tags are generated and are s
 these probabilities. If a tag is predicted by multiple classifiers, the scores are summed together.
 The tag with the highest score is then chosen a result of the combined model.
 
-We present the final results of the morphology prediction module evaluation in~\Tref{fixonly-summary}.
+We present the final results of the morphological prediction module evaluation in~\Tref{fixonly-summary}.
 We compare BLEU scores of each model combination and their improvement over the baseline scores.
 The values are multiplied by 100 for easier reading. We can see that the CNG
 and CNGA models had a largest impact most of the time. Since the difference between the CNG and CNGA
@@ -96,7 +96,7 @@ WMT16-D  &  CU Chimera  &  97.51  &  96.56  &  97.22 (+0.66)  &  97.23 (+0.67)  
 
 }
 \caption{
-    Automatic evaluation of the morphology prediction module using BLEU metric, multiplied by 100 for easier reading,
+    Automatic evaluation of the morphological prediction module using BLEU metric, multiplied by 100 for easier reading,
 and the relative improvement over the baseline MT output.
 Performance of 
 Oracle classifier is also provided for comparison. Datasets with the \pojem{-D} suffix have Depfix output in place of reference sentences.
@@ -136,7 +136,7 @@ This method is similar to the \pojem{Majority} scheme with a difference that it 
 predicted by a minority when their overall confidence of the prediction is large enough.
 
 We present the comparison of these three methods in~\Tref{markonly-summary}. The values of the \equo{incorrect}
-words were predicted by Oracle morphology predictor, but only a morphological case, number and gender were predicted.
+words were predicted by Oracle morphological predictor, but only a morphological case, number and gender were predicted.
 We can notice that the AtLeastOne method achieved
 significantly better BLEU score than the other two. This was quite expected and in this case it does
 not necessarily mean that the resulting sentence improved from the human evaluation standpoint, because
@@ -192,18 +192,18 @@ Datasets with the \pojem{-D} suffix have Depfix output in place of reference sen
 \section{System-wide Evaluation}
 
 In this section, we present final evaluation of MLFix system. Based on the evaluation of the
-separate components, we have chosen CNG model combination for morphology prediction and we
+separate components, we have chosen CNG model combination for morphological prediction and we
 have decided to compare both AtLeastOne and Average voting method for error detection. We
 have also made comparison with Depfix system. The results are summarized in~\Tref{final-summary}.
 The amount of changed sentences for each system is shown in~\Tref{final-chgd}.
 
 From the results we can confirm that AtLeastOne voting method, while having large recall, does not work
-quite well with Czech morphology prediction module. We cannot tell how many of the marked instances were actually
+quite well with Czech morphological prediction module. We cannot tell how many of the marked instances were actually
 correct, nevertheless, the morphology correction had hard time predicting correct morphological categories
 for these instances. On the other hand, we can see that MLFix with the Average voting method
 was able to improve every tested MT output. However, the improvement was
 usually quite small, always smaller when compared to Depfix. Interestingly,
-Depfix wasn't quite able to improve output of the neural network machine translation system (UEDIN NMT),
+Depfix was not quite able to improve output of the neural network machine translation system (UEDIN NMT),
 while MLFix was the best. It might be only a coincidence but it should be investigated more thoroughly
 in the future. Depfix results on the CU-Chimera dataset should be taken with a grain of salt since
 Depfix is already part of the Chimera SMT system. Depfix also had a problem with Autodesk dataset

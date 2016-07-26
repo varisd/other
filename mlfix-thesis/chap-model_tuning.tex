@@ -4,17 +4,17 @@
 In this chapter, we describe the process of developing
 the statistical post-editing models. We take a closer look at the task of model
 selection and parameter tuning, the feature selection methods we have experimented
-with and several methods of evaluation we have used during the tuning.
+with and several methods of evaluation used during the tuning.
 We only present experiment results for the separate statistical models,
 evaluation of the whole MLFix system is presented in the next chapter.
 
 In this chapter, we cover the following two classification tasks: the identification
-of the incorrect instances (words from the MT output with incorrect surface form),
+of incorrect instances (words from the MT output with incorrect surface form),
 addressed as \pojem{error detection} for short,
 and the prediction of the new morphological categories for the incorrect instances,
-referred to as \pojem{morphology prediction}.
+referred to as \pojem{morphological prediction}.
 
-Our training process can be separated into three stages: in the first stage, we
+Our development process can be separated into three stages: in the first stage, we
 have focused on basic comparison of different ML methods and choice of the most
 suitable candidate for each task.
 In the second stage we have tried to further increase the performance of the model
@@ -24,11 +24,11 @@ of the both the selected ML method and the feature filtering method.
 
 \section{Model Evaluation Methodology}
 
-We have decided to do word-level evaluation during the model training. More precisely,
+We have decided to do word-level evaluation during the model development. More precisely,
 we have evaluated performance of models using the instances extracted by the
 process we have described in the previous chapter.
 
-For both error detection and morphology prediction task, we have defined
+For both error detection and morphological prediction task, we have defined
 a baseline model for comparison. The baseline model basically represents a predictor which
 does not detect any errors (all instances are marked as correct) or keeps the original
 morphological categories for each instance.
@@ -47,15 +47,15 @@ However, we have slightly altered the definitions of \pojem{true positives} (TP)
 \pojem{false positives} (FP) and \pojem{false negatives} (FN)
 with regard to the baseline model.
 
-%vary slightly with each classification task. We also use f-measure to compare combined results of these metrics.
+%vary slightly with each classification task. We also use F-measure to compare combined results of these metrics.
 
-For error detection, each instance that was assigned same value as the \pojem{true prediction}
-and a different value than the \pojem{baseline} is marked as TP. Instance
+For error detection, each instance that was assigned the same value as the \pojem{true prediction}
+and a different value than the \pojem{baseline} is marked as TP. Eash instance
 that was assigned a value different from both the \pojem{true prediction} and the \pojem{baseline}
-is marked as FP and instance with a \pojem{predicted value} equal to the \pojem{baseline}
+is marked as FP and each instance with the \pojem{predicted value} equal to the \pojem{baseline}
 but different from the \pojem{true prediction} is marked as FN.
 
-For the morphology prediction we use same definition of TP, however, the definitions
+For morphological prediction, we use the same definition of TP, however, the definitions
 of FP and FN are altered in the following way (the \pojem{true prediction}
 does not match the \pojem{predicted value}):
 \begin{itemize}
@@ -65,13 +65,15 @@ does not match the \pojem{predicted value}):
 \end{itemize}
 
 The WP is a special case which reflects the situation where predictor tries to predict new value (different
-from the original one) but fails and returns just another incorrect value. We must also take into account
+from the original one) but fails and returns just another incorrect value.
+
+We must also take into account
 that the error detection classifier is a general model, which is not designed to distinguish
 the types of morphological errors and the morphological predictor might be specialized only on a limited
-set of the morphological categories. Therefore, sometimes we want the morphology predictor to just leave the \equo{incorrect}
+set of the morphological categories. Therefore, sometimes we want the morphological predictor to just leave the \equo{incorrect}
 instances unchanged because it is simply incapable of predicting new values of the incorrect categories.
 
-In the end, we have found the basic accuracy metric to be more informative for evaluating the morphology predictor,
+In the end, we have found the basic accuracy metric to be more informative for evaluating the morphological predictor,
 not only because in takes the WP instances into account but also due to the nature of our training data. We use only instances
 that are marked as incorrect by our heuristic
 which make precision/recall less relevant compared to accuracy.
@@ -86,16 +88,16 @@ by \equo{correct} instances, these metrics would become more useful.
 
 As we have already pointed out, 
 the task of identifying morphologically incorrect words in the text is more difficult
-than the task of assigning the new morphological categories. It is not surprising
+than the task of assigning new morphological categories. It is not surprising
 that we have faced several issues
-during the training which we describe in more detail in the following subsections.
+during the development which we describe in more detail in the following sections.
 
 
 
 \subsection{Unbalanced Data Problem}
 
-In this task, we face the problem of the binary classification, where we
-assign value 0 to instances that we consider correct (they are not going to change) and value 1 to
+In this task, we face the problem of binary classification, where we
+assign the value 0 to instances that we consider correct (they are not going to change) and the value 1 to
 instances that need to be corrected. The process of assigning these values to the
 extracted training instances was described in the previous chapter. 
 
@@ -119,26 +121,26 @@ by modifying the distribution of the classed in training data the classifier per
 can drop when applied to data with real-world distribution.
 Still, the idea of modifying the distribution of our training data is worth considering.
 
-We have inspired ourselves by the work of \citet{2013_Jia_CoNLL_GrammaticalError} describing the classification of grammar errors in the texts
-written by a human. They also aproach the task as an classification
-problem. During training, they filter their training corpus using only around 5\% of
+We took the inspiration from the work of \citet{2013_Jia_CoNLL_GrammaticalError} describing the classification of grammar errors in the texts
+written by a human. They also aproach the task as a classification
+problem. During training, they filter their training corpus to only around 5\% of
 sentences, because only those were ones that contained grammatical errors.
 
 In our case, if we look at the results produced by Oracle classifier, we can see that
 only a small portion of the MT sentences has been actually modified. This means that a large number of the sentences
-were considered morphologically \equo{correct}\footnote{This is very likely not to be true, but we can at least assume
+were considered morphologically \equo{correct}.\footnote{This is very likely not true but we can at least assume
 that they do not contain training instances marked as incorrect (as far as our heuristic goes).}
-These sentences are still part of our original training data introducing a significant amount of training
+These sentences are still part of our original training data, introducing a significant amount of training
 instances belonging to the majority class.
-Therefore, to balance our data, we have decided to use only the training
+Therefore, to balance our data, we have decided to use only training
 instances extracted only from the sentences where at least one word was marked as incorrect. This way, we were
 able to increase the portion of the minority class up to 10\%. The traing data is still unbalanced
 but to a much lower degree.
 
-This less unbalanced dataset we have created can be used in two ways: we can simply treat
+This less unbalanced dataset can be used in two ways: we can simply treat
 it like a downsampled data and use the trained models \equo{globally} (on every MT sentence),
 or we can add another component for identifying these \equo{incorrect} sentences
-and than apply our error detection model on them. In the scope of this thesis we have chosen the former
+and than apply our error detection model on them. In the scope of this thesis, we opt for the former
 approach.
 
 %This obviously creates another task and that is detection of the \equo{incorrect} sentences.
@@ -156,22 +158,22 @@ There are many machine learning methods that support binary classification, so w
 decided to only compare a limited subset of the available methods that are implemented
 in the Scikit-Learn framework. For each classifier we tried several hyperparameter
 settings to observe the changes in the classifier behaviour. However, we have made only
-a rough examination of the hyperparameter configuration due to the number of observed
-methods. In this stage, the goal was not to train the best possible classifier but
+a rough examination of hyperparameter configuration due to the high number of tested
+methods. At this stage, the goal was not to train the best possible classifier but
 eliminate those, that are not suitable for the task.
 
 We have measured the performance of the classifiers on several datasets:
 WMT10 data translated by CU-Bojar system \citep{biblio:BoJaProbesin2012},
 dataset extracted from the lingea logfiles (HimL) translated by simple moses SMT system \citep{Koehn:2007:MOS:1557769.1557821} and
 WMT16 newstest dataset translated by the Chimera system.
-%For each datasets, only instances from the \equo{incorrect} (sentences contaning at least one error)
-%sentences were used.
+For each dataset, only instances from the \equo{incorrect} sentences (sentences contaning at least one error)
+were used.
 %one translated with the experimental neural network machine translation system (NMT)
 %provided by the University of Edinburgh\todo{no ref, nezminovat?}.
 Additionally, their counterpart was
 created by substituting the reference sentences with the Depfix output
-to additionally measure the performance on the \equo{syntetic} data.
-The summary of the size of the used training data is in~\Tref{wf-training-sum}
+to additionally measure the performance on the \equo{synthetic} data.
+The summary of the size of the used training data is in~\Tref{wf-training-sum}.
 
 \begin{table*}[t]
 \centering
@@ -197,20 +199,20 @@ data by Depfix output.
 \end{table*}
 
 
-For the purposes of the coarse evaluation we have used each dataset separately for both training
+For the purposes of this coarse evaluation, we used each dataset separately for both training
 and testing of the classifers, by performing one-against-the-rest 10-fold jackknife sampling.
-Therefore the results presented in this stage should be considered only as an in-domain
+Therefore, the results presented in this stage should be considered only as an in-domain
 performance for a specific MT system.
 
 We have compared the following methods: logistic regression, ridge regression classifier,
 random forests, extremely randomized trees and support vector machines (SVM) classifier, all
 of them being implemented in the Scikit-Learn toolkit.
 In~\Fref{wf-draft}, we can see the comparison of the performance of various classifiers based
-on the F1-measure metric. We can see that for the task of error identification, the support vector
-machines with linear kernel might be the most suitable, overperforming other methods in most of our
-datasets. The \equo{baseline} peformance is not spectacullar, with score of less 0.3 for the normal data
-and a slightly better score (\tilda{}0.5) for the Depfix data. Therefore, we have chosen SVM based
-models for the following stages of model training.
+on the F1-measure metric. We can see that for the task of error identification, support vector
+machines with linear kernel might be the most suitable method, outperforming other methods in most of our
+datasets. The \equo{baseline} performance is not spectacular, with score of less 0.3 for the normal data
+and a slightly better score ($\sim$0.5) for the Depfix data. Therefore, we have chosen SVM based
+models for the following stages of model development.
 
 % with source
 \begin{figure}
@@ -227,16 +229,16 @@ are shown for each dataset.
 
 \subsection{Feature Selection}
 
-During the model comparison, we have compared performance on two initial feature sets:
-one did not contain any information about the source sentence (\tilda{}680 initial features)
-and one with the source sentence features (\tilda{}1360 initial features). Before training
+During model comparison, we have compared the performance on two initial feature sets:
+one that did not contain any information about the source sentence ($\sim$680 initial features)
+and one with source sentence features ($\sim$1360 initial features). Before training,
 the features with zero variance were removed, however, no other feature filtering has been
 performed. We have noticed that the additional information provided by the source sentence features
-significatnly improves performance of the majority of the ML methods. Therefore, we have decided
-to use this feature set for the feature selection method comparison.
+significantly improves performance of the majority of the ML methods. Therefore, we have decided
+to use this feature set for feature selection method comparison.
 
-We have picked SVM as ML method of our choice. We have selected several methods for feature
-selection and compared their influence on the classifier performance. During the comparison
+Having selected SVM, we tried out several methods for feature
+selection and compared their influence on the classifier performance. During the comparison,
 we used a SVM model with fixed hyperparameters. We have compared the following methods for
 feature selection: KBest selection (with chi-squared scoring function), selection of the percentile
 of the features (based on the ANOVA F-test),
@@ -245,10 +247,10 @@ scoring (svm, random forest). As far as importance scoring goes, we compared dif
 model configurations and during features selection, only features with importance higher
 than the mean of the feature importance distribution were selected.
 
-The results of the feature selection method comparison are shown in~\Fref{wf-sel}. We can see
+The results of feature selection method comparison are shown in~\Fref{wf-sel}. We can see
 that most of the time the feature selection performed by either ANOVA percentile selector or
 SVM slightly improved the model performance. Therefore, we have decided to use these methods during
-the model training.
+the model tuning.
 
 \begin{figure}
 \centering
@@ -270,10 +272,10 @@ are shown for each dataset.
 
 With the ML method and feature selection method chosen, we have proceeded to 
 the development of the final model.
-We have trained several different models, one for each presented dataset, istead of combining
+We have trained several different models, one for each presented dataset, instead of combining
 the datasets and training one larger model. We have chosen this approach because it makes
 it easier to exclude specific models if needed (e.g. during final evaluation) and in the
-future, include additional models when more training data becomes available without the need
+future, include additional models when more training data become available without the need
 to retrain the whole error detection component. The use of multiple models for error detection
 is described later in Chapter~\ref{chap:eval}.
 
@@ -337,7 +339,7 @@ of course less obvious examples and some categories, while being relevant in one
 can be pointless in another.
 
 For this reason, we have made a frequency analysis of the changes encountered
-in our data, shown in the~\Fref{iset-barplot}. We can see that most of the time, only the grammatical
+in our data, shown in~\Fref{iset-barplot}. We can see that most of the time, only the grammatical
 case was modified (more than 50\% of the instances for the Depfix-based datasets and more than 40\% of the instances for
 the normal datasets). Other changes were a lot less frequent (less than 10\% of the modified instances).
 We have also checked, the amount of modifications made for individual general POS classes.
@@ -482,7 +484,7 @@ values as correct or incorrect and we have not distinguished partially correct p
 of the categories predicted by the CNGA classifer has shown us that usually a predictor misclassifies only
 one or two of the target categories. Another thing to keep in mind is the fact, that even though the predicted
 categories might not be equal to the gold standard, the generated surface form might still match the reference form
-due to the morphological ambiguities of the language. Therefore, we have still used these models during the system evaluation.
+due to the morphological ambiguities of the language. For these reasons, we decided to use all these models during the system evaluation.
 
 %Surprisingly, accuracy of the multitask models trained on WMT16 dataset dropped significantly when training a
 %more complex classifier, underperforming even the baseline predictor. It is possible that the chosen ML

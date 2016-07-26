@@ -9,12 +9,12 @@ rules to a stochastic model which can be applied across languages.
 
 During the development, we had to find a compromise between the level of language independence
 and overall usefulness fo the system. In the end, we have chosen a unique approach to the problem of correcting
-the morphology by solving a two-step classification task: error detection and morphology prediction.
+the morphology by solving a two-step classification task: error detection and morphological prediction.
 We have faced a problem of automatic identification of correct/incorrect training instances
 which we have solved with a fairly effective heuristic. Still, further refinement of the
 training data extraction method is desired in the future.
 
-Out of the two classification tasks, the morphology prediction proved to be much easier.
+Out of the two classification tasks, the morphological prediction proved to be much easier.
 The resulting models, while being very good at predicting simple categories (e.g. morphological case)
 manifeste much lower individual performance with increasing task complexity. However when
 combined together, they performed quite well.
@@ -26,7 +26,7 @@ Furthermore, we think that
 these models have potential use even in different fields of application, e.g. as a part of automatic
 correction suggestion in a human post-editing framework.
 
-The task detecting targets for our morphology prediction tool, became main a hurdle
+The task detecting targets for our morphological prediction tool, became main a hurdle
 during the development of MLFix. Aside from the correct identification of the training instances
 in our data, there was also an issue with highly unbalanced training set which we partially resolved
 by upsampling the minority class and filtering out instances from the \equo{correct} sentences.
@@ -61,12 +61,13 @@ not language dependent. No special attention to manually modifying the feature s
 different approach was required.
 
 The results of the final evaluation were very poor. Aside from the morphology module applied separately,
-German MLFix always worsened the MT output as the automatic metric have shown. However, we pointed out
+German MLFix always worsened the MT output as the automatic metric have shown. This was further confirmed
+by a manual evaluation. However, we pointed out
 several indications that this might be caused by a poor performance of the German inflection module
 we use to generate new wordforms. We still have to investigate the matter further to confirm this hypothesis.
 However, if confirmed, replacing (or improving) the module in the future might be the first and fastest
 way to improvement.
-Another goal is to investigate the German MT erros more thoroughly and adapt the German pipeline to the findings.
+Another goal is to investigate the German MT errors more thoroughly and adapt the German pipeline to the findings.
 
 Even though we mainly focused on morphology correction in this thesis, MLFix can be further improved
 in the future by introducing other statistical modules addressing addition MT errors. As an example

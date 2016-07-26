@@ -32,12 +32,12 @@ In this chapter we take a closer look at the available
 sources of data and describe how they contributed to our research.
 
 We came across a various sources of training data with various level
-of usefulness. Data was usually available only in a smaller volume. Some of the sources
+of usefulness. The data was usually available only in a smaller volume. Some of the sources
 are:
 \begin{itemize}
-\item Khan's school\footurl{https://khanovaskola.cz/} human
+\item Khan academy\footurl{https://khanovaskola.cz/} human
 post-edits of manually translated (EN$\rightarrow$CS) subtitles,
-\item the Autodesk
+\item Autodesk
 triparallel data\footurl{https://autodesk.app.box.com/Autodesk-PostEditing},
 \item log files of human post-editing done by Lingea for the
 Health in my Language\footurl{http://www.himl.eu/} (HimL) project test dataset,
@@ -47,22 +47,22 @@ Health in my Language\footurl{http://www.himl.eu/} (HimL) project test dataset,
 
 %TODO: wmt - odkaz, footnote?
 \item results from the previous workshops on machine translation (mainly\linebreak
-WMT10\footurl{http://www.statmt.org/wmt10/},
-and WTM16\footurl{http://www.statmt.org/wmt16/} datasets).
+WMT10 \citep{callisonburch-EtAl:2010:WMT}\footurl{http://www.statmt.org/wmt10/},
+and WTM16 \citep{bojar-EtAl:2016:WMT1}\footurl{http://www.statmt.org/wmt16/} datasets).
 \end{itemize}
 
 In the following sections, we describe each in more detail.
 
-\subsection{Khan's School}
+\subsection{Khan Academy}
 
-The data provided by Khan's school consist of English-Czech subtitles,
+The data provided by Khan academy consist of English-Czech subtitles,
 where the Czech part (usually manually translated from English) was manually
 edited. During the analysis of the dataset,
-we've noticed that most of the time, the corrections were made
-mostly on a lexical level which is only natural since the Czech sentences
+we noticed that most of the time, the corrections were made
+mostly on the lexical level which is to be expected since the Czech sentences
 were created by a human translator.
-Therefore we have concluded that this dataset has little to no value
-for the task of training model for correcting errors in morphology.
+Therefore, we concluded that this dataset has little to no value
+for the task of training a model for correcting errors in morphology created by MT systems.
 
 %Therefore, we decided to avoid using this dataset for the time being or to
 %rather treat the corpus as a simple bilingual data.
@@ -71,9 +71,9 @@ for the task of training model for correcting errors in morphology.
 
 Autodesk data consist of English sentences which were machine translated into
 a set of target languages (cs, de, pl etc.) complemented with human post-editing
-of the MT output. However, these datasets are domain specific (mostly user documentations),
+of the MT output. However, these datasets are domain specific (mostly user documentation),
 so they might not be very attractive to use with more general texts.
-We weren't able to gather any information about the MT system that was used
+We were not able to find any information about the MT system that was used
 to create the translated output. The biggest advantage of these data is
 their larger volume when compared with other post-editing datasets so we
 used them mainly for model development and benchmarking of the used machine
@@ -83,7 +83,7 @@ learning methods.
 
 The data provided by Lingea\footurl{http://www.lingea.cz/} were collected when official test sets for
 HimL project were
-created. The data consist mainly of the public health related texts.
+created. The data consist mainly of texts related to public health.
 The original English sentences were first
 machine-translated to languages at which
 the project was aimed (Czech, German, Polish and Romanian)
@@ -96,15 +96,15 @@ in a dictonary etc.).
 
 When we examined the data more closely,
 we noticed that it is rather difficult to determine which actions are
-useful for our machine learning process. Also, we were little disapointed
+useful for our machine learning process. Also, we were a little disappointed
 when we found out that most of the time, the post-editors preferred to
-rewrite the whole sentence "from scratch"\footnote{By that, we mean that the
-human post-editor usually preffered to rewrite the whole corrected sentence, even though
+rewrite the whole sentence \equo{from scratch}\footnote{By that, we mean that the
+human post-editor usually prefered to rewrite the whole corrected sentence, even though
 only a several changes (either lexical and morphological) were made, and delete the original.
-This might have been also motivated by the need of reordering of the MT output.}
-opposite to doing more atomic modifications to the provided MT output.
+This might have been also motivated by the need to reorder the MT output.}
+instead of doing a few atomic modifications to the provided MT output.
 
-In the end, we decided to simply extract a triparallel data from these logs (the source
+In the end, we decided to simply extract triparallel data from these logs (the source
 sentence + SMT output + result of the human post-editing). In the future,
 we might consider to use other logged actions for model training.
 
@@ -112,7 +112,7 @@ we might consider to use other logged actions for model training.
 
 For the last decade, the workshop on machine translation (WMT) has aimed
 to provide working grounds for many researchers in the field of machine
-translation. It has been great source of the parallel data between English
+translation. It has been great source of parallel data between English
 on one side and various other languages on the other. Each year, the scope
 of the workshop expands, including various new subtask related to machine translation,
 such as several evaluation tasks and, more recently, automatic post-editing task.
@@ -137,9 +137,9 @@ be considered a knowledge base for examining the behaviour of a human post-edito
 as training data for our system. We think that they provided us with
 some interesting insight into the post-editor's thought process. On the other hand,
 we have also considered using other sources since the data mentioned above are quite
-limited.
+limited in size.
 
-One possible way to face the data sparsity is to use available parallel corpora.
+One possible way to tackle the shortage of training data is to use available parallel corpora.
 These corpora (containing only \notion{source sentences + reference translations})
 can be expanded by translating the source sentences and thus creating a set of 
 sentences which contain MT generated errors and should be fixed to resemble the 
@@ -154,53 +154,61 @@ since there is generally much more parallel data then post-edited sentences. For
 English-Czech language pair, the natural choice of the parallel corpus would be
 CzEng~1.0 \citep{czeng10:lrec2012}\footurl{http://ufal.mff.cuni.cz/czeng}.
 
-%We didn't use this approach in the scope of this thesis however, it might
+%We did not use this approach in the scope of this thesis however, it might
 %be considered in our future work.
 %\todo{posledni vetu az do shrnuti?}
 
 Of course, this aproach introduces some additional noise
-related to the post-editing task. For example, we can get fluent MT output which
-is just a variation on the reference translation (possibly thanks to the different
-choice of wording etc.). It can be therefore hard to distinguish these fairly correct training
-instances from the incorrect ones.
+related to the post-editing task. For example, we can get fluent and correct MT output which
+is very different from the reference translation
+because sentences can easily have hundreds of thousands of correct translations \citep{biblio8445677574576847760}.
+%(possibly thanks to the different choice of wording etc.).
+Therefore, it can be hard to distinguish which of the differences between
+MT and the reference translation are genuine MT errors.
+%these fairly correct training instances from the incorrect ones.
 
 The basic summary of the available data is shown in the table \Tref{avail-data}.
 
 \subsection{Monolingual Data}
 
-We have also considered simply using bitext monolingual data (either \notion{MT output + post-edited sentences}
+We have also considered using bitext \emph{monolingual} data (either \notion{MT output + post-edited sentences}
 or \notion{MT output + reference translations}), however due to the nature of our processing
 pipeline we would be much more limited when analyzing the training data. Also this way, we would
-lose the additional information that can be extracted from the source sentences, which proved to be valuable in the practice.
-%\todo{citovat priklady?}
+lose the additional information that can be extracted from the source sentences, which proved to be valuable in the practice \citep{biblio:RoMaDEPFIXA2012}.
+
 
 \begin{table*}[t]
 \centering
 \small
 
-\begin{tabular}{|l|c|c|c|c|}
+\begin{threeparttable}
+\begin{tabular}{|l|c|c|c|c|c|}
 \hline
-\multirow{2}{*}{}  &  \multirow{2}{*}{\hash{} Sentences}  &  \multicolumn{3}{c|}{\hash{} Tokens}  \\
-\cline{3-5}
-&   & English & Czech (MT) & Czech (PE) \\
+\multirow{2}{*}{}  &  \multirow{2}{*}{\hash{} Sentences}  &  \multirow{2}{*}{\hash{} Tokens English}  &  \multicolumn{3}{c|}{\hash{} Tokens Czech}  \\
+\cline{4-6}
+&  &  & MT & PE & REF \\
 \hline
-Khan's school & \tilda{}14k & \tilda{}93k & \tilda{}93k & \tilda{}93k \\
+Khan academy & $\sim$14k & $\sim$93k & $\sim$93k\tnote{*} & $\sim$93k & $-$ \\
 \hline
-Autodesk & 46,916 & 490,005 & 456,697 & 441,645 \\
+Autodesk & 46,916 & 490,005 & 456,697 & 441,645 & $-$ \\
 \hline
-HimL-Lingea & 3892 & 60,142 & 51,428 & 56,485 \\
+HimL-Lingea & 3892 & 60,142 & 51,428 & 56,485 & $-$ \\
 \hline
-WMT10 & 2,489 & 54,021 & 44,578 & 45,422 \\
+WMT10 & 2,489 & 54,021 & 44,578 & $-$ & 45,422 \\
 \hline
-WMT16 & 2,999 & 57,418 & 48,037 & 48,915 \\
+WMT16 & 2,999 & 57,418 & 48,037 & $-$ & 48,915 \\
 \hline
-CzEng 1.0 & 15M & 206M & NA & 150M \\
+CzEng 1.0 & 15M & 206M & $-$ & $-$ & 150M \\
 \hline
 \end{tabular}
+\begin{tablenotes}
+\item[*] Translations in Khan academy data come from humans.
+\end{tablenotes}
+\end{threeparttable}
 \caption{Summary of the available post-editing data. Only English-Czech data is listed, however, for datasets
-where data for other language pairs are available, their volume is roughly the same. We provide only rough estimates for the Khan's school data.
+where data for other language pairs are available, their volume is approximately the same. We provide only rough estimates for the Khan academy data.
 There is no information about the number of tokens in the MT part of CzEng because we have decide to abandon the
-idea of creating a triparallel corpora for the time being.
+idea of creating a triparallel corpus for the time being.
 }
 \label{avail-data}
 \end{table*}

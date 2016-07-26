@@ -51,13 +51,13 @@ relatively fine-grained morphological tags because our goal is to correct morpho
 errors represented mainly through these tags.
 It was reported by \citet[p. 33]{biblio:RoAutomaticpostediting2013} that the tagger produces significantly more
 errors in morphological analysis of Czech SMT outputs in comparison with normal text. In Depfix, this is covered
-by a rule-based block that identifies these errors and changes the incorrect POS tag without
+by a rule-based block that identifies these errors and changes the incorrect morphological tag without
 changing the surface form. We decided to omit this block and leave the issue to our statistical
 component.
 
-The last step we do in the scope of the m-layer analysis is a transformation of the POS tags into
+The last step we do in the scope of the m-layer analysis is a transformation of the morphological tags into
 a more general representation. Optionally, we can apply a named-entity recognition
-tool if one is available but it isn't mandatory. For English, we use the Stanford
+tool if one is available but it is not mandatory. For English, we use the Stanford
 Named Entity Recognizer (NER) \citep{Finkel:2005:INI:1219840.1219885}\footurl{http://nlp.stanford.edu/software/CRF-NER.shtml},
 for Czech, we use a simple rule-based NER. 
 
@@ -69,7 +69,7 @@ tag representation,
 we would be forced to modify our existing pipeline to some extent everytime
 a new language would be introduced.
 Therefore, we have decided to use Interset \citep{biblio:ZeReusableTagset2008}\footurl{https://ufal.mff.cuni.cz/interset}, an interlingua-based
-representation of POS tags from various tagsets. To be able to use this
+representation of morphological tags from various tagsets. To be able to use this
 representation to represent tags from a given tagset, a decoding/encoding
 module is required. However, the support for various tagsets spanning
 through different languages started growing lately mainly due to Universal Dependencies \citep{universal-dep:2016}\footurl{universaldependencies.org} project.
@@ -117,7 +117,7 @@ avoid polluting our training data with instances containing misleading context i
 due to an incorrect structure of the SMT dependency tree.
 
 For Czech SMT output, an implementation of the MST parser adapted for the SMT output
-is already available \citep{biblio:RoDuUsingParallel2012}, however, so far we haven't done any experiments
+is already available \citep{biblio:RoDuUsingParallel2012}, however, so far we have not done any experiments
 to determine whether the dependency structures provided by the adapted parser (which
 should be more accurate than our projected trees) influence the final performance of our system.
 
