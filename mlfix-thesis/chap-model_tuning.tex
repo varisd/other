@@ -189,18 +189,18 @@ WMT10  &  CU-Bojar  &  Depfix  &  40,678  &  4,101  \\
 HimL  &  Moses  &  Depfix  &  10,491  &  1,114  \\
 WMT16  &  CU-Chimera  &  Depfix  &  42,021  &  1,897  \\
 \end{tabular}
-\caption{
-    Summary of the size of the training data extracted from each dataset. We present
+\caption[Summary of the extracted Czech training data for error detection]{
+    Summary of the size of the training data extracted from various datasets translated by different SMT systems. We present
 size before and after (filt.) removing the instances extracted from the \equo{correct} sentences.
 \pojem{Origin} column indicates origin
-of the reference data: poste-edited (PE), standard reference (REF) or created by Depfix.
+of the reference sentences: poste-edited (PE), standard reference (REF) or created by Depfix.
 }
 \label{wf-training-sum}
 \end{table*}
 
 
 For the purposes of this coarse evaluation, we used each dataset separately for both training
-and testing of the classifers, by performing one-against-the-rest 10-fold jackknife sampling.
+and testing of the classifers, by performing one-against-the-rest 10-fold jack-knife sampling.
 Therefore, the results presented in this stage should be considered only as an in-domain
 performance for a specific MT system.
 
@@ -218,7 +218,7 @@ models for the following stages of model development.
 \begin{figure}
 \centering
   \includegraphics[scale=0.7]{wf-class}
-  \caption{
+  \caption[ML method comparison - Error detection]{
     Overview of the classifier performance (error detection).
 We have tried several variations of the hyperparameters
 for each classifier. The classifiers are ordered from the best to the worst. Only top 50 results
@@ -255,7 +255,7 @@ the model tuning.
 \begin{figure}
 \centering
   \includegraphics[scale=0.7]{wf-sel}
-  \caption{
+  \caption[Feature selection method comparison - Error detection]{
     Overview of the performance of the SVM with linear kernel when combined with various feature selection methods.
 We have tried several variations of the hyperparameters
 for each method. The horizontal line marks the best performance without
@@ -280,7 +280,13 @@ to retrain the whole error detection component. The use of multiple models for e
 is described later in Chapter~\ref{chap:eval}.
 
 We present the summary of the trained models in~\Tref{wf-summary}. We can see, that the models
-trained on the Depfix data performed better than the ones trained on the original datasets. The overall
+trained on the Depfix data performed better than the ones trained on the original datasets.
+Unfortunately, we did not perform any cross-domain evaluation at this stage so we cannot say
+that the datasets with Depfix reference sentences provide better training instances for the
+error detection models. The better performance might be just a result of more consistent
+training data in the corresponding dataset.
+
+The overall
 performance is still quite low, so there is still room for improvement. We think that introducing
 additional features (e.g. information from the t-layer) or increasing the size of the training data
 might help us improve these models in the future.
@@ -290,7 +296,7 @@ might help us improve these models in the future.
 \small
 
 \begin{tabular}{lll|ccc}
-Dataset  &  System  &  Ref  &  Precision  &  Recall  &  F1  \\
+Dataset  &  System  &  Origin  &  Precision  &  Recall  &  F1  \\
 \hline
 WMT10  &   CU-Bojar  &  REF  &  0.29  &  0.25  &  0.27  \\
 HimL  &  Moses  &  PE  &  0.28  &  0.32  &  0.30  \\
@@ -299,10 +305,10 @@ WMT10  &  CU-Bojar  &  Depfix  &  0.51  &  0.55  &  0.53  \\
 HimL  &  Moses  &  Depfix  &  0.55  &  0.51  &  0.53  \\
 WMT16  &  CU-Chimera  &  Depfix  &  0.50  &  0.52  &  0.51  \\
 \end{tabular}
-\caption{
-    Final in-domain evaluation of the trained error detection models. The evaluation was performed
-by a jack-knife one-vs-rest classification on each dataset. The \pojem{Origin} column indicates origin
-of the reference data: poste-edited (PE), standard reference (REF) or created by Depfix.
+\caption[Model summary (Czech) - error detection]{
+    Summary of the in-domain performance of the trained error detection models. The evaluation was performed
+by a jack-knife one-vs-rest classification on each dataset. \pojem{Origin} column indicates origin
+of the reference sentences: poste-edited (PE), standard reference (REF) or created by Depfix.
 }
 \label{wf-summary}
 \end{table*}
@@ -362,7 +368,7 @@ verb    &   9\%  \\
 adv     &   9\%  \\
 \end{tabular}
 \caption{
-    Part-of-speech (POS) frequencies of the changed words.
+    Change frequency of various POS classes in Czech.
 }
 \label{changes-pos}
 \end{table*}
@@ -395,10 +401,10 @@ WMT10  &  CU-Bojar  &  Depfix  &  210  \\
 HimL  &  Moses  &  Depfix  &  72  \\
 WMT16  &  CU-Chimare  &  Depfix  &  99  \\
 \end{tabular}
-\caption{
-    Summary of the size of the training data extracted from each dataset.
+\caption[Summary of the extracted Czech training data for morphological prediction]{
+    Summary of the size of the training data extracted from various datasets translated by different SMT systems.
 	\pojem{Origin} column indicates origin
-	of the reference data: poste-edited (PE), standard reference (REF) or created by Depfix.
+	of the reference sentences: poste-edited (PE), standard reference (REF) or created by Depfix.
 }
 \label{cats-training-sum}
 \end{table*}
@@ -419,7 +425,7 @@ to pick this method for further experiments.
 \begin{figure}
 \centering
   \includegraphics[scale=0.7]{iset}
-  \caption{
+  \caption[Change frequency of Czech morphological categories]{
     Frequency of the most changed Interset categories, grouped by a datasets. Categories containing
     "\textbar" symbol (e.g. gender\textbar{}number) represent changes made simultaneously.
 }
@@ -430,7 +436,7 @@ to pick this method for further experiments.
 \begin{figure}
 \centering
   \includegraphics[scale=0.7]{cats-class}
-  \caption{
+  \caption[ML method comparison - Morphological prediction]{
     Overview of the classifier performance (category prediction).
 We have tried several variations of the hyperparameters
 for each classifier. The classifiers are ordered from the best to the worst. Only top 50 results
@@ -461,7 +467,7 @@ feature selection for the WMT10 dataset model training.
 \begin{figure}
 \centering
   \includegraphics[scale=0.7]{cat-sel}
-  \caption{
+  \caption[Feature selection method comparison - Morphological prediction]{
     Overview of the random forest performance when combined with various feature selection methods.
 The methods are ordered from the best to the worst. The horizontal line marks the best performance without
 a feature selection method. Only top 50 results are shown for each dataset.
@@ -508,16 +514,15 @@ HimL  &  Moses  &  Depfix  &  92\% (47\%)  &  78\% (26\%)  &  73\% (23\%)  &  71
 WMT16  &  CU-Chimera  &  Depfix  &  93\% (54\%)  &  64\% (16\%)  &  56\% (11\%)  &  53\% (9\%)  \\
 \end{tabular}
 }
-\caption{
-    Final in-domain model accuracy evaluation of the trained models. The evaluation was performed
+\caption[Model summary (Czech) - morphological prediction]{
+    Summary of the in-domain accuracy of the trained morphological prediction models. The evaluation was performed
 by jack-knife one-vs-rest classification of the each dataset. Performance of the baseline (Base)
 classifier is presented for comparison.
 \pojem{Origin} column indicates origin
-of the reference data: poste-edited (PE), standard reference (REF) or created by Depfix.
+of the reference sentences: poste-edited (PE), standard reference (REF) or created by Depfix.
 }
 \label{cats-summary}
 \end{table*}
-
 
 %\todo{tohle az do final evaluace?}
 %Since the domains of the datasets differ to a various degree, we have decided to combine the models trained

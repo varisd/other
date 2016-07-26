@@ -84,13 +84,13 @@ we still chose to use the same heuristic for marking incorrect instances in the 
 \small
 
 \begin{tabular}{l|cc|ccc|cc}
-  &  Evaluated  &  Changed  &  $+$  &  $-$  &  0  &  Precision  &  Impact  \\
+Reference  &  Evaluated  &  Changed  &  $+$  &  $-$  &  0  &  Precision  &  Impact  \\
 \hline
-Oracle  &  800  &  77  &  20  &  39  &  18  &  33.9\%  &  2.5\%  \\
+Post-edits  &  800  &  77  &  20  &  39  &  18  &  33.9\%  &  2.5\%  \\
 \end{tabular}
-\caption{
+\caption[Manual evaluation of the German Oracle classifier]{
 Results of the the manual evaluation of the ideal fixing module based on the same heuristic
-that has been used in the English-Czech pipeline. For wordform generation, statistical component
+that was used in the English-Czech pipeline (WrongFrom3). Sentences were taken from HimL dataset. For wordform generation, a statistical component
 was used impacting the overall performance.
 }
 \label{oracle_de-maneval}
@@ -108,7 +108,7 @@ our decision for training Case, CN and CNG models.
 \begin{figure}
 \centering
   \includegraphics[scale=0.7]{iset_de}
-  \caption{
+  \caption[Change frequency of German morphological categories]{
     Frequency of the most changed Interset categories in German data, grouped by a datasets. Categories containing
     "\textbar" symbol (e.g. gender\textbar{}number) represent changes made simultaneously.
 }
@@ -129,8 +129,9 @@ adp     &   8\%  \\
 conj    &   7\%  \\
 \end{tabular}
 \caption{
-    Part-of-speech (POS) frequencies of the changed words. Only the 5 most
-	frequent classes are displayed.
+	Change frequency of various POS classes in German.
+%    Part-of-speech (POS) frequencies of the changed words. Only the 5 most
+%	frequent classes are displayed.
 }
 \label{changes_de-pos}
 \end{table*}
@@ -147,12 +148,6 @@ of the available training data for both error detection and morphological predic
 Again, we can see, that the training data are quite small with exception of the Autodesk
 dataset. That is also the main motivation behind including it in our training data.
 
-The summary of the final error detection models is in~\Tref{wf_de-summary}. Surprisingly,
-while having quite similar precision to the Czech models they achieved much better
-recall overall. At this moment, we cannot say if it is caused by a ML method choice or a suitable
-initial feature set, however, since there is still room for improvement, we consider investigating
-the issue furter in the future.
-
 \begin{table*}[t]
 \centering
 \small
@@ -165,12 +160,36 @@ WMT16  &  UEDIN-NMT  &  22,353  &  3,340  &  344  \\
 WMT16  &  UEDIN-PBMT  &  21,394  &   3,727  &  412  \\
 Autodesk  &  $-$  &  1,263,750  &  124,698  &  17,268  \\
 \end{tabular}
-\caption{
+\caption[Summary of the extracted German training data]{
     Summary of the size of the training data extracted from each dataset. We present
 size before and after (filt.) removing the instances extracted from the \equo{correct} sentences.
 The size of datasets for category predictor training is presented in the \pojem{Incorrect} column.
 }
 \label{wf-cat-data-sum}
+\end{table*}
+
+The summary of the final error detection models is in~\Tref{wf_de-summary}. Surprisingly,
+while having quite similar precision to the Czech models they achieved much better
+recall overall. At this moment, we cannot say if it is caused by a ML method choice or a suitable
+initial feature set, however, since there is still room for improvement, we consider investigating
+the issue furter in the future.
+
+\begin{table*}[t]
+\centering
+\small
+
+\begin{tabular}{ll|ccc}
+Dataset  &  System  &  Precision  &  Recall  &  F1  \\
+\hline
+HimL  &  Moses  &  0.39  &  0.56  &  0.46  \\
+WMT16 &  UEDIN-NMT  &  0.28  &  0.43  &  0.34  \\
+WMT16 &  UEDIN-NMT  &  0.29  &  0.50  &  0.37  \\
+Autodesk  &  $-$  &  0.41  &  0.77  &  0.53  \\
+\end{tabular}
+\caption[Model summary (German) - error detection]{
+    Summary of the in-domain performance of the final German error detection models.
+}
+\label{wf_de-summary}
 \end{table*}
 
 In~\Tref{cats_de-summary}, we present performance of the final German
@@ -186,24 +205,6 @@ resulting model.
 \small
 
 \begin{tabular}{ll|ccc}
-Dataset  &  System  &  Precision  &  Recall  &  F1  \\
-\hline
-HimL  &  Moses  &  0.39  &  0.56  &  0.46  \\
-WMT16 &  UEDIN-NMT  &  0.28  &  0.43  &  0.34  \\
-WMT16 &  UEDIN-NMT  &  0.29  &  0.50  &  0.37  \\
-Autodesk  &  $-$  &  0.41  &  0.77  &  0.53  \\
-\end{tabular}
-\caption{
-    Summary of the in-domain performance of the final German error detection models.
-}
-\label{wf_de-summary}
-\end{table*}
-
-\begin{table*}[t]
-\centering
-\small
-
-\begin{tabular}{ll|ccc}
 Dataset  &  System  &  Case(Base)  &  CN(Base)  & CNG(Base)  \\
 \hline
 HimL  &  Moses  &  84\%(29\%)  &  79\%(13\%)  &  70\%(5\%)  \\
@@ -212,15 +213,12 @@ WMT16  &  UEDIN-PBMT  &  57\%(38\%)  &  47\%(21\%)  &  35\%(18\%)\\
 Autodesk  &  $-$  &  96\%(28\%)  &  95\%(17\%)  &  93\%(8\%)  \\
 
 \end{tabular}
-\caption{
+\caption[Model summary (German) - morphological prediction]{
     Summary of the in-domain performance of the final German category prediction models
 	and its comparison with the baseline predictor.
 }
 \label{cats_de-summary}
 \end{table*}
-
-
-%\todo{avail data?}
 
 \section{Evaluation}
 
@@ -243,31 +241,6 @@ models measured during training was equal and in some cases better than the one 
 It is possible that this might be either a result of lower diversity in our data (most of the data belongs
 to Autodesk dataset) or a consequence of the poor performance of the iflection module.
 
-In~\Tref{markonly_de-summary}, we present the results of the evaluation of the error detection module.
-We can see, that the module was performing quite poorly, not bringing any improvement to any dataset att all. Due to the nature of the error detection module evaluation (new morphological categories are taken from the reference sentences), we suspect that the main reason behind the poor performance is truly the
-inflection module. Aside from that, we can see that this time it was the Majority scheme which performed
- much better than the rest. However, the results might only point to the fact that the Majority scheme
- marked the smallest number of instances as incorrect thus worsening the MT output much less than the
- other two.
-
-Nevertheless, we have decided to pick \pojem{Majority-CNG} and \pojem{Average-CNG} configurations
-for the final evaluation. Their performance is summarized in~\Tref{final_de-summary}. Again, both
-systems performed poorly and it might look like the Czech MLFix provided the best results. Therefore,
-we also provide summary of a number of sentences that were changed by each system in~\Tref{final_de-chgd}.
-We can see, that our suspicion that the negative score correlates with the recall of each configuation was not
-completely off-target. When we compare results we have gathered during Oracle evaluation and model
-development for each language, we do not think that the poor performance during final evaluation was caused by the fixing
-components. We suspect that the current performance bottleneck lies within the inflection module.
-A more thorough investigation of the inflection module is required in the future, with a possible
-replacement with an alternative module.
-
-We have also performed manual evaluation of the Average-CNG configuration\footnote{At the moment, we cannot surely tell what is
-the best possible configuration for german, so we have simply followed the approach from English-Czech pipeline.}. Two
-independent non-native German speakers jointly evaluated 444 changed sentences. The results of manual evaluation are in~\Tref{maneval_de-final}.
-They both evaluated a subset of 141 to measure their inter-annotator agreement, shown in~\Tref{maneval_de-agree}.
-We can see that the recall of the German pipeline was similar to the Czech pipeline. However, the low precision ($\sim$13\%)
-confirms the results measured by the automatic metric. This is further supported by a reasonalby high inter-annotator agreement of 83\%.
-
 \begin{table*}[t]
 \centering
 \small
@@ -288,16 +261,24 @@ HimL  &  Moses &  31.94  &  30.95  &  31.37 (+0.41)  &  31.29 (+0.34)  &  \bf{31
 \end{tabular}
 
 }
-\caption{
-    Automatic evaluation of the morphological prediction module using BLEU metric, multiplied by 100 for easier reading,
-and the relative improvement over the baseline MT output.
-Performance of
-Oracle classifier is provided for comparison. 
-The best model for each dataset is printed in bold.
+\caption[Automatic evaluation of the German morphological prediction module]{
+    Automatic evaluation of German morphological prediction module using BLEU metric
+	and the relative improvement over the baseline MT output.
+	Values are multiplied by 100 for easier reading.
+	Performance of
+	Oracle classifier is provided for comparison.
+	The best model for each dataset is printed in bold.
 }
 \label{fixonly_de-summary}
 \end{table*}
 
+
+In~\Tref{markonly_de-summary}, we present the results of the evaluation of the error detection module.
+We can see, that the module was performing quite poorly, not bringing any improvement to any dataset att all. Due to the nature of the error detection module evaluation (new morphological categories are taken from the reference sentences), we suspect that the main reason behind the poor performance is truly the
+inflection module. Aside from that, we can see that this time it was the Majority scheme which performed
+ much better than the rest. However, the results might only point to the fact that the Majority scheme
+ marked the smallest number of instances as incorrect thus worsening the MT output much less than the
+ other two.
 
 \begin{table*}[t]
 \centering
@@ -319,16 +300,27 @@ HimL  &  Moses &  31.94  &  30.95  &  \bf{30.89} (-0.05)  &  30.17 (-0.77)  &  3
 \end{tabular}
 
 }
-\caption{
+\caption[Automatic evaluation of the German error detection module]{
     Automatic evaluation of the error detection module using different voting methods to interpret output
 of mutliple models using BLEU metric. Values are multiplied by 100 for easier reading,
 and the relative improvement over the baseline MT output.
-Performance of
+Performance of the
 Oracle classifier is provided for comparison.
 The best model for each dataset is printed in bold.
 }
 \label{markonly_de-summary}
 \end{table*}
+
+Nevertheless, we have decided to pick \pojem{Majority-CNG} and \pojem{Average-CNG} configurations
+for the final evaluation. Their performance is summarized in~\Tref{final_de-summary}. Again, both
+systems performed poorly and it might look like the Czech MLFix provided the best results. Therefore,
+we also provide summary of a number of sentences that were changed by each system in~\Tref{final_de-chgd}.
+We can see, that our suspicion that the negative score correlates with the recall of each configuation was not
+completely off-target. When we compare results we have gathered during Oracle evaluation and model
+development for each language, we do not think that the poor performance during final evaluation was caused by the fixing
+components. We suspect that the current performance bottleneck lies within the inflection module.
+A more thorough investigation of the inflection module is required in the future, with a possible
+replacement with an alternative module.
 
 \begin{table*}[t]
 \centering
@@ -341,21 +333,29 @@ Dataset  &  System  &  Base  &  Major-CNG  &  Avg-CNG  &  CS-Best  \\
 \hline
 \hline
 Autodesk  &  $-$  &  45.90  &  45.64 (-0.26)  &  45.54 (-0.36)  &  45.82 (-0.08)  \\
-\hline  
+\hline
 HimL  &  Moses &  30.95  &  34.81 (-0.56)  &  28.35 (-2.60)  &  30.95 (0) \\
-\hline  
+\hline
 \multirow{2}{*}{WMT16}  &  UEDIN NMT  &  34.82  &  30.46 (-4.36)  &  19.95 (-14.87)  &  34.81 (0)  \\
 &  UEDIN PBMT  &  29.11  &  25.70 (-3.41)  &  17.02 (-12.09)  &  29.11 (0)  \\
 \hline
 \end{tabular}
 
 }
-\caption{
-	Final evaluation of Englsh-German configuration of MLFix. Majority-CNG and Avg-CNG methods were compared
+\caption[Final German MLFix evaluation]{
+    Final evaluation of the Englsh-German configuration of MLFix using BLUE metric.
+	Values are multiplied by 100 for easier reading. Majority-CNG and Avg-CNG methods were compared
 with the best English-Czech configuration.
 }
 \label{final_de-summary}
 \end{table*}
+
+We have also performed manual evaluation of the Average-CNG configuration\footnote{At the moment, we cannot surely tell what is
+the best possible configuration for german, so we have simply followed the approach from English-Czech pipeline.}. Two
+independent non-native German speakers jointly evaluated 444 changed sentences. The results of manual evaluation are in~\Tref{maneval_de-final}.
+They both evaluated a subset of 141 to measure their inter-annotator agreement, shown in~\Tref{maneval_de-agree}.
+We can see that the recall of the German pipeline was similar to the Czech pipeline. However, the low precision ($\sim$13\%)
+confirms the results measured by the automatic metric. This is further supported by a reasonalby high inter-annotator agreement of 83\%.
 
 \begin{table*}[t]
 \centering
@@ -375,9 +375,9 @@ HimL  &  Moses  &  145  &  421  &  0  &  800  \\
 \hline
 \end{tabular}
 
-\caption{
+\caption[Final German MLFix evaluation - number of changed sentences]{
     Number of sentences changed by different systems. Total number of
-sentences in each dataset (\pojem{Sent.}) is also listed.
+sentences in each dataset (\pojem{Sent.}) is listed for reference.
 }   
 \label{final_de-chgd}
 \end{table*}
@@ -396,7 +396,7 @@ B  &  320  &  141  &  18   &  118  &  5  &  13\%  &  5.6\%  \\
 \hline
 Total &  960  &  444  &  54  &  381  &  19  &  12.4\%  &  5.6\%  \\
 \end{tabular}
-\caption{
+\caption[German MLFix manual evaluation]{
 Results of the manual evaluation of chosen German MLFix configuration (Avg-CNG)
 on a subset of HimL dataset.
 }
@@ -407,16 +407,16 @@ on a subset of HimL dataset.
 \centering
 \small
 
-\begin{tabular}{l|cc|c}
- A/B  &  Better  &  Worse  &  Indef  \\
+\begin{tabular}{c|cc|c}
+ A/B  &  $+$  &  $-$  &  0  \\
 \hline
-Better  &  7  &  10  &  1  \\
-Worse  &  6  &  109  &  3  \\
+$+$  &  7  &  10  &  1  \\
+$-$  &  6  &  109  &  3  \\
 \hline
-Indef &  0  &  2  &  3  \\
+0 &  0  &  2  &  3  \\
 \end{tabular}
-\caption{
-    Matrix containing inter-annotator agreement of German MLFix manual evaluation
+\caption[German MLFix manual evaluation - inter-annotator agreement]{
+    Matrix containing inter-annotator agreement of German MLFix manual evaluation.
 }
 \label{maneval_de-agree}
 \end{table*}

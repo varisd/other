@@ -31,7 +31,7 @@ Because the domains of the datasets differ to a various degree,
 we have decided to combine the final models trained separately
 on these datasets. The methods for combining the output of multiple classifiers
 differ with each MLFix component and are described in more detail in the following
-subsections.
+sections.
 Naturally, for each dataset we exclude the models trained on that dataset from
 the evaluation.
 
@@ -95,12 +95,13 @@ WMT16-D  &  CU Chimera  &  97.51  &  96.56  &  97.22 (+0.66)  &  97.23 (+0.67)  
 \end{tabular}
 
 }
-\caption{
-    Automatic evaluation of the morphological prediction module using BLEU metric, multiplied by 100 for easier reading,
-and the relative improvement over the baseline MT output.
-Performance of 
-Oracle classifier is also provided for comparison. Datasets with the \pojem{-D} suffix have Depfix output in place of reference sentences.
-The best model for each dataset is printedin bold.
+\caption[Automatic evaluation of the Czech morphological prediction module]{
+    Automatic evaluation of the morphological prediction module using BLEU metric
+	and the relative improvement over the baseline MT output.
+	Values are multiplied by 100 for easier reading.
+	Performance of 
+	the Oracle classifier is also provided for comparison. Datasets with the \pojem{-D} suffix have Depfix output in place of reference sentences.
+	The best model for each dataset is printed in bold.
 }
 \label{fixonly-summary}
 \end{table*}
@@ -179,12 +180,13 @@ WMT16-D  &  CU Chimera  &  97.51  &  96.56  &  97.04 (+0.48)  &  \bf{97.47} (+0.
 \end{tabular}
 
 }
-\caption{
-    Automatic evaluation of the error detection module using different voting methods to interpret
-output of multiple models using the BLEU score (mutliplied by 100).
-For comparison, evaluation of Oracle classifier is also provided.
-Values in brackets indicate the difference between the method and the baseline (Base) MT output.
-Datasets with the \pojem{-D} suffix have Depfix output in place of reference sentences.
+\caption[Automatic evaluation of the Czech error detection module]{
+    Automatic evaluation of the error detection module using different voting methods
+	to interpret output of multiple models using BLEU metric.
+	Values are mutliplied by 100 for easier reading.
+	For comparison, performance of Oracle classifier is also provided.
+	Values in brackets indicate the difference between the method and the baseline (Base) MT output.
+	Datasets with the \pojem{-D} suffix have Depfix output in place of reference sentences.
 }
 \label{markonly-summary}
 \end{table*}
@@ -237,8 +239,9 @@ WMT10  &  CU Bojar  &  15.66  &  14.61 (-1.04)  &  15.76 (+0.10)  &  \bf{15.91} 
 \end{tabular}
 
 }
-\caption{
-	Final evaluation of MLFix. AtLeastOne (ALO-CNG) and Average (Avg-CNG) voting methods
+\caption[Final Czech MLFix evaluation]{
+	Final evaluation of MLFix using BLEU metric. Values are multiplied by 100 for easier reading.
+	AtLeastOne (ALO-CNG) and Average (Avg-CNG) voting methods
 	were compared. Performance of Depfix is shown for comparison.
 }
 \label{final-summary}
@@ -264,9 +267,9 @@ WMT10  &  CU Bojar  &  1,441  &  202  &  973  &  2,489  \\
 \hline
 \end{tabular}
 
-\caption{
+\caption[Final Czech MLFix evaluation - number of changed sentences]{
 	Number of sentences changed by different systems. Total number of
-sentences in each dataset (\pojem{Sent.}) is also listed.
+sentences in each dataset (\pojem{Sent.}) is listed for reference.
 }
 \label{final-chgd}
 \end{table*}
@@ -305,7 +308,7 @@ WMT16-B  &  2,999  &  100  &  71  &  12  &  17  &  85.5\%  &  2.3\%  \\
 \hline
 Total &  7,598  &  252  &  166  &  43  &  43  &  79.4\%  &  2.1\%  \\
 \end{tabular}
-\caption{
+\caption[Czech MLFix manual evaluation]{
 Results of the manual evaluation of best MLFix configuration (Avg-CNG). Annotators
 A and B are distinguished by a suffix for each dataset.
 }
@@ -317,16 +320,16 @@ A and B are distinguished by a suffix for each dataset.
 \centering
 \small
 
-\begin{tabular}{l|cc|c}
- A/B  &  Better  &  Worse  &  Indef  \\
+\begin{tabular}{c|cc|c}
+ A/B  &  $+$  &  $-$  &  0  \\
 \hline
-Better  &  64  &  7  &  5  \\
-Worse  &  5  &  13  &  0  \\
+$+$  &  64  &  7  &  5  \\
+$-$  &  5  &  13  &  0  \\
 \hline
-Indef &  21  &  5  &  6  \\
+0 &  21  &  5  &  6  \\
 \end{tabular}
-\caption{
-	Matrix containing inter-annotator agreement of MLFix manual evaluation
+\caption[Czech MLFix manual evaluation - inter-annotator agreement]{
+	Matrix containing inter-annotator agreement of MLFix manual evaluation.
 }
 \label{maneval-agree}
 \end{table*}

@@ -131,7 +131,9 @@ We tried three different heuristics to identify \pojem{incorrect instances}, eac
     \item the \pojem{MT-node form} IS\_NOT\_EQUAL to the \pojem{REF-node form} AND (the \pojem{MT-parent form} IS\_EQUAL to the \pojem{REF-node form}
         OR the \pojem{MT-parent form} is marked as INCORRECT)
 \end{enumerate}
-All definitions work in the context of the \pojem{training instance}. In any case, if the conditions
+All definitions work in the context of the \pojem{training instance}. For later reference, we refer to
+these heuristics as \pojem{WrongForm1}, \pojem{WrongForm2} and \pojem{WrongForm3} respectively.
+In any case, if the conditions
 are not met, the training instance is marked as correct and should be left unchanged by the classifier.
 These definitions cover both instances that should be changed (\pojem{correct} vs. \pojem{incorrect} instance)
 and how the incorrect instances should be modified (values from the REF-node). The surface forms
@@ -368,16 +370,15 @@ instances that are provided during training are already incorrectly classified.
 \small
 
 \begin{tabular}{lccc}
-  &  wrong\_form\_1  &  wrong\_form\_2  &  wrong\_form\_3  \\
+Reference  &  WrongForm1  &  WrongForm2  &  WrongForm3  \\
 \hline
-WMT10-Ref  &  0.159  &  0.021  &  0.026  \\
-WMT10-Depfix  & 0.009  &  0.003  &  0.003  \\
+Original  &  0.159  &  0.021  &  0.026  \\
+Depfix  & 0.009  &  0.003  &  0.003  \\
 \end{tabular}
-\caption{
-Overview of the portions of instances marked as incorrect using different heuristic rules. We present
-the rules in the same order in which they were presented in this chapter (marked wrong\_form\_1, wrong\_form\_2
-and wrong\_form\_3 respectively). The portion of incorrect instances is noticeably smaller for the Depfix-created
-data, possibly due to the nature of their preparation.
+\caption[Comparison of the heuristic rules]{
+Overview of the portions of instances from WMT10 dataset marked as incorrect using different heuristic rules.
+We compare original dataset containing reference translations and dataset where reference translations
+were replaced by Depfix output.
 }
 \label{marked-stats}
 \end{table*}
@@ -406,16 +407,16 @@ of development so only one annotator was involved.
 \small
 
 \begin{tabular}{l|cc|ccc|cc}
-  &  Evaluated  &  Changed  &  $+$  &  $-$  &  0  &  Precision  &  Impact  \\
+Reference  &  Evaluated  &  Changed  &  $+$  &  $-$  &  0  &  Precision  &  Impact  \\
 \hline
-HimL-PE  &  800  &  95  &  61  &  16  &  18  &  79.2\%  &  7.6\%  \\
-HimL-Depfix  & 800  &  75  &  47  &  3  &  25  &  94.0\%  &  5.5\%  \\
+Post-edits  &  800  &  95  &  61  &  16  &  18  &  79.2\%  &  7.6\%  \\
+Depfix  & 800  &  75  &  47  &  3  &  25  &  94.0\%  &  5.5\%  \\
 \end{tabular}
-\caption{
-Results of the the manual evaluation of the ideal system based on the 3rd
-presented heuristic. We present the results on both normal dataset and
-the
-dataset with Depfix reference sentences.
+\caption[Manual evaluation of the Czech Oracle classifier]{
+Results of the the manual evaluation of the ideal system based on the WrongForm3 heuristic.
+Sentences were taken from HimL dataset. We compare the results on both original dataset
+containing human post-edited sentences and
+the dataset with Depfix reference sentences.
 }
 \label{oracle-maneval}
 \end{table*}

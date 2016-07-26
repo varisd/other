@@ -81,14 +81,18 @@ have to deal with one well-defined set of features.
 \subsection{Word Alignment}
 
 In the next step, we create a word-level alignment for each sentence pair
-using GIZA++ \citep{och:ney:2000}. We make one-to-one word alignment where possible
-using the intersection symmetrization. This step helps us later with feature extraction
+using GIZA++ \citep{och:ney:2000}. We create one-to-one word alignment between the source language
+and the MT output where possible
+using the intersection symmetrization.\footnote{When post-editing SMT output, we might expect to be provided
+the word alignment by the SMT system we are correcting. However, this would put additional constraint
+on the input data format so we do not make this assumption.} This step helps us later with feature extraction (e.g. extracting the information about the aligned source node)
 and with further processing of the target sentence.
 
 In the process of training data extraction, we also create a simple alignment between
 the MT sentence and the reference sentence exploiting forms, lemmas and tags
-of the m-nodes. The alignment between the source sentence and the MT ouptut is then also
-projected to the reference sentence.
+of the m-nodes. This is done by a language-independent rule based block implemented in Treex.
+Then we create alignment between the source sentences and the reference sentences by combining
+the \pojem{SRC-MT} and \pojem{MT-REF} alignments created earlier.
 
 \subsection{A-Layer Analysis}
 
@@ -104,23 +108,25 @@ valuable information for identifying grammatical errors\footnote{Actually, in th
 because e.g. the parent-child relationship is examined almost everytime.}, thus improving
 the Depfix performance.
 
-For the time being, we have decided to build the dependency structures of the SMT output simply
+For the time being, we decided to build the dependency structures of the SMT output simply
 by projecting the dependency structure of the source sentence onto the target side
 using the word alignment we extracted in the preceeding step. The resulting structure
-is likely to contain errors, but should be at least consistent thoughout our data.
+will most likely contain errors, but should be at least consistent thoughout our data.
 To compensate for the lower accuracy of the extracted dependency structure we perform
 dependency parsing of the reference sentences during training, if a proper parser
 is available. For this purposes, we use the MST Parser for the Czech language as well.
-We expect that the combination of dependency parser for the reference sentences and
-a right choice of constraints applied when extracting training instances should
-avoid polluting our training data with instances containing misleading context information
-due to an incorrect structure of the SMT dependency tree.
+%We expect that the combination of dependency parser for the reference sentences and
+%a right choice of constraints applied when extracting training instances should
+%avoid polluting our training data with instances containing misleading context information
+%due to an incorrect structure of the SMT dependency tree.
 
-For Czech SMT output, an implementation of the MST parser adapted for the SMT output
+Note that for Czech SMT output, an implementation of the MST parser adapted for the SMT output
 is already available \citep{biblio:RoDuUsingParallel2012}, however, so far we have not done any experiments
 to determine whether the dependency structures provided by the adapted parser (which
 should be more accurate than our projected trees) influence the final performance of our system.
 
+We summarize the methods used for preprocessing source, MT and reference sentences and methods
+for creating the corresponding word alignments in~\Tref{summary-analysis}.
 %\subsection{Training pipeline}
 
 %We also do preprocessing of data we use for training our statistical component.
@@ -128,6 +134,41 @@ should be more accurate than our projected trees) influence the final performanc
 %the reference sentences. The reference sentences are processed in a same way
 %as the MT output, however they are not analyzed on the a-layer, only a simple
 %lemma based word alignment with the MT output is made.
+
+\begin{table*}[t]
+\centering
+\small
+
+\begin{threeparttable}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\multirow{2}{*}{}  &  \multicolumn{3}{c|}{Preprocessing}  \\
+\cline{2-4}
+&  Source (English)  &  MT (Czech)  & Reference (Czech)  \\
+\hline
+Training data &  MDiTa $+$ MST  & MDiTa $+$ src\_proj &  MDiTa $+$ MST  \\
+\hline
+Test data &  MDiTa $+$ MST  &  MDiTa $+$ src\_proj  & $-$ \\
+\hline
+\hline
+\multirow{2}{*}{}  &  \multicolumn{3}{c|}{Alignment} \\
+\cline{2-4}
+& SRC-MT & MT-REF & SRC-REF \\
+\hline
+Training  & GIZA++ & Rule-based & SRC-MT $+$ MT-REF \\
+Test data  & GIZA++ & $-$ & $-$ \\
+\hline
+\end{tabular}
+\end{threeparttable}
+\caption[Summary of the main tools used for processing English and Czech sentences]{
+Summary of the tools used to process source (English), MT (Czech) and reference (Czech) sentences. For preprocessing
+\pojem{tagger+parser} pairs are presented, MorphoDiTa (\pojem{MDiTa}) for tagging and \pojem{MST} parser or projection of the source
+trees (\pojem{src\_proj}). Additionally, alignment type (GIZA++, Rule-based, or combination of alignmets) is listed
+for each sentence pair.
+}
+\label{summary-analysis}
+\end{table*}
+
 
 \section{Statistical Component}
 
