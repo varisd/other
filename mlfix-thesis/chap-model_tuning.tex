@@ -179,21 +179,21 @@ The summary of the size of the used training data is in~\Tref{wf-training-sum}.
 \centering
 \small
 
-\begin{tabular}{lcc}
-Dataset  &  \hash{} Instances  &  \hash{} Instances (filt.)  \\
+\begin{tabular}{lll|cc}
+Dataset  &  System  & Origin  &  \hash{} Instances  &  \hash{} Instances (filt.)  \\
 \hline
-WMT10 CU-Bojar  &  23,470  &  6,033  \\
-HimL Moses  & 7,234  &  2,469  \\
-WMT16-Chimera  &  26,942  &  7,047  \\
-WMT10-Depfix  &  40,678  &  4,101  \\
-HimL-Depfix  &  10,491  &  1,114  \\
-WMT16-Depfix  &  42,021  &  1,897  \\
+WMT10  &  CU-Bojar  &  REF  &  23,470  &  6,033  \\
+HimL  &  Moses  &  PE  & 7,234  &  2,469  \\
+WMT16  &  CU-Chimera  &  REF  &  26,942  &  7,047  \\
+WMT10  &  CU-Bojar  &  Depfix  &  40,678  &  4,101  \\
+HimL  &  Moses  &  Depfix  &  10,491  &  1,114  \\
+WMT16  &  CU-Chimera  &  Depfix  &  42,021  &  1,897  \\
 \end{tabular}
 \caption{
     Summary of the size of the training data extracted from each dataset. We present
 size before and after (filt.) removing the instances extracted from the \equo{correct} sentences.
-The \pojem{-Depfix} data were created by replacing the reference sentences in the original
-data by Depfix output.
+\pojem{Origin} column indicates origin
+of the reference data: poste-edited (PE), standard reference (REF) or created by Depfix.
 }
 \label{wf-training-sum}
 \end{table*}
@@ -289,20 +289,20 @@ might help us improve these models in the future.
 \centering
 \small
 
-\begin{tabular}{l|ccc}
-Dataset  &  Precision  &  Recall  &  F1  \\
+\begin{tabular}{lll|ccc}
+Dataset  &  System  &  Ref  &  Precision  &  Recall  &  F1  \\
 \hline
-WMT10 CU-Bojar  &  0.29  &  0.25  &  0.27  \\
-HimL Moses  &  0.28  &  0.32  &  0.30  \\
-WMT16 CU-Chimera  &  0.40  &  0.44  &  0.42  \\
-WMT10-Depfix  &  0.51  &  0.55  &  0.53  \\
-HimL-Depfix  &  0.55  &  0.51  &  0.53  \\
-WMT16-Depfix  &  0.50  &  0.52  &  0.51  \\
+WMT10  &   CU-Bojar  &  REF  &  0.29  &  0.25  &  0.27  \\
+HimL  &  Moses  &  PE  &  0.28  &  0.32  &  0.30  \\
+WMT16  &  CU-Chimera  &  REF  &  0.40  &  0.44  &  0.42  \\
+WMT10  &  CU-Bojar  &  Depfix  &  0.51  &  0.55  &  0.53  \\
+HimL  &  Moses  &  Depfix  &  0.55  &  0.51  &  0.53  \\
+WMT16  &  CU-Chimera  &  Depfix  &  0.50  &  0.52  &  0.51  \\
 \end{tabular}
 \caption{
     Final in-domain evaluation of the trained error detection models. The evaluation was performed
-by a jack-knife one-vs-rest classification on each dataset. The \pojem{-Depfix} data were created
-by replacing the reference sentences with Depfix output.
+by a jack-knife one-vs-rest classification on each dataset. The \pojem{Origin} column indicates origin
+of the reference data: poste-edited (PE), standard reference (REF) or created by Depfix.
 }
 \label{wf-summary}
 \end{table*}
@@ -385,18 +385,20 @@ out the model which was trained on that specific test set.
 \centering
 \small
 
-\begin{tabular}{lc}
-Dataset  &  \hash{} training instances  \\
+\begin{tabular}{lll|c}
+Dataset  &  System  &  Origin  &  \hash{} training instances  \\
 \hline
-WMT10 CU-Bojar  &  645  \\
-HimL Moses  & 338  \\
-WMT16 CU-Chimera  &  722  \\
-WMT10-Depfix  &  210  \\
-HimL-Depfix  &  72  \\
-WMT16-Depfix  &  99  \\
+WMT10  &  CU-Bojar  &  REF  &  645  \\
+HimL  &   Moses  &  PE  & 338  \\
+WMT16  &  CU-Chimera  &  REF  &  722  \\
+WMT10  &  CU-Bojar  &  Depfix  &  210  \\
+HimL  &  Moses  &  Depfix  &  72  \\
+WMT16  &  CU-Chimare  &  Depfix  &  99  \\
 \end{tabular}
 \caption{
     Summary of the size of the training data extracted from each dataset.
+	\pojem{Origin} column indicates origin
+	of the reference data: poste-edited (PE), standard reference (REF) or created by Depfix.
 }
 \label{cats-training-sum}
 \end{table*}
@@ -494,20 +496,24 @@ due to the morphological ambiguities of the language. For these reasons, we deci
 \centering
 \small
 
-\begin{tabular}{l|cccc}
-Dataset  &  Case (Base)  &  CN (Base)  & CNG (Base)  &  CNGA (Base)  \\
+\resizebox{0.98\textwidth}{!}{
+\begin{tabular}{lll|cccc}
+Dataset  &  System  &  Origin  &  Case (Base)  &  CN (Base)  & CNG (Base)  &  CNGA (Base)  \\
 \hline
-WMT10 CU-Bojar  &  73\% (35\%)  &  53\% (14\%)  &  40\% (7\%)  &  37\% (7\%)  \\
-HimL Moses &  72\% (34\%)  &  50\% (11\%)  & 41\% (5\%)  &  41\% (4\%)  \\
-WMT16 CU-Chimera  &  95\% (50\%)  &  45\% (21\%)  &  34\% (10\%)  &  32\% (10\%)  \\
-WMT10-Depfix  &  92\% (45\%)  &  83\% (22\%)  &  69\% (19\%)  &  69\% (19\%)  \\
-HimL-Depfix  &  92\% (47\%)  &  78\% (26\%)  &  73\% (23\%)  &  71\% (23\%)  \\
-WMT16-Depfix  &  93\% (54\%)  &  64\% (16\%)  &  56\% (11\%)  &  53\% (9\%)  \\
+WMT10  &  CU-Bojar  &  REF  &  73\% (35\%)  &  53\% (14\%)  &  40\% (7\%)  &  37\% (7\%)  \\
+HimL  &  Moses  &  PE  &  72\% (34\%)  &  50\% (11\%)  & 41\% (5\%)  &  41\% (4\%)  \\
+WMT16  &  CU-Chimera  &  REF  &  95\% (50\%)  &  45\% (21\%)  &  34\% (10\%)  &  32\% (10\%)  \\
+WMT10  &  CU-Bojar  &  Depfix  &  92\% (45\%)  &  83\% (22\%)  &  69\% (19\%)  &  69\% (19\%)  \\
+HimL  &  Moses  &  Depfix  &  92\% (47\%)  &  78\% (26\%)  &  73\% (23\%)  &  71\% (23\%)  \\
+WMT16  &  CU-Chimera  &  Depfix  &  93\% (54\%)  &  64\% (16\%)  &  56\% (11\%)  &  53\% (9\%)  \\
 \end{tabular}
+}
 \caption{
     Final in-domain model accuracy evaluation of the trained models. The evaluation was performed
 by jack-knife one-vs-rest classification of the each dataset. Performance of the baseline (Base)
 classifier is presented for comparison.
+\pojem{Origin} column indicates origin
+of the reference data: poste-edited (PE), standard reference (REF) or created by Depfix.
 }
 \label{cats-summary}
 \end{table*}

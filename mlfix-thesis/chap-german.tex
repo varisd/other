@@ -157,13 +157,13 @@ the issue furter in the future.
 \centering
 \small
 
-\begin{tabular}{lccc}
-Dataset  &  \hash{} Instances  &  \hash{} Instances (filt.)  &  \hash{} Incorrect  \\
+\begin{tabular}{ll|ccc}
+Dataset  &  System &  \hash{} Instances  &  \hash{} Instances (filt.)  &  \hash{} Incorrect  \\
 \hline
-HimL Moses  & 12,067  &  2,729  &  369  \\
-WMT16 UEDIN-NMT  &  22,353  &  3,340  &  344  \\
-WMT16 UEDIN-PBMT  &  21,394  &   3,727  &  412  \\
-Autodesk  &  1,263,750  &  124,698  &  17,268  \\
+HimL  &  Moses  & 12,067  &  2,729  &  369  \\
+WMT16  &  UEDIN-NMT  &  22,353  &  3,340  &  344  \\
+WMT16  &  UEDIN-PBMT  &  21,394  &   3,727  &  412  \\
+Autodesk  &  $-$  &  1,263,750  &  124,698  &  17,268  \\
 \end{tabular}
 \caption{
     Summary of the size of the training data extracted from each dataset. We present
@@ -185,13 +185,13 @@ resulting model.
 \centering
 \small
 
-\begin{tabular}{l|ccc}
-Dataset  &  Precision  &  Recall  &  F1  \\
+\begin{tabular}{ll|ccc}
+Dataset  &  System  &  Precision  &  Recall  &  F1  \\
 \hline
-HimL Moses  &  0.39  &  0.56  &  0.46  \\
-WMT16 UEDIN-NMT  &  0.28  &  0.43  &  0.34  \\
-WMT16 UEDIN-NMT  &  0.29  &  0.50  &  0.37  \\
-Autodesk  &  0.41  &  0.77  &  0.53  \\
+HimL  &  Moses  &  0.39  &  0.56  &  0.46  \\
+WMT16 &  UEDIN-NMT  &  0.28  &  0.43  &  0.34  \\
+WMT16 &  UEDIN-NMT  &  0.29  &  0.50  &  0.37  \\
+Autodesk  &  $-$  &  0.41  &  0.77  &  0.53  \\
 \end{tabular}
 \caption{
     Summary of the in-domain performance of the final German error detection models.
@@ -203,13 +203,13 @@ Autodesk  &  0.41  &  0.77  &  0.53  \\
 \centering
 \small
 
-\begin{tabular}{l|ccc}
-Dataset  &  Case(Base)  &  CN(Base)  & CNG(Base)  \\
+\begin{tabular}{ll|ccc}
+Dataset  &  System  &  Case(Base)  &  CN(Base)  & CNG(Base)  \\
 \hline
-HimL Moses  &  84\%(29\%)  &  79\%(13\%)  &  70\%(5\%)  \\
-WMT16 UEDIN-NMT  &  57\%(46\%)  &  48\%(27\%)  &  34\%(22\%)  \\
-WMT16 UEDIN-PBMT  &  57\%(38\%)  &  47\%(21\%)  &  35\%(18\%)\\
-Autodesk  &  96\%(28\%)  &  95\%(17\%)  &  93\%(8\%)  \\
+HimL  &  Moses  &  84\%(29\%)  &  79\%(13\%)  &  70\%(5\%)  \\
+WMT16  &  UEDIN-NMT  &  57\%(46\%)  &  48\%(27\%)  &  34\%(22\%)  \\
+WMT16  &  UEDIN-PBMT  &  57\%(38\%)  &  47\%(21\%)  &  35\%(18\%)\\
+Autodesk  &  $-$  &  96\%(28\%)  &  95\%(17\%)  &  93\%(8\%)  \\
 
 \end{tabular}
 \caption{
@@ -278,7 +278,7 @@ confirms the results measured by the automatic metric. This is further supported
 Dataset  &  System  &  Oracle  &  Base  &  Case  &  CN  & CNG  & Comb  \\
 \hline
 \hline
-Autodesk  &  NA  &  46.23  &  45.90  &  45.96 (+0.06)  &  45.95 (+0.05)  &  \bf{46.02} (+0.12)  &  45.98 (+0.08)  \\
+Autodesk  &  $-$  &  46.23  &  45.90  &  45.96 (+0.06)  &  45.95 (+0.05)  &  \bf{46.02} (+0.12)  &  45.98 (+0.08)  \\
 \hline
 HimL  &  Moses &  31.94  &  30.95  &  31.37 (+0.41)  &  31.29 (+0.34)  &  \bf{31.59} (+0.63)  &  31.46 (+0.50)\\
 \hline
@@ -309,7 +309,7 @@ The best model for each dataset is printed in bold.
 Dataset  &  System  &  Oracle  &  Base  &  Majority  &  AtLeastOne  & Average  \\
 \hline
 \hline
-Autodesk  &  NA  &  46.23  &  45.90  &  \bf{45.80} (-0.10)  &  45.52 (-0.38)  &  45.79 (-0.11)  \\
+Autodesk  &  $-$  &  46.23  &  45.90  &  \bf{45.80} (-0.10)  &  45.52 (-0.38)  &  45.79 (-0.11)  \\
 \hline
 HimL  &  Moses &  31.94  &  30.95  &  \bf{30.89} (-0.05)  &  30.17 (-0.77)  &  30.58 (-0.36)  \\
 \hline
@@ -340,7 +340,7 @@ The best model for each dataset is printed in bold.
 Dataset  &  System  &  Base  &  Major-CNG  &  Avg-CNG  &  CS-Best  \\
 \hline
 \hline
-Autodesk  &  NA  &  45.90  &  45.64 (-0.26)  &  45.54 (-0.36)  &  \\
+Autodesk  &  $-$  &  45.90  &  45.64 (-0.26)  &  45.54 (-0.36)  &  45.82 (-0.08)  \\
 \hline  
 HimL  &  Moses &  30.95  &  34.81 (-0.56)  &  28.35 (-2.60)  &  30.95 (0) \\
 \hline  
@@ -360,14 +360,13 @@ with the best English-Czech configuration.
 \begin{table*}[t]
 \centering
 \small
-\resizebox{0.98\textwidth}{!}{
 
 \begin{tabular}{|l|l||c|c|c||c|}
 \hline
 Dataset  &  System  &  Major-CNG  &  Avg-CNG  &  CS-Best  &  Sent.  \\
 \hline
 \hline
-Autodesk  &  NA  &  6,626  &  8,794  &    &  124,498  \\
+Autodesk  &  $-$  &  6,626  &  8,794  &  2,535  &  124,498  \\
 \hline
 HimL  &  Moses  &  145  &  421  &  0  &  800  \\
 \hline
@@ -376,7 +375,6 @@ HimL  &  Moses  &  145  &  421  &  0  &  800  \\
 \hline
 \end{tabular}
 
-}
 \caption{
     Number of sentences changed by different systems. Total number of
 sentences in each dataset (\pojem{Sent.}) is also listed.

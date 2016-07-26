@@ -332,17 +332,17 @@ For this reason, we have decided to examine training data, where we created \equ
 of the MT output. These syntetic sentences are neither produced by a human translator
 or created by a human post-editing process. A suitable tool for this task might quite naturally be Depfix.
 
-Main focus of the Depfix post-editing tool is correcting morphological errors (aside from some more
-frequent lexical errors, e.g. missng relfexive verbs and fake named entities) which usually 
+The main focus of the Depfix post-editing tool is correcting morphological errors (aside from some
+frequent lexical errors, e.g. missing relfexive particles and too eagerly translated named entities) which usually 
 results in post-edited sentences that are not that different from the MT output. Aside from that,
 the morphological changes (even though they are a result of an applied set of rules) made
 by Depfix are very similar to the post-editing changes we are trying to teach our statistical component.
 
-As a result, we have created a new datasets by applying Depfix on the available bilingual data and
+Considering these observations, we have created a new datasets by applying Depfix on the available bilingual data and
 using Depfix output in place of reference sentences. We have then extracted the training instances in a
-similar way as with the original data. We have also run our Oracle classifier on the data with
-the resulting sentences copying the Depfix output most of the time\footnote{Only time the Oracle classifier
-did not reflect the modification made by Depfix was when Depfix made one of its lexical corrections.}.
+similar way as with the genuine post-editing data. We have also run our Oracle classifier on the data with
+the resulting sentences matching the Depfix output most of the time.\footnote{The only cases when the Oracle classifier
+did not correspond to the modification made by Depfix were when Depfix made one of its lexical corrections.}
 
 This method seems quite viable for the task of identifying incorrect instances and learning the
 right correction method because it should reflect at least the thought process behind creating the corrections rules.
@@ -370,8 +370,8 @@ instances that are provided during training are already incorrectly classified.
 \begin{tabular}{lccc}
   &  wrong\_form\_1  &  wrong\_form\_2  &  wrong\_form\_3  \\
 \hline
-Oracle  &  0.159  &  0.021  &  0.026  \\
-Oracle-Depfix  & 0.009  &  0.003  &  0.003  \\
+WMT10-Ref  &  0.159  &  0.021  &  0.026  \\
+WMT10-Depfix  & 0.009  &  0.003  &  0.003  \\
 \end{tabular}
 \caption{
 Overview of the portions of instances marked as incorrect using different heuristic rules. We present
@@ -384,22 +384,22 @@ data, possibly due to the nature of their preparation.
 
 
 We present a brief statistic about the percentage of the instances that were marked by each
-heuristic we have presented in~\Tref{marked-stats}. The statistic was computed over several different
-datasets we presented in the previous chapter (Autodesk, HimL, WMT10, WMT16). We also provide
-similar statistic for the data created via Depfix. We can see, that the portion of the incorrect instances
+heuristic presented in~\Tref{marked-stats}. The statistic was computed over several different
+datasets presented in the previous chapter (Autodesk, HimL, WMT10, WMT16). We also provide
+similar statistics for the data created via Depfix. We can see, that the portion of incorrect instances
 is not very high. This is due to many sentences being considered correct by our heuristics (possibly because
 they contained either too many errors, or the errors were of a different nature than the ones we detect).
 
 To get a brief idea, if our heuristic has a potential of providing valuable information for the classifier
-training, we have decided to manually annotate a portion of data from the HimL testset post-edited by our
+training, we decided to manually annotate a portion of data from the HimL testset post-edited by our
 Oracle classifier. Because this is not a final evaluation of our system, the evaluation was made only
 by the author of this thesis. The evaluation has been done on the pairs of MT output, Oracle post-edited
-output, randomly shuffled to lessen the bias of the annotator. We have also provided a source sentence
-to help the annotator decide whenever both outputs seemed grammatically correct but had different meaning.
-We have not provided the annotator with the reference sentences due to the nature of Oracle post-editor. For comparison, we have also extracted
-similar number of sentences from the same dataset, where the reference sentences have been replaced
-by the depfix output. This evaluation has been done mainly for the purpose
-of development so only one annotator have been involved.
+output, randomly shuffled to lessen the bias of the annotator. We also provided a source sentence
+to help the annotator decide whenever both outputs seemed grammatically correct but had a different meaning.
+We did not provide the annotator with the reference sentences due to the nature of Oracle post-editor. For comparison, we also extracted
+a similar number of sentences from the same dataset, where the reference sentences were replaced
+by the Depfix output. This evaluation was done mainly for the purpose
+of development so only one annotator was involved.
 
 \begin{table*}[t]
 \centering
@@ -408,8 +408,8 @@ of development so only one annotator have been involved.
 \begin{tabular}{l|cc|ccc|cc}
   &  Evaluated  &  Changed  &  $+$  &  $-$  &  0  &  Precision  &  Impact  \\
 \hline
-Oracle  &  800  &  95  &  61  &  16  &  18  &  79.2\%  &  7.6\%  \\
-Oracle-Depfix  & 800  &  75  &  47  &  3  &  25  &  94.0\%  &  5.5\%  \\
+HimL-PE  &  800  &  95  &  61  &  16  &  18  &  79.2\%  &  7.6\%  \\
+HimL-Depfix  & 800  &  75  &  47  &  3  &  25  &  94.0\%  &  5.5\%  \\
 \end{tabular}
 \caption{
 Results of the the manual evaluation of the ideal system based on the 3rd
@@ -420,10 +420,10 @@ dataset with Depfix reference sentences.
 \label{oracle-maneval}
 \end{table*}
 
-We present in~\Tref{oracle-maneval} results of the manual evaluation.
-We present number of sentences in the evaluted dataset, number of sentences,
-that were actually modified by Oracle and the nature of the corrections:
-better ($+$), worse ($-$) or indecicive (0).
+In~\Tref{oracle-maneval}, we present results of the manual evaluation.
+We present number of sentences in the evaluted dataset, the number of sentences,
+that were actually modified by Oracle and the manually assigned label given to each modified sentence:
+better ($+$), worse ($-$) or indecisive (0).
 Indecisive annotations were usually a result of both translations being
 too incomprehensive or due to multiple corrections, both improving and worsening.
 In addition, we have computed the precision~(\ref{eq:prec-or}) and
@@ -443,9 +443,9 @@ However, the impact is quite low, only slightly more than 7\% of the sentences w
 by Oracle classifier. When compared to the results achieved on the data with Depfix
 reference sentences we can see that the precision grows even more
 and the overall impact drops a little lower.
-We can therefore assume that the presented heuristic can provide us with
+Therefore, we can assume that the presented heuristic can provide us with
 quite reliable training data. Sadly, due to the low impact, much larger
-volumes of post-edited data are to extract of reasonably big training dataset
+volumes of post-edited data are to extract of reasonably big training dataset.
 
 \section{Feature Extraction}
 \label{sec:feat_extract}
