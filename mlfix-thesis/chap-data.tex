@@ -28,14 +28,14 @@
 %the triparallel data.
 %XXX
 
-In this chapter we take a closer look at the available
+In this chapter we take a closer look at available
 sources of data and describe how they contributed to our research.
 
-We came across a various sources of training data with various level
+We came across various sources of training data with various level
 of usefulness. The data was usually available only in a smaller volume. Some of the sources
 are:
 \begin{itemize}
-\item Khan academy\footurl{https://khanovaskola.cz/} human
+\item Khan Academy\footurl{https://khanovaskola.cz/} human
 post-edits of manually translated (EN$\rightarrow$CS) subtitles,
 \item Autodesk
 triparallel data\footurl{https://autodesk.app.box.com/Autodesk-PostEditing},
@@ -53,9 +53,9 @@ and WTM16 \citep{bojar-EtAl:2016:WMT1}\footurl{http://www.statmt.org/wmt16/} dat
 
 In the following sections, we describe each in more detail.
 
-\subsection{Khan Academy}
+\section{Khan Academy}
 
-The data provided by Khan academy consist of English-Czech subtitles,
+The data provided by Khan Academy consist of English-Czech subtitles,
 where the Czech part (usually manually translated from English) was manually
 edited. During the analysis of the dataset,
 we noticed that most of the time, the corrections were made
@@ -67,7 +67,7 @@ for the task of training a model for correcting errors in morphology created by 
 %Therefore, we decided to avoid using this dataset for the time being or to
 %rather treat the corpus as a simple bilingual data.
 
-\subsection{Autodesk}
+\section{Autodesk}
 
 Autodesk data consist of English sentences which were machine translated into
 a set of target languages (cs, de, pl etc.) complemented with human post-editing
@@ -79,7 +79,7 @@ their larger volume when compared with other post-editing datasets so we
 used them mainly for model development and benchmarking of the used machine
 learning methods.
 
-\subsection{HimL-Lingea Logs}
+\section{HimL-Lingea Logs}
 
 The data provided by Lingea\footurl{http://www.lingea.cz/} were collected when official test sets for
 HimL project were
@@ -92,14 +92,14 @@ translators using Lingea's post-editing tool. The datasets are probably the most
 detailed one since they consist of complete logfiles
 describing elementary actions taken by human post-editors (such as selecting
 phrases in a translated sentence, looking up alternative translations
-in a dictonary etc.).
+in a dictionary etc.).
 
 When we examined the data more closely,
 we noticed that it is rather difficult to determine which actions are
 useful for our machine learning process. Also, we were a little disappointed
 when we found out that most of the time, the post-editors preferred to
 rewrite the whole sentence \equo{from scratch}\footnote{By that, we mean that the
-human post-editor usually prefered to rewrite the whole corrected sentence, even though
+human post-editor usually preferred to rewrite the whole corrected sentence, even though
 only a several changes (either lexical and morphological) were made, and delete the original.
 This might have been also motivated by the need to reorder the MT output.}
 instead of doing a few atomic modifications to the provided MT output.
@@ -108,7 +108,7 @@ In the end, we decided to simply extract triparallel data from these logs (the s
 sentence + SMT output + result of the human post-editing). In the future,
 we might consider to use other logged actions for model training.
 
-\subsection{WMT Datasets}
+\section{WMT Datasets}
 
 For the last decade, the workshop on machine translation (WMT) has aimed
 to provide working grounds for many researchers in the field of machine
@@ -125,15 +125,15 @@ translation tasks,
     \item either a reference sentences or human post-editing of the MT output from the participating MT systems.
 \end{itemize}
 
-These datasets give us the opportunity to compare the performace of our post-editing
+These datasets give us the opportunity to compare the performance of our post-editing
 models when applied to the different systems. Even though the data available for the
 WMT subtasks are often from various domains (news, IT, biomedical), the domain of the post-editing
 data is more limited, mainly to the news articles.
 
-\subsection{Other Sources}
+\section{Other Sources}
 
 The sources listed above (each one to a different degree) can
-be considered a knowledge base for examining the behaviour of a human post-editors as well
+be considered a knowledge base for examining the behavior of a human post-editors as well
 as training data for our system. We think that they provided us with
 some interesting insight into the post-editor's thought process. On the other hand,
 we have also considered using other sources since the data mentioned above are quite
@@ -169,7 +169,7 @@ MT and the reference translation are genuine MT errors.
 
 The basic summary of the available data is shown in the table \Tref{avail-data}.
 
-\subsection{Monolingual Data}
+\section{Monolingual Data}
 
 We have also considered using bitext \emph{monolingual} data (either \notion{MT output + post-edited sentences}
 or \notion{MT output + reference translations}), however due to the nature of our processing
@@ -188,7 +188,7 @@ lose the additional information that can be extracted from the source sentences,
 \cline{4-6}
 &  &  & MT & PE & REF \\
 \hline
-Khan academy & $\sim$14k & $\sim$93k & $\sim$93k\tnote{*} & $\sim$93k & $-$ \\
+Khan Academy & $\sim$14k & $\sim$93k & $\sim$93k\tnote{*} & $\sim$93k & $-$ \\
 \hline
 Autodesk & 46,916 & 490,005 & 456,697 & 441,645 & $-$ \\
 \hline
@@ -202,11 +202,11 @@ CzEng 1.0 & 15M & 206M & $-$ & $-$ & 150M \\
 \hline
 \end{tabular}
 \begin{tablenotes}
-\item[*] Translations in Khan academy data come from humans.
+\item[*] Translations in Khan Academy data come from humans.
 \end{tablenotes}
 \end{threeparttable}
 \caption[Summary of the available data]{Summary of the available post-editing data. Only English-Czech data is listed, however, for datasets
-where data for other language pairs are available, their volume is approximately the same. We provide only rough estimates for the Khan academy data.
+where data for other language pairs are available, their volume is approximately the same. We provide only rough estimates for the Khan Academy data.
 There is no information about the number of tokens in the MT part of CzEng because we decided to abandon the
 idea of creating a triparallel corpus for the time being.
 }

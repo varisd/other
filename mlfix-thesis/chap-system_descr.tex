@@ -6,7 +6,8 @@ of MLFix system and take a closer look at the suggested processing pipeline.
 We focus on English-Czech pipeline, however, we also describe modifications
 needed to apply MLFix for other language pairs.
 
-Full examples of currently deployed Treex scenarios (English-Czech and English-German)
+Full examples of currently deployed Treex scenarios (English-Czech\linebreak
+and English-German)
 are included in Attachment~\ref{attach:scen}.
 
 %The main idea of MLFix system is to analyze the provided input data providing
@@ -23,9 +24,11 @@ for sentence translation. However, due to its modularity, it is
 now used for various tasks of natural language processing (NLP) across different
 languages. The framework was built to support the methodology of the theory of Functional Generative Description \citep{Sgall1967}
 and was adapted to support sentence representation in Prague Dependency Treebank \citep{pdt20:2006}.
-Mainly, it supports the representation of sentences on different layers of abstaction defined in FGD: morphological layer,
-analytical layer and a tectogrammatical layer.\footnote{Usually referred to as m-layer, a-layer and t-layer where prefixes m-, a- and t- are also used to refer to the objects at the corresponding layer of abstraction.}
-Because the tools currently available for tectogrammatical layer analysis are available for
+Mainly, it supports the representation of sentences on different layers of abstraction defined in FGD: morphological layer,
+analytical layer and a tectogrammatical layer, usually referred to as m-layer, a-layer and t-layer
+where prefixes m-, a- and t- are also used to refer to the objects at the corresponding layer of abstraction.
+%\footnote{Usually referred to as m-layer, a-layer and t-layer where prefixes m-, a- and t- are also used to refer to the objects at the corresponding layer of abstraction.}
+Because the tools for tectogrammatical layer analysis are currently available for
 a limited set of languages (mainly Czech and English, with others in progress),
 we decided to use only the a-layer (surface syntax) for data representation.
 
@@ -66,7 +69,7 @@ for Czech, we use a simple rule-based NER.
 Since there are usually different tagsets used across individual languages,
 often engineered for purposes of that specific language and with no standardized
 tag representation,
-we would be forced to modify our existing pipeline to some extent everytime
+we would be forced to modify our existing pipeline to some extent every time
 a new language would be introduced.
 Therefore, we have decided to use Interset \citep{biblio:ZeReusableTagset2008}\footurl{https://ufal.mff.cuni.cz/interset}, an interlingua-based
 representation of morphological tags from various tagsets. To be able to use this
@@ -90,8 +93,9 @@ and with further processing of the target sentence.
 
 In the process of training data extraction, we also create a simple alignment between
 the MT sentence and the reference sentence exploiting forms, lemmas and tags
-of the m-nodes. This is done by a language-independent rule based block implemented in Treex.
-Then we create alignment between the source sentences and the reference sentences by combining
+of the m-nodes. This is done by a language-independent rule based block which was already implemented
+in Treex, \texttt{Align::A::MonolingualGreedy}.
+Then, we create alignment between source sentences and reference sentences by combining
 the \pojem{SRC-MT} and \pojem{MT-REF} alignments created earlier.
 
 \subsection{A-Layer Analysis}
@@ -105,13 +109,13 @@ lower performance when applied on the SMT output.  research on Depfix has shown
 that the knowledge of the dependency structure of the SMT output can provide additional
 valuable information for identifying grammatical errors\footnote{Actually, in the case of Depfix
 , the information about the dependency structure is crucial for most of the fixing components
-because e.g. the parent-child relationship is examined almost everytime.}, thus improving
+because e.g. the parent-child relationship is examined almost every time.}, thus improving
 the Depfix performance.
 
 For the time being, we decided to build the dependency structures of the SMT output simply
 by projecting the dependency structure of the source sentence onto the target side
-using the word alignment we extracted in the preceeding step. The resulting structure
-will most likely contain errors, but should be at least consistent thoughout our data.
+using the word alignment we extracted in the preceding step. The resulting structure
+will most likely contain errors, but should be at least consistent throughout our data.
 To compensate for the lower accuracy of the extracted dependency structure we perform
 dependency parsing of the reference sentences during training, if a proper parser
 is available. For this purposes, we use the MST Parser for the Czech language as well.
@@ -163,7 +167,7 @@ Test data  & GIZA++ & $-$ & $-$ \\
 \caption[Summary of the main tools used for processing English and Czech sentences]{
 Summary of the tools used to process source (English), MT (Czech) and reference (Czech) sentences. For preprocessing
 \pojem{tagger+parser} pairs are presented, MorphoDiTa (\pojem{MDiTa}) for tagging and \pojem{MST} parser or projection of the source
-trees (\pojem{src\_proj}). Additionally, alignment type (GIZA++, Rule-based, or combination of alignmets) is listed
+trees (\pojem{src\_proj}). Additionally, alignment type (GIZA++, Rule-based, or combination of alignments) is listed
 for each sentence pair.
 }
 \label{summary-analysis}
@@ -182,7 +186,7 @@ to a model. The model needs to accomplish these two goals:
 Of course, these two steps can be split between multiple separate components (and models).
 We describe the post-editing process in more detail later in chapter~\ref{chap:tuning}.
 
-We decided to use Scikit-Learn \citep{scikit-learn}\footurl{biblio:RoDuUsingParallel2012} toolkit to train and execute our models since
+We decided to use Scikit-Learn \citep{scikit-learn}\footurl{http://scikit-learn.org/stable/} toolkit to train and execute our models since
 it has an easy-to-use and quite uniform interface, which allows us to try out different
 machine learning (ML) methods simply by switching the model class. In Treex, we use a simple
 wrapper to load and execute the trained Scikit-Learn model. If a support for a different ML implementation
@@ -220,7 +224,7 @@ We also require a specific decoder of the source and target POS tags into Inters
 structures but Interset already covers a large variety of the most widespread tagsets available
 and its support is still growing.
 
-Finaly, aside from a language specific post-editing models (which we do not expect
+Finally, aside from a language specific post-editing models (which we do not expect
 to be reusable across different languages) we require a module that regenerates
 the corrected wordform (either from the \samp{lemma+tag} or \samp{lemma+Interset features combination} specification).
 A state-of-the-art tool might not be explicitly available for every language but if no

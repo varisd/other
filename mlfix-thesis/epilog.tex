@@ -1,14 +1,15 @@
 \chapter{Conclusion}
+\label{chap:conclusion}
 %\chapter*{Conclusion}
 %\addcontentsline{toc}{chapter}{Conclusion}
 
-In this thesis, we have present MLFix, an automatic post-editing tool focusing on statistical
-post-editing of the incorrect morphology in the machine translation output. The system was
-developed as a successor of a rule-based Depfix system, with aim to generalize some of its
+In this thesis, we presented MLFix, an automatic post-editing tool focusing on statistical
+post-editing of incorrect morphology in machine translation output. The system was
+developed as a successor of a rule-based system, Depfix, with the aim to generalize some of its
 rules to a stochastic model which can be applied across languages.
 
 During the development, we had to find a compromise between the level of language independence
-and overall usefulness fo the system. In the end, we have chosen a unique approach to the problem of correcting
+and overall usefulness of the system. In the end, we have chosen a unique approach to the problem of correcting
 the morphology by solving a two-step classification task: error detection and morphological prediction.
 We have faced a problem of automatic identification of correct/incorrect training instances
 which we have solved with a fairly effective heuristic. Still, further refinement of the
@@ -16,43 +17,43 @@ training data extraction method is desired in the future.
 
 Out of the two classification tasks, the morphological prediction proved to be much easier.
 The resulting models, while being very good at predicting simple categories (e.g. morphological case)
-manifeste much lower individual performance with increasing task complexity. However when
+manifested much lower individual performance with increasing task complexity. However when
 combined together, they performed quite well.
-Also, since we have used only a really small datasets for model training, we think that these models
-can be improved in the future by increasing the training data or adding additional features.
-This claim is supported by a model trained on a much larger Autodesk dataset, which achieved really good
+Also, since we have used only really small datasets for model training, we think that these models
+can be improved in the future by increasing the training data or providing additional features.
+This claim is supported by the model trained on a much larger Autodesk dataset, which achieved really good
 in-domain performance even when it was trained to classify multitask problem (prediction of case-gender-number)
 Furthermore, we think that
-these models have potential use even in different fields of application, e.g. as a part of automatic
+these models have a potential use even in different fields of application, e.g. as a part of automatic
 correction suggestion in a human post-editing framework.
 
-The task detecting targets for our morphological prediction tool, became main a hurdle
+The task detecting targets for our morphological prediction tool became main a hurdle
 during the development of MLFix. Aside from the correct identification of the training instances
 in our data, there was also an issue with highly unbalanced training set which we partially resolved
 by upsampling the minority class and filtering out instances from the \equo{correct} sentences.
-Even though the resulting models performance seemed unsatisfactory at first, they performed resonably
+Even though the resulting models' performance seemed unsatisfactory at first, they performed resonably
 well during final evaluation as far as precision of the resulting system was concerned. The weaker
-side was fairly low overall impact on the MT output. As far as future improvement goes the results
+side was the fairly low overall impact on the MT output. As far as future improvement goes, the results
 achieved during model training on the large Autodesk dataset suggest that the performance can still be
-improved simply by icreasing the amount of our training data.
+improved simply by increasing the amount of our training data.
 
 As we are mentioning using larger training datasets in the future, in the scope of this thesis we have
-focused mainly on investing human-postedited data that are, at the moment, available in much smaller
+focused mainly on investing human post-edited data that are, at the moment, available in much smaller
 volumes than data containing reference translation. However, we have tried training few models on smaller
-datasets with reference sentences instead of human-posteditations. The resulting models still performed
+datasets with reference sentences instead of human post-editing. The resulting models still performed
 fairly well if the reference sentences were reasonably similar to the MT output. Lastly, we have
-also examined data created by replacing the human-postedits with Depfix output resulting in reliable
-source of training data. On the other hand these data tend to be much more sparse (as a result of Depfix
+also examined data created by replacing the human post-editing with Depfix output resulting in reliable
+source of training data. These data tend to be much more sparse (as a result of Depfix
 impact on the MT output) and the method is currently restricted to English-Czech language pair only.
 However, if we can achieve adapting Czech models for other languages in the future, this method might
 become viable.
 
-During the final evaluation the system performed well when measured with BLEU scoring metric.
-These results were confirmed to some extent by a manual evaluation, however, we are still not
+During the final evaluation, the system performed well when measured with the BLEU scoring metric.
+These results were confirmed to some extent by manual evaluation, however, we are still not
 completely confident in the results and suggest evaluating MLFix on much larger scale in the future.
 Surprisingly, MLFix was able to surpass Depfix when it was applied to the output of NMT system.
-This result caught our attention and will be investigated closely in the near future. If confirmed
-the application to the increasingly popular aproach to the machine translation might become valuable.
+This result caught our attention and will be investigated closely in the near future. If confirmed,
+the application to the increasingly popular approach to the machine translation might become valuable.
 
 We have also evaluated performance of a modification aimed at correction German SMT output. We were
 satisfied with the results during model development, achieving results similar to Czech pipeline,
@@ -60,17 +61,17 @@ which confirms that the classification tasks themselves (as they were defined in
 not language dependent. No special attention to manually modifying the feature set or choosing
 different approach was required.
 
-The results of the final evaluation were very poor. Aside from the morphology module applied separately,
+The results of the final evaluation for German were however poor. Aside from the morphology module applied separately,
 German MLFix always worsened the MT output as the automatic metric have shown. This was further confirmed
-by a manual evaluation. However, we pointed out
+by a manual evaluation. We pointed out
 several indications that this might be caused by a poor performance of the German inflection module
 we use to generate new wordforms. We still have to investigate the matter further to confirm this hypothesis.
-However, if confirmed, replacing (or improving) the module in the future might be the first and fastest
+If confirmed, replacing (or improving) the module in the future might be the first and fastest
 way to improvement.
 Another goal is to investigate the German MT errors more thoroughly and adapt the German pipeline to the findings.
 
 Even though we mainly focused on morphology correction in this thesis, MLFix can be further improved
-in the future by introducing other statistical modules addressing addition MT errors. As an example
+in the future by introducing other statistical modules addressing additional MT errors. As an example
 we mention a possible word reordering model because there were instances where words with new surface
-forms predicted by MLFix still needed rearangement to fully utilize the modification. Due to the modularity
+forms predicted by MLFix still needed rearrangement to fully utilize the modification. Due to the modularity
 of Treex framework, introducing new improvements to MLFix is easy.

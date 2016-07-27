@@ -15,7 +15,7 @@ used during the Czech analysis to be able to correctly process German sentences.
 
 Again, we used the Treex framework as a backbone of the processing pipeline and
 necessary 3rd party tools were implemented into the framework via wrappers.
-After the sentences are read in parrallel, they are processed separately, English sentences
+After the sentences are read in parallel, they are processed separately, English sentences
 following the same scenario as in the English-Czech pipeline.
 German is tokenized, this time by a set of regex rules inspired by the Tiger corpus \citep{Brants2004}
 with main focus on abbreviations, ordinal numbers and compounds connected by hyphens.
@@ -29,7 +29,7 @@ time of our research.
 
 For the word alignment, we use GIZA++ again. Similar to English-Czech, we produce one-to-one word
 alignment between the source sentences and the MT output
-via intersetion symmetrization. The alignment model was trained on the European
+via intersection symmetrization. The alignment model was trained on the European
 Parliament Parallel corpus \citep{koehn2005epc}\footnote{http://www.statmt.org/europarl/} (Europarl)
 containing nearly two million sentences. 
 During training, we create the MT-REF and SRC-REF alignments in a same fashion we did in the original
@@ -93,7 +93,7 @@ Reference  &  Evaluated  &  Changed  &  $+$  &  $-$  &  0  &  Precision  &  Impa
 Post-edits  &  800  &  77  &  20  &  39  &  18  &  33.9\%  &  2.5\%  \\
 \end{tabular}
 \caption[Manual evaluation of the German Oracle classifier]{
-Results of the the manual evaluation of the ideal fixing module based on the same heuristic
+Results of the manual evaluation of the ideal fixing module based on the same heuristic
 that was used in the English-Czech pipeline (WrongFrom3). Sentences were taken from HimL dataset. For wordform generation, a statistical component
 was used impacting the overall performance.
 }
@@ -141,7 +141,7 @@ conj    &   7\%  \\
 \end{table*}
 
 
-\section{Model Developement}
+\section{Model Development}
 
 We skipped the process of choosing proper ML and feature selection method
 assuming that the ones used for training models for English-Czech pipeline will
@@ -177,7 +177,7 @@ The summary of the final error detection models is in~\Tref{wf_de-summary}. Surp
 while having quite similar precision to the Czech models they achieved much better
 recall overall. At this moment, we cannot say if it is caused by a ML method choice or a suitable
 initial feature set, however, since there is still room for improvement, we consider investigating
-the issue furter in the future.
+the issue further in the future.
 
 \begin{table*}[t]
 \centering
@@ -227,8 +227,8 @@ Autodesk  &  $-$  &  96\%(28\%)  &  95\%(17\%)  &  93\%(8\%)  \\
 
 \section{Evaluation}
 
-We followed the same procedure during German MLFix evaluation we followed during
-Czech evaluation. We compared several configurations of the morphological prediction
+We followed the same procedure during German MLFix evaluation as for
+Czech. We compared several configurations of the morphological prediction
 module and error detection module separately first, using Oracle to substitute the other
 module, then we evaluated the whole MLFix system. We compared similar configurations
 we used in Czech MLFix: \pojem{Case}, \pojem{CN}, \pojem{CNG} and \pojem{Combined} model configuration for morphological
@@ -245,7 +245,7 @@ However, the overall improvement in BLEU score is much lower when compared with 
 of MLFix. This is little surprising because the individual performance of the morphological prediction
 models measured during training was fairly equal and in some cases even better than the one of the Czech models.
 It is possible that this might be either a result of lower diversity in our data (most of the data belongs
-to Autodesk dataset) or a consequence of the poor performance of the iflection module.
+to Autodesk dataset) or a consequence of the poor performance of the inflection module.
 
 \begin{table*}[t]
 \centering
@@ -311,7 +311,7 @@ HimL  &  Moses &  31.94  &  30.95  &  \bf{30.89} (-0.05)  &  30.17 (-0.77)  &  3
 }
 \caption[Automatic evaluation of the German error detection module]{
     Automatic evaluation of the error detection module using different voting methods to interpret output
-of mutliple models using BLEU metric. Values are multiplied by 100 for easier reading,
+of multiple models using BLEU metric. Values are multiplied by 100 for easier reading,
 and the relative improvement over the baseline MT output.
 Performance of the
 Oracle classifier is provided for comparison.
@@ -323,9 +323,9 @@ The best model for each dataset is printed in bold.
 Nevertheless, we decided to pick \pojem{Majority-CNG} (\pojem{Major-CNG}) and \pojem{Average-CNG} (\pojem{Avg-CNG}) configurations
 for the final evaluation. Their performance is summarized in~\Tref{final_de-summary}. Again, both
 systems performed poorly and it might look like the Czech MLFix provided the best results. Therefore,
-we also provide summary of the number of sentences that were changed by each system in~\Tref{final_de-chgd}.
-We can see that our suspicion that the negative score correlates with the recall of each configuation was not
-completely off-target. When we compare results we gathered during the Oracle evaluation and model
+we also provide a summary of the number of sentences that were changed by each system in~\Tref{final_de-chgd}.
+We can see that our suspicion that the negative score correlates with the recall of each configuration was not
+completely wrong. When we compare results we gathered during the Oracle evaluation and model
 development for each language, we do not think that the poor performance during final evaluation was
 caused mainly by the fixing
 components. We suspect that the current performance bottleneck lies within the inflection module.
@@ -361,7 +361,7 @@ with the best English-Czech configuration.
 \end{table*}
 
 We also performed manual evaluation of the Avg-CNG configuration\footnote{At the moment, we cannot surely tell what is
-the best possible configuration for german, so we simply followed the approach from English-Czech pipeline.}. Two
+the best possible configuration for German, so we simply followed the approach from English-Czech pipeline.}. Two
 independent non-native German speakers jointly evaluated 444 changed sentences. The results of manual evaluation are in~\Tref{maneval_de-final}.
 They both evaluated a subset of 141 to measure their inter-annotator agreement, shown in~\Tref{maneval_de-agree}.
 We can see that the impact of the German pipeline was similar to the Czech pipeline. However, the low precision ($\sim$13\%)

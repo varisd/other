@@ -3,7 +3,7 @@
 
 In this chapter, we present the results of the final MLFix system evaluation.
 We describe additional datasets we used during the evaluation and different
-configurations of MLFix we compared. Furthemore, we present evaluation
+configurations of MLFix we compared. Furthermore, we present evaluation
 of the individual MLFix components.
 We also present a comparison with the Depfix
 system. We performed both automatic and manual evaluation.
@@ -49,14 +49,14 @@ several model combinations: \pojem{Case} models only, \pojem{CN} models only, \p
 %We also
 %made evaluation of combined models, which did not use the Depfix data (\pojem{Comb-D}).
 Each combined model runs all classifiers separately and stores the probabilities of their
-predictions. Using these predictions, the candidate tags are generated and are scored by 
+predictions. Using these predictions, candidate tags are generated and scored by 
 these probabilities. If a tag is predicted by multiple classifiers, the scores are summed together.
-The tag with the highest score is then chosen a result of the combined model.
+The tag with the highest score is then chosen as the result of the combined model.
 
 We present the final results of the morphological prediction module evaluation in~\Tref{fixonly-summary}.
 We compare BLEU scores of each model combination and their improvement over the baseline scores.
 The values are multiplied by 100 for easier reading. We can see that the CNG
-and CNGA models had a largest impact most of the time. Since the difference between the CNG and CNGA
+and CNGA models had the largest impact most of the time. Since the difference between the CNG and CNGA
 performance is very small we chose CNG model for the final evaluation because its models
 performed better during the model training.
 
@@ -64,7 +64,10 @@ Surprisingly, the performance of the Comb models was lower than we anticipated. 
 by the fact that these models use basically four times more classifiers and no weighting is used
 when combining their results.
 Therefore, the final results of the combined models may be biased towards the simpler models working
-with lesser amount of target values thus assigning their predictions a higher score. Still, a more thorough
+with
+a lower number of possible outcomes and thus assigning
+%lesser amount of target values thus assigning
+their predictions higher scores. Still, a more thorough
 investigation is needed in the future.
 
 \begin{table*}[t]
@@ -99,10 +102,10 @@ WMT16-D  &  CU Chimera  &  97.51  &  96.56  &  97.22 (+0.66)  &  97.23 (+0.67)  
 
 }
 \caption[Automatic evaluation of the Czech morphological prediction module]{
-    Automatic evaluation of the morphological prediction module using BLEU metric
+    Automatic evaluation of the morphological prediction module using BLEU
 	and the relative improvement over the baseline MT output.
 	Values are multiplied by 100 for easier reading.
-	Performance of 
+	The performance of 
 	the Oracle classifier is also provided for comparison. Datasets with the \pojem{-D} suffix have Depfix output in place of reference sentences.
 	The best model for each dataset is printed in bold.
 }
@@ -112,43 +115,47 @@ WMT16-D  &  CU Chimera  &  97.51  &  96.56  &  97.22 (+0.66)  &  97.23 (+0.67)  
 
 \subsection{Error Detection Evaluation}
 
-We performed the error detection evaluation in a similar way. We used a combination
+We performed error detection evaluation in a similar way. We used a combination
 of binary classifiers in our prediction module. However, we chose a different strategy
-for combining the output of these classifiers.
+for combining the output of the classifiers.
 We decided to use voting scheme to determine the final prediction.
 In the end, we compared three basic methods: \pojem{Majority} vote, \pojem{AtLeastOne} method,
 and \pojem{Average} prediction method.\footnote{Surely, there are other voting strategies available
 but they were not investigated in the scope of this thesis.}
 
-The \pojem{Majority} vote basically chooses the class that was marked by a majority of classifiers.
+The \pojem{Majority} vote basically chooses the class that was marked by the majority of classifiers.
 We think that this way can help us compensate for the low precision of some of the classifiers we trained.
 Because the classifiers were trained on different datasets, there should be some level of complementarity
-between them. Still, we did not perform more thorough analysis to support this assumption.
-A potential drawback of this method can be combined low recall of the error detection module. We assume that
-combining several low recall classifers can further bias the module toward the majority class when using
+between them. Still, we did not perform any more thorough analysis to support this assumption.
+%A potential drawback of this method can be combined low recall of the error detection module. We assume that
+Potentially, this method can lead to a lower recall due to classifier combination.
+We assume that
+combining several low recall classifiers can further bias the module toward the majority class when using
 this method.
 
 The \pojem{AtLeastOne} method classifies the word as incorrect if at least one classifier marked it
 as incorrect. This method should counter the problem of combining several low recall classifiers to some
-extend, however, we expect the precision to drop rapidly when adding more classifiers, especially if their own
+extent, however, we expect the precision to drop rapidly when adding more classifiers, especially if their own
 precision is low to begin with.
 
 Because we are using classification models that support weighting of the predicted classes, we
 also considered the \pojem{Average} voting scheme. If the combined classifier provide us not only with
-a predicted class but also a some sort of confidence value (e.g. probability of the prediction correctness),
+a predicted class but also some sort of confidence value (e.g. probability of the prediction correctness),
 we can average these values and mark instance as incorrect if the averaged value exceeds a certain threshold.
-This method is similar to the \pojem{Majority} scheme with a difference that it can choose a result
-predicted by a minority when their overall confidence of the prediction is large enough.
+This method is similar to the \pojem{Majority} scheme with the difference that it can choose the result
+predicted by the minority only when their overall confidence of the prediction is large enough.
 
 We present the comparison of these three methods in~\Tref{markonly-summary}. Morphological values of the \equo{incorrect}
-words were predicted by the Oracle morphological predictor, but only a morphological case, number and gender were predicted.
+words were predicted by the Oracle morphological predictor.
 We can notice that the AtLeastOne method achieved
-significantly better BLEU score than the other two. This was expected and in this case it does
-not necessarily mean that the resulting sentences improved from the human evaluation standpoint, because
+significantly better BLEU scores than the other two. This was expected and in this case it does
+not necessarily mean that the resulting sentences improved from the human evaluation viewpoint, because
 the situation is similar to the heuristic selection we presented in the task definition. Even though
 many wordforms were changed by this method to reflect the wordforms in the reference sentence, it
-might have lowered the overall fluency of the translated text. On the other hand, the BLEU scores were
-still under the original WrongForm3 Oracle classifier threshold, therefore, the method seems promising.
+might have lowered the overall fluency of the translated text.
+Still, we think that it is worth exploring this method further.
+%On the other hand, the BLEU scores were
+%still lower than the original WrongForm3 Oracle classifier scores which we consider being the best result, therefore, the method seems promising.
 
 As for the other two methods, the Average
 voting method seems to perform slightly better than the Majority voting but the difference is not significant.
@@ -186,9 +193,9 @@ WMT16-D  &  CU Chimera  &  97.51  &  96.56  &  97.04 (+0.48)  &  \bf{97.47} (+0.
 }
 \caption[Automatic evaluation of the Czech error detection module]{
     Automatic evaluation of the error detection module using different voting methods
-	to interpret output of multiple models using BLEU metric.
-	Values are mutliplied by 100 for easier reading.
-	For comparison, performance of Oracle classifier is also provided.
+	to interpret output of multiple models using BLEU.
+	Values are multiplied by 100 for easier reading.
+	For comparison, the performance of Oracle classifier is also provided.
 	Values in brackets indicate the difference between the method and the baseline (Base) MT output.
 	Datasets with the \pojem{-D} suffix have Depfix output in place of reference sentences.
 }
@@ -197,11 +204,11 @@ WMT16-D  &  CU Chimera  &  97.51  &  96.56  &  97.04 (+0.48)  &  \bf{97.47} (+0.
 
 \section{System-wide Evaluation}
 
-In this section, we present the final evaluation of MLFix system. Based on the evaluation of the
-separate components, we chose CNG model combination for morphological prediction and we
+In this section, we present the final evaluation of the MLFix system. Based on the evaluation of the
+separate components, we chose the CNG model combination for morphological prediction and we
 decided to compare both AtLeastOne and Average voting method for error detection. We
-also made comparison with the Depfix system. The results are summarized in~\Tref{final-summary}.
-The amount of changed sentences by each system is shown in~\Tref{final-chgd}.
+also made a comparison with the Depfix system. The results are summarized in~\Tref{final-summary}.
+The number of changed sentences by each system is shown in~\Tref{final-chgd}.
 
 The results confirm that AtLeastOne voting method, while having large impact, does not work
 quite well with Czech morphological prediction module. We cannot tell how many of the marked instances were actually
@@ -209,7 +216,7 @@ correct, nevertheless, the morphology correction had probably hard time predicti
 for these instances. On the other hand, we can see that MLFix with the Average voting method
 was able to improve every tested MT output. However, the improvement was
 usually quite small, always smaller when compared to Depfix. Interestingly,
-Depfix was not quite able to improve output of the neural network machine translation system (UEDIN NMT),
+Depfix was not quite able to improve the output of the neural network machine translation system (UEDIN NMT) in terms of BLEU,
 while MLFix achieved positive score improvement. It might be only a coincidence and it needs to be investigated more thoroughly
 in the future. Depfix results on the CU-Chimera dataset should be taken with a grain of salt since
 Depfix is already part of the Chimera SMT system. Depfix also had a problem with Autodesk dataset
@@ -217,9 +224,9 @@ but we think this might be caused by the specific domain of the dataset (user do
 
 Even though the changes were positive according to the automatic evaluation, the impact of MLFix was
 very low. If we compare the number of sentences changed by MLFix and Depfix, we can see that Avg-CNG MLFix
-modified five to ten times less sentences depending on the dataset. We think that this might be
+modified five to ten times fewer sentences depending on the dataset. We think that this might be
 mainly due to the poor performance of the error detection classifiers in our error detection module.
-Furthermore, Depfix covers wider range of corrections which also relfects in a larger overall impact.
+Furthermore, Depfix covers wider range of corrections which also reflects in a larger overall impact.
 
 \begin{table*}[t]
 \centering
@@ -244,9 +251,9 @@ WMT10  &  CU Bojar  &  15.66  &  14.61 (-1.04)  &  15.76 (+0.10)  &  \bf{15.91} 
 
 }
 \caption[Final Czech MLFix evaluation]{
-	Final evaluation of MLFix using BLEU metric. Values are multiplied by 100 for easier reading.
+	Final evaluation of MLFix using BLEU. Values are multiplied by 100 for easier reading.
 	AtLeastOne (ALO-CNG) and Average (Avg-CNG) voting methods
-	were compared. Performance of Depfix is shown for comparison.
+	were compared. The performance of Depfix is shown for comparison.
 }
 \label{final-summary}
 \end{table*}
@@ -286,12 +293,12 @@ For manual evaluation, we used the HimL dataset translated by Moses and the WMT1
 They were post-edited by the Avg-CNG MLFix configuration.
 We used two independent annotators, both were presented with pairs
 of MT output and MLFix output which were randomly shuffled. The source sentence and reference translation were also provided for each pair.
-In the end, total of 126 changed sentences was evaluated. The results are shown in~\Tref{maneval-final}.
+In the end, a total of 126 changed sentences were evaluated. The results are shown in~\Tref{maneval-final}.
 
 The results show that MLFix was able to improve around four-fifths of the modified sentences. This
 result is quite pleasant, but it still needs to be confirmed in the future by a larger scale manual
 evaluation. As we expected, the overall impact of MLFix is quite low, most likely due to the beforementioned
-low recall of the error detection classifiers in the error detection module.
+low recall of error detection classifiers in the error detection module.
 This module therefore requires further improvement in the future.
 
 Both annotators evaluated the same set of 126 sentences, their inter-annotator agreement is shown~\Tref{maneval-agree}.
@@ -313,7 +320,7 @@ WMT16-B  &  2,999  &  100  &  71  &  12  &  17  &  85.5\%  &  2.3\%  \\
 Total &  7,598  &  252  &  166  &  43  &  43  &  79.4\%  &  2.1\%  \\
 \end{tabular}
 \caption[Czech MLFix manual evaluation]{
-Results of the manual evaluation of best MLFix configuration (Avg-CNG). Annotators
+Results of manual evaluation of the best MLFix configuration (Avg-CNG). Annotators
 A and B are distinguished by a suffix for each dataset.
 }
 \label{maneval-final}

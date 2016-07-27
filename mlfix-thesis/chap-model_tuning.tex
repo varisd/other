@@ -104,7 +104,7 @@ extracted training instances was described in the previous chapter.
 %For the model evaluation, we defined a baseline classifier, which assigned the 0 value
 %to each instance, therefore marking all of the MT output as already correct.
 The \pojem{baseline classifier} for error detection has already achieved accuracy larger than 95\%
-simply by marking all the instances as correct (class 0). However, we are more insterested
+simply by marking all the instances as correct (class 0). However, we are more interested
 in maximizing the precision and recall of the class 1 predictions.
 As we have already pointed out, this is caused by a fact that only a small portion of our
 training instances is being marked as incorrect by our heuristic.
@@ -112,17 +112,17 @@ This became a severe issue since most of the machine learning methods rely more 
 the process of searching for the best hypothesis, however, it is the minority
 class, that is our target during the error classification.
 
-There are several methods that can be used to solve this problem: e.g. creating syntetic
+There are several methods that can be used to solve this problem: e.g. creating synthetic
 training data by over-sampling instances with our minority class or under-sampling instances
 belonging to the dominating class \citep{Batista:2004:SBS:1007730.1007735}, weighting of the training instances or modification of the
-cost function \citep{Domingos:1999:MGM:312129.312220}. The manipulation with the training data (over and under-sampling) is the easieast method,
+cost function \citep{Domingos:1999:MGM:312129.312220}. The manipulation with the training data (over and under-sampling) is the easiest method,
 however,
 by modifying the distribution of the classed in training data the classifier performance
 can drop when applied to data with real-world distribution.
 Still, the idea of modifying the distribution of our training data is worth considering.
 
 We took the inspiration from the work of \citet{2013_Jia_CoNLL_GrammaticalError} describing the classification of grammar errors in the texts
-written by a human. They also aproach the task as a classification
+written by a human. They also approach the task as a classification
 problem. During training, they filter their training corpus to only around 5\% of
 sentences, because only those were ones that contained grammatical errors.
 
@@ -134,7 +134,7 @@ These sentences are still part of our original training data, introducing a sign
 instances belonging to the majority class.
 Therefore, to balance our data, we have decided to use only training
 instances extracted only from the sentences where at least one word was marked as incorrect. This way, we were
-able to increase the portion of the minority class up to 10\%. The traing data is still unbalanced
+able to increase the portion of the minority class up to 10\%. The training data is still unbalanced
 but to a much lower degree.
 
 This less unbalanced dataset can be used in two ways: we can simply treat
@@ -157,7 +157,7 @@ approach.
 There are many machine learning methods that support binary classification, so we have
 decided to only compare a limited subset of the available methods that are implemented
 in the Scikit-Learn framework. For each classifier we tried several hyperparameter
-settings to observe the changes in the classifier behaviour. However, we have made only
+settings to observe the changes in the classifier behavior. However, we have made only
 a rough examination of hyperparameter configuration due to the high number of tested
 methods. At this stage, the goal was not to train the best possible classifier but
 eliminate those, that are not suitable for the task.
@@ -166,7 +166,7 @@ We have measured the performance of the classifiers on several datasets:
 WMT10 data translated by CU-Bojar system \citep{biblio:BoJaProbesin2012},
 dataset extracted from the lingea logfiles (HimL) translated by simple moses SMT system \citep{Koehn:2007:MOS:1557769.1557821} and
 WMT16 newstest dataset translated by the Chimera system.
-For each dataset, only instances from the \equo{incorrect} sentences (sentences contaning at least one error)
+For each dataset, only instances from the \equo{incorrect} sentences (sentences containing at least one error)
 were used.
 %one translated with the experimental neural network machine translation system (NMT)
 %provided by the University of Edinburgh\todo{no ref, nezminovat?}.
@@ -193,14 +193,14 @@ WMT16  &  CU-Chimera  &  Depfix  &  42,021  &  1,897  \\
     Summary of the size of the training data extracted from various datasets translated by different SMT systems. We present
 size before and after (filt.) removing the instances extracted from the \equo{correct} sentences.
 \pojem{Origin} column indicates origin
-of the reference sentences: poste-edited (PE), standard reference (REF) or created by Depfix.
+of the reference sentences: post-edited (PE), standard reference (REF) or created by Depfix.
 }
 \label{wf-training-sum}
 \end{table*}
 
 
 For the purposes of this coarse evaluation, we used each dataset separately for both training
-and testing of the classifers, by performing one-against-the-rest 10-fold jack-knife sampling.
+and testing of the classifiers, by performing one-against-the-rest 10-fold jack-knife sampling.
 Therefore, the results presented in this stage should be considered only as an in-domain
 performance for a specific MT system.
 
@@ -259,7 +259,7 @@ the model tuning.
     Overview of the performance of the SVM with linear kernel when combined with various feature selection methods.
 We have tried several variations of the hyperparameters
 for each method. The horizontal line marks the best performance without
-a feature selection method. The methods are ordered from the best to the worst. Only top 50 results
+any feature selection method. The methods are ordered from the best to the worst. Only top 50 results
 are shown for each dataset.
 }
   \label{wf-sel}
@@ -308,7 +308,7 @@ WMT16  &  CU-Chimera  &  Depfix  &  0.50  &  0.52  &  0.51  \\
 \caption[Model summary (Czech) - error detection]{
     Summary of the in-domain performance of the trained error detection models. The evaluation was performed
 by a jack-knife one-vs-rest classification on each dataset. \pojem{Origin} column indicates origin
-of the reference sentences: poste-edited (PE), standard reference (REF) or created by Depfix.
+of the reference sentences: post-edited (PE), standard reference (REF) or created by Depfix.
 }
 \label{wf-summary}
 \end{table*}
@@ -318,7 +318,7 @@ of the reference sentences: poste-edited (PE), standard reference (REF) or creat
 
 The second classification task to predict correct morphological categories for
 the words that were marked as incorrect. Because we are using the Interset representation
-of the morphological features we have several possibilities, how to handle this task such
+of morphological features we have several possibilities how to handle this task such
 as:
 \begin{enumerate}
     \item predict each category separately,
@@ -327,16 +327,19 @@ as:
 \end{enumerate}
 
 With the first option, the biggest issue is determining the order in which the classifiers
-should be aplied. Additionally we have to decide if we also want to include the current node's morphological features
+should be applied. Additionally, we have to decide if we also want to include the current node's morphological features
 into our model's feature set or use the newly predicted ones. The second approach eliminates this problem by predicting the
-values simultaneously. However, this can quite easily expand the set of the predicted values,
-which usually leads to increase in data sparsity. This can be a big problem as we have
+values simultaneously.
+%However, this can quite easily expand the set of the predicted values,
+%which usually leads to increase in data sparsity.
+This, however considerably enlarges the set of predicted values increasing data sparsity.
+This can be a big problem as we have
 already shown that the amount of data available for the post-editing task (mainly the post-edited
-data) can be quite low. The third option combines the first two by training an estimator
+data) can be quite small. The third option combines the first two by training an estimator
 which handles multiple joint classification tasks, one for each morphological category. The
 Scikit-Learn toolkit provides several classifiers which support this option.
 
-Before jumping straight into developing our classifier, it is important to examine what morphological
+Before jumping straight into the developing of our classifier, it is important to examine what morphological
 changes are made in our training data, how frequently they are made and how can they affect the resulting
 surface form generation. For instance, we can predict new values of the \samp{punctype} category,
 but it is very unlikely that it will affect the resulting wordform of any of the words
@@ -347,12 +350,12 @@ can be pointless in another.
 For this reason, we have made a frequency analysis of the changes encountered
 in our data, shown in~\Fref{iset-barplot}. We can see that most of the time, only the grammatical
 case was modified (more than 50\% of the instances for the Depfix-based datasets and more than 40\% of the instances for
-the normal datasets). Other changes were a lot less frequent (less than 10\% of the modified instances).
+the genuine post-editing datasets). Other changes were a lot less frequent (less than 10\% of the modified instances).
 We have also checked, the amount of modifications made for individual general POS classes.
 \Tref{changes-pos} summarizes the modification frequencies for each
-POS class. As a conclusion, we have decided to focus on predicting the following categories: grammatical case, number, gender
+POS class. In conclusion, we have decided to focus on predicting the following categories: grammatical case, number, gender
 and animateness. These categories are relevant to the majority of the changed words, therefore, changes made by
-a classifer predicting these categories should be significant.
+a classifier predicting these categories should be noticeable.
 
 \begin{table*}[t]
 \centering
@@ -378,14 +381,16 @@ adv     &   9\%  \\
 
 We have decided to train four different types of model: one predicting case only (C), one predicting case and number (CN),
  one predicting case, number and gender (CNG) and one predicting case, number, gender and animateness (CNGA).
-We have used same datasets as in the previous task, however, this
+We have used the same datasets as in the previous task, however, this
 time we have extracted only feature vectors of the instances that were marked as incorrect in our training data. Since
 our predictors classify only the incorrect instances, training them on the whole dataset would only create
-unnecesary bias. On the other hand, this has made the training sets quite small (containing only a few hundreds of examples
+unnecessary bias. On the other hand, this has made the training sets quite small (containing only a few hundreds of examples
 at most). The summary of the training data is in~\Tref{cats-training-sum}. We have decided to train a separate classifier
 for each dataset instead of combining the data together, because we can simply combine the models instead (e.g. via majority
-vote, best prediction etc.). This allows us to evaluate a combined model on a test set of our choice simply by leaving
-out the model which was trained on that specific test set.
+vote, best prediction etc.). This allows us to evaluate the combined model on a test set of our choice.
+%simply by leaving
+%out the model which was trained on that specific test set.
+We can also leave out the model trained (using jack-knife) on that particular test set, to see the applicability across test sets or domains.
 
 \begin{table*}[t]
 \centering
@@ -399,12 +404,12 @@ HimL  &   Moses  &  PE  & 338  \\
 WMT16  &  CU-Chimera  &  REF  &  722  \\
 WMT10  &  CU-Bojar  &  Depfix  &  210  \\
 HimL  &  Moses  &  Depfix  &  72  \\
-WMT16  &  CU-Chimare  &  Depfix  &  99  \\
+WMT16  &  CU-Chimera  &  Depfix  &  99  \\
 \end{tabular}
 \caption[Summary of the extracted Czech training data for morphological prediction]{
     Summary of the size of the training data extracted from various datasets translated by different SMT systems.
 	\pojem{Origin} column indicates origin
-	of the reference sentences: poste-edited (PE), standard reference (REF) or created by Depfix.
+	of the reference sentences: post-edited (PE), standard reference (REF) or created by Depfix from the given MT output.
 }
 \label{cats-training-sum}
 \end{table*}
@@ -450,27 +455,27 @@ are shown for each dataset.
 We have decided to perform additional feature selection with models trained on the standard HimL dataset
 and WMT10 dataset because there is still a reasonable room for an improvement. Again, we have tried two initial feature
 sets, one using the source side features and one without them. We have not noticed any significant difference in performance
-between models trained on these two initial feature sets so we decided to use the larger one and leave
-the feature selection to the separate model. Additionally, due probably to the nature of the classifier, we have noticed
-another slight improvement by adding the \pojem{source lemma} (both of the aligned node and its parent) feature, so we have also
-included them to the initial features.\footnote{We have not included the \pojem{MT lemma} feature, because we wanted to
+between the models trained on these two initial feature sets so we decided to use the larger one and leave
+the feature selection to the automatic feature selection method. Additionally, probably due to the nature of the classifier, we have noticed
+another slight improvement by adding the \pojem{source lemma} (both of the aligned node and its parent) features, so we have also
+included them to the initial feature set.\footnote{We have not included the \pojem{MT lemma} feature, because we wanted to
 try using models trained on Czech for German post-editing and this feature is too language-specific for that purpose.}
 
 We have compared several methods of feature selection: KBest selection
 (with chi-squared scoring function), selection based on lasso regularization and selection through
 models (svm, random forest). Again, we have done a rough comparison of these methods by trying out
-several hyperparameter configurations. We tested them on a model with a fixed parameters. The result summary
-is in~\Fref{cats-sel}. We can see that regarding HimL dataset, the feature selection did not have
-any positive influence on the resulting model. On the other hand, we have decided to use the SVM-based
+several hyperparameter configurations. We tested them on a model with fixed parameters. The result summary
+is in~\Fref{cats-sel}. We can see that regarding HimL dataset, feature selection did not have
+any positive effect on the resulting performance. On the other hand, we have decided to use the SVM-based
 feature selection for the WMT10 dataset model training.
 
 \begin{figure}
 \centering
   \includegraphics[scale=0.7]{cat-sel}
   \caption[Feature selection method comparison - Morphological prediction]{
-    Overview of the random forest performance when combined with various feature selection methods.
-The methods are ordered from the best to the worst. The horizontal line marks the best performance without
-a feature selection method. Only top 50 results are shown for each dataset.
+    Overview of random forest performance when combined with various feature selection methods.
+The methods are ordered from the best to the worst. The horizontal line indicates the best performance without
+any feature selection method. Only top 50 results are shown for both examined datasets.
 }
   \label{cats-sel}
 \end{figure}
@@ -481,7 +486,7 @@ a feature selection method. Only top 50 results are shown for each dataset.
 \subsection{Model Summary}
 
 In the end, we have trained six different models, one for the each dataset presented in the rough comparison.
-Aside from the case clasiffier, we have also compared performance of the chosen multitask classifiers:
+Aside from the case classifier, we have also compared performance of the chosen multitask classifiers:
 the case-number (CN), the case-number-gender (CNG) and the case-number-gender-animateness (CNGA)
 classifier. These classifiers were trained using the same ML methods, each one was tuned separately.
 The summary of the final in-domain performance is in~\Tref{cats-summary}.
@@ -489,7 +494,7 @@ The summary of the final in-domain performance is in~\Tref{cats-summary}.
 We can see that by including additional target for the multitask classification the accuracy of the trained
 model becomes naturally lower. However, we must take into account that we have only classified the predicted
 values as correct or incorrect and we have not distinguished partially correct predictions. Brief overview
-of the categories predicted by the CNGA classifer has shown us that usually a predictor misclassifies only
+of the categories predicted by the CNGA classifier has shown us that usually a predictor misclassifies only
 one or two of the target categories. Another thing to keep in mind is the fact, that even though the predicted
 categories might not be equal to the gold standard, the generated surface form might still match the reference form
 due to the morphological ambiguities of the language. For these reasons, we decided to use all these models during the system evaluation.
@@ -519,13 +524,13 @@ WMT16  &  CU-Chimera  &  Depfix  &  93\% (54\%)  &  64\% (16\%)  &  56\% (11\%) 
 by jack-knife one-vs-rest classification of the each dataset. Performance of the baseline (Base)
 classifier is presented for comparison.
 \pojem{Origin} column indicates origin
-of the reference sentences: poste-edited (PE), standard reference (REF) or created by Depfix.
+of the reference sentences: post-edited (PE), standard reference (REF) or created by Depfix.
 }
 \label{cats-summary}
 \end{table*}
 
 %\todo{tohle az do final evaluace?}
-%Since the domains of the datasets differ to a various degree, we have decided to combine the models trained
+%Since the domains of the datasets differ to a various degrees, we have decided to combine the models trained
 %on the different datasets, however, we do not combine different types of classifier. This combined model
 %compares result of each separate classifier (with the prediction probability) and picks the most probable choice.
 
