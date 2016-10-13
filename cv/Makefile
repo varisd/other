@@ -19,5 +19,5 @@ LATEX=pdflatex
 	$(LATEX) $<
 
 clean:
-	rm -f {cv_7,article,abstract,paper}.{log,aux,bbl,blg,pdf}
+	rm -f {cv_cs,cv_en}.{log,aux,bbl,blg,pdf,out}
 

@@ -23,7 +23,7 @@
 %	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
 %----------------------------------------------------------------------------------------
 
-\documentclass[11pt,a4paper,times]{moderncv} % Font sizes: 10, 11, or 12; paper sizes: a4paper, letterpaper, a5paper, legalpaper, executivepaper or landscape; font families: sans or roman
+\documentclass[10pt,a4paper,times]{moderncv} % Font sizes: 10, 11, or 12; paper sizes: a4paper, letterpaper, a5paper, legalpaper, executivepaper or landscape; font families: sans or roman
 
 \moderncvstyle{classic} % CV theme - options include: 'casual' (default), 'classic', 'oldstyle' and 'banking'
 \moderncvcolor{blue} % CV color - options include: 'blue' (default), 'orange', 'green', 'red', 'purple', 'grey' and 'black'
@@ -39,6 +39,8 @@
 %\usepackage{obo-cite}
 \usepackage[numbers]{natbib}
 %\usepackage{cite}
+
+\def\equo#1{``#1''}
 
 %----------------------------------------------------------------------------------------
 %	NAME AND CONTACT INFORMATION SECTION
@@ -70,8 +72,9 @@
 \section{Education}
 
 \cventry{}{Charles University in Prague}{Czech Republic}{Faculty of Mathematics and Physics}{Institute of Formal and Applied Linguistics}{}
-\cventry{2014--2016}{Master Studies}{computational linguistics}{}{}{}
-\cventry{2010--2014}{Bachelor Studies}{computer science (programming)}{Thesis "Japanese-Czech Machine Translation"\cite{biblio:varis2014}}{}{}
+\cventry{2016--now}{Doctoral Studies}{computational linguistics}{Methods of automatic post-editing of machine translation output}{}{}
+\cventry{2014--2016}{Master Studies}{computational linguistics}{Thesis \equo{Automatic Error Correction of Machine Translation Output}\cite{biblio:varis2016dipl}}{}{}
+\cventry{2010--2014}{Bachelor Studies}{computer science (programming)}{Thesis \equo{Japanese-Czech Machine Translation}\cite{biblio:varis2014bak}}{}{}
 
 %----------------------------------------------------------------------------------------
 %	WORK EXPERIENCE SECTION
@@ -79,7 +82,7 @@
 
 \section{Work Experience}
 
-\cventry{2016-now}{Software Engineer}{Charles univerzity in Prague, Czech Republic}{}{}{Main developer of automated post-editing system for machine translation output processing.
+\cventry{2016--now}{Software Engineer}{Charles univerzity in Prague, Czech Republic}{}{}{Main developer of automated post-editing system for machine translation output processing.
 The results are used in the "Health In My Language" project, aimed at adapting automatic machine translation to the domain of public health information.}
 \cventry{2015}{Contractor in the Solaris System Test team}{Oracle Czech (Prague)}{}{}{
 \begin{itemize}
@@ -98,10 +101,10 @@ Treex is a modular natural-language processing framework written in Perl.}
 %   RESEARCH PROJECTS SECTION
 %----------------------------------------------------------------------------------------
 
-\section{Research Projects}
+%\section{Research Projects}
 
-\cventry{2016-now}{Health in my Language}{Automatic machine translation adapted to the public health information domain}{}{}{}
-\cventry{2016-now}{MLFix}{Automatic statistical machine translation post-editing tool}{}{}{}
+%\cventry{2016-now}{Health in my Language}{Automatic machine translation adapted to the public health information domain}{}{}{}
+%\cventry{2016-now}{MLFix}{Automatic statistical machine translation post-editing tool}{}{}{}
 
 
 %----------------------------------------------------------------------------------------
@@ -110,8 +113,8 @@ Treex is a modular natural-language processing framework written in Perl.}
 
 \section{Programming Skills}
 
-\cvitem{Fluent}{Perl, Python, Bash, Subversion, vim}
-\cvitem{Operational}{C++, Unix, LaTeX, XML}
+\cvitem{Fluent}{Perl, Python, C++, Bash, Subversion, vim}
+\cvitem{Operational}{Unix, LaTeX, XML, Docker}
 \cvitem{Basic}{C\#, Java, SQL, Prolog, Haskell, Tcl, web technologies (HTML, CSS, PHP, JS)}
 
 %----------------------------------------------------------------------------------------
@@ -145,9 +148,8 @@ Treex is a modular natural-language processing framework written in Perl.}
 %\section{Publications}
 
 \renewcommand{\refname}{Publications}
-\nocite{biblio:varis2014,biblio:VaBoJaponskoceskystrojovy2014}
 \bibliographystyle{myplainnat}
-\bibliography{varis}
+\bibliography{bib-varis}
 
 %----------------------------------------------------------------------------------------
 %	COVER LETTER
