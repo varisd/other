@@ -1,2 +1,1 @@
-# school
-Assignments, etc.
+# other stuff & tiny projects
