@@ -1,1 +1,1 @@
-# other stuff & tiny projects
+other stuff & tiny projects
